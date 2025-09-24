@@ -169,7 +169,7 @@
     <div class="container">
         <!-- Pet List -->
         <div class="box">
-            <h2>Pet List</h2>
+            <h2>Pet Lists</h2>
             <table id="petTable"></table>
             <div class="total" id="totalAmount">Total: $0.00</div>
         </div>
