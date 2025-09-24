@@ -1,31 +1,3 @@
-<?php
-// Include database connection
-require_once 'db.php';
-
-if ($_POST) {
-    $id = $_POST['order_id'];
-    $date = $_POST['date'];
-    $customer = $_POST['customer'];
-    $gmail = $_POST['gmail'];
-    $tel_number = $_POST['tel_number'];
-    $animal = $_POST['animal'];
-    $total = $_POST['total'];
-    $address = $_POST['address']; // ✅ ADDRESS
-    $payment_status = 'paid';
-    $order_status = 'processing';
-    
-    $stmt = $conn->prepare("INSERT INTO orders (id, date, customer, gmail, tel_number, address, animal, total, payment_status, order_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssdss", $id, $date, $customer, $gmail, $tel_number, $address, $animal, $total, $payment_status, $order_status);
-    
-    if ($stmt->execute()) {
-        echo "<script>alert('Order saved successfully!'); window.location.href = '<?= base_url('order_transactions') ?>';</script>";
-    } else {
-        echo "<script>alert('Error saving order: " . $conn->error . "');</script>";
-    }
-    
-    $stmt->close();
-}
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -204,12 +176,13 @@ if ($_POST) {
 
         <!-- Payment Info -->
         <div class="box">
-            <form id="orderForm" method="POST" action="">
+            <form id="orderForm" method="POST" action="<?= base_url('order') ?>">
                 <h2>Payment Information</h2>
                 <input type="hidden" name="order_id" id="orderId">
                 <input type="hidden" name="animal" id="animalData">
                 <input type="hidden" name="total" id="totalData">
                 <input type="hidden" name="customer" id="customerName">
+                <input type="hidden" name="payment_method" id="paymentMethod">
                 <input type="text" name="first_name" class="half-input" placeholder="First Name" required>
                 <input type="text" name="last_name" class="half-input" placeholder="Last Name" required>
                 <input type="text" name="tel_number" class="half-input" placeholder="Phone Number" required>
@@ -244,8 +217,9 @@ if ($_POST) {
 
             orderList.forEach((item, index) => {
                 const row = document.createElement("tr");
+                const animalType = item.type ? `(${item.type})` : '';
                 row.innerHTML = `
-                    <td>${item.name}</td>
+                    <td>${item.name} ${animalType}</td>
                     <td>${item.price}</td>
                     <td><button class="delete-btn" onclick="deleteItem(${index})">Delete</button></td>
                 `;
@@ -304,11 +278,13 @@ if ($_POST) {
 
             const orderNumber = "FP" + Math.floor(100000 + Math.random() * 900000);
             const animalData = JSON.stringify(pets);
+            const paymentMethod = document.querySelector(".payment-methods button.active")?.innerText || "COD";
 
             document.getElementById('orderId').value = orderNumber;
             document.getElementById('customerName').value = fullName;
             document.getElementById('animalData').value = animalData;
             document.getElementById('totalData').value = total.toFixed(2);
+            document.getElementById('paymentMethod').value = paymentMethod;
 
             const orderData = {
                 orderNumber,

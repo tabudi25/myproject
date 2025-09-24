@@ -1,8 +1,3 @@
-<?php
-// Include database connection
-require_once 'db.php';
-?>
-
 <!DOCTYPE html>
 <html lang="en">
   <head>

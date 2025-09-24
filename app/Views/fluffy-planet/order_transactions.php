@@ -1,8 +1,3 @@
-<?php
-// Include database connection
-require_once 'db.php';
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -106,6 +101,39 @@ require_once 'db.php';
             padding: 12px 25px;
             cursor: pointer;
         }
+
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status.processing {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status.completed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .order-card {
+            background-color: #f9f9f9;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 
@@ -125,119 +153,94 @@ require_once 'db.php';
     <div class="container">
         <!-- Transaction Summary -->
         <div class="box">
-            <h2>Order Transaction</h2>
-            <table>
-                <tr>
-                    <td>Order Number:</td>
-                    <td id="orderNumber">00001</td>
-                </tr>
-                <tr>
-                    <td>Customer:</td>
-                    <td id="customerName">---</td>
-                </tr>
-                <tr>
-                    <td>Tel Number:</td>
-                    <td id="customerTel">---</td>
-                </tr>
-                <tr>
-                    <td>Email:</td>
-                    <td id="customerEmail">---</td>
-                </tr>
-                <tr>
-                    <td>Address:</td>
-                    <td id="customerAddress">---</td>
-                </tr>
-                <tr>
-                    <td>Date:</td>
-                    <td id="orderDate">---</td>
-                </tr>
-                <tr>
-                    <td>Payment:</td>
-                    <td id="paymentMethod">---</td>
-                </tr>
-                <tr>
-                    <td>Total:</td>
-                    <td id="orderTotal">$0.00</td>
-                </tr>
-            </table>
-            <!-- Status: Only show if orderData exists -->
-            <div class="total" id="orderStatus" style="display: none;">Status: Processing</div>
-            
+            <h2>Order Transactions</h2>
+            <?php if (isset($orders) && !empty($orders)): ?>
+                <?php foreach ($orders as $order): ?>
+                    <div class="order-card" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                        <h3>Order #<?= htmlspecialchars($order['id']) ?></h3>
+                        <table style="width: 100%;">
+                            <tr>
+                                <td><strong>Customer:</strong></td>
+                                <td><?= htmlspecialchars($order['customer']) ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td><?= htmlspecialchars($order['gmail']) ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phone:</strong></td>
+                                <td><?= htmlspecialchars($order['tel_number']) ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Address:</strong></td>
+                                <td><?= htmlspecialchars($order['address']) ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date:</strong></td>
+                                <td><?= htmlspecialchars($order['date']) ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Animals:</strong></td>
+                                <td>
+                                    <?php
+                                    $animals = json_decode($order['animal'], true);
+                                    if (json_last_error() === JSON_ERROR_NONE && is_array($animals)) {
+                                        foreach ($animals as $animal) {
+                                            $name = $animal['name'] ?? 'Unknown';
+                                            $price = $animal['price'] ?? 'N/A';
+                                            $qty = $animal['qty'] ?? 1;
+                                            $type = $animal['type'] ?? 'Unknown';
+                                            echo '<strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($name) . ' - ' . htmlspecialchars($price) . ' (x' . htmlspecialchars($qty) . ')<br>';
+                                        }
+                                    } else {
+                                        echo htmlspecialchars($order['animal']);
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Payment Method:</strong></td>
+                                <td><?= htmlspecialchars($order['payment_method'] ?? 'COD') ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total:</strong></td>
+                                <td>$<?= number_format($order['total'], 2) ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td>
+                                    <span class="status <?= strtolower($order['order_status']) ?>"><?= htmlspecialchars($order['order_status']) ?></span>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <?php if ($order['order_status'] === 'Processing'): ?>
+                            <form method="POST" action="<?= base_url('confirm_order/' . $order['id']) ?>" style="margin-top: 15px;">
+                                <button type="submit" class="download-btn" onclick="return confirm('Are you sure you want to mark this order as completed?')">
+                                    Confirm Order
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <div style="margin-top: 15px; color: green; font-weight: bold;">✅ Order Completed</div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p style="text-align: center; color: #777;">No orders found.</p>
+            <?php endif; ?>
         </div>
-
-        <!-- Confirm Button -->
-        <button class="download-btn" id="confirmBtn">Confirm</button>
         
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const orderData = JSON.parse(localStorage.getItem("orderData"));
-
-            function formatOrderNumber(num) {
-                return num.toString().padStart(5, '0');
-            }
-
-            let lastOrderNumber = parseInt(localStorage.getItem("lastOrderNumber") || "0", 10);
-            let newOrderNumber = lastOrderNumber + 1;
-            localStorage.setItem("lastOrderNumber", newOrderNumber);
-
-            const formattedOrderNumber = formatOrderNumber(newOrderNumber);
-
-            document.getElementById("orderNumber").textContent = formattedOrderNumber;
-            if (orderData) {
-                document.getElementById("customerName").textContent = orderData.name || "---";
-                document.getElementById("customerTel").textContent = orderData.tel || "---";
-                document.getElementById("customerEmail").textContent = orderData.email || "---";
-                document.getElementById("customerAddress").textContent = orderData.address || "---"; // ✅ ADDRESS
-                document.getElementById("orderDate").textContent = orderData.date || "---";
-                document.getElementById("paymentMethod").textContent = orderData.payment || "---";
-                document.getElementById("orderTotal").textContent = orderData.total || "$0.00";
-
-                // Show status only if orderData exists
-                document.getElementById("orderStatus").style.display = "block";
-            }
-
-            document.getElementById("confirmBtn").addEventListener("click", function () {
-                if (!orderData) {
-                    alert("No order data to confirm!");
-                    return;
-                }
-
-                const newHistory = {
-                    orderNumber: formattedOrderNumber,
-                    date: orderData.date || new Date().toLocaleDateString(),
-                    customer: orderData.name || "Guest",
-                    telNumber: orderData.tel || "---",
-                    gmail: orderData.email || "---",
-                    address: orderData.address || "---", // ✅ save address
-                    items: orderData.items || "1 Item",
-                    total: orderData.total || "$0.00",
-                    payment: orderData.payment || "---",
-                    paymentStatus: "Paid",
-                    orderStatus: "Processing"
-                };
-
-                let history = JSON.parse(localStorage.getItem("orderHistory")) || [];
-                history.push(newHistory);
-                localStorage.setItem("orderHistory", JSON.stringify(history));
-
-                localStorage.removeItem("orderData");
-                document.getElementById("customerName").textContent = "---";
-                document.getElementById("customerTel").textContent = "---";
-                document.getElementById("customerEmail").textContent = "---";
-                document.getElementById("customerAddress").textContent = "---"; // reset address
-                document.getElementById("orderDate").textContent = "---";
-                document.getElementById("paymentMethod").textContent = "---";
-                document.getElementById("orderTotal").textContent = "$0.00";
-
-                // Hide status after confirm
-                document.getElementById("orderStatus").style.display = "none";
-
-                alert("Order confirmed and added to history!");
-                window.location.href = "<?= base_url('history') ?>";
-            });
-        });
+        // Show success/error messages if any
+        <?php if (session()->getFlashdata('success')): ?>
+            alert("<?= session()->getFlashdata('success') ?>");
+        <?php endif; ?>
+        
+        <?php if (session()->getFlashdata('error')): ?>
+            alert("<?= session()->getFlashdata('error') ?>");
+        <?php endif; ?>
     </script>
 </body>
 

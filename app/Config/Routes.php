@@ -17,8 +17,8 @@ $routes->get('/order', 'FluffyController::order');
 $routes->get('/order_transactions', 'FluffyController::order_transactions');
 $routes->get('/history', 'FluffyController::history');
 $routes->get('/petshop', 'FluffyController::petshop');
-$routes->get('/save_order', 'FluffyController::save_order');
 $routes->post('/order', 'FluffyController::save_order'); 
+$routes->post('confirm_order/(:num)', 'FluffyController::confirm_order/$1');
 $routes->get('view_order/(:num)', 'Order::view_order/$1');
 
 

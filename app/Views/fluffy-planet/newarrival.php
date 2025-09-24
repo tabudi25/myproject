@@ -1,8 +1,3 @@
-<?php
-// Include database connection
-require_once 'db.php';
-?>
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -271,13 +266,20 @@ require_once 'db.php';
           button.onclick = function (e) {
             e.preventDefault();
             const card = this.closest(".card");
+            const grid = card.closest(".grid");
+            const animalType = grid.getAttribute("data-category");
             const productName = card.querySelector("p").childNodes[0].textContent.trim();
             const productPrice = card.querySelector(".prices").textContent.trim();
 
-            selectedItem = { name: productName, price: productPrice, qty: 1 };
+            selectedItem = { 
+              name: productName, 
+              price: productPrice, 
+              qty: 1,
+              type: animalType 
+            };
 
             document.getElementById("confirmText").innerText =
-              `Are you sure you want to buy ${productName} for ${productPrice}?`;
+              `Are you sure you want to buy ${productName} (${animalType}) for ${productPrice}?`;
             document.getElementById("confirmModal").style.display = "flex";
           };
         });

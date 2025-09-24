@@ -1,25 +1,3 @@
-<?php
-// Include database connection
-require_once 'db.php';
-
-// --- Handle AJAX Delete request ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
-    $id = intval($_POST['delete_id']);
-    $sql = "DELETE FROM orders WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo json_encode(["success" => true]);
-    } else {
-        echo json_encode(["success" => false, "error" => $conn->error]);
-    }
-    exit; // stop rendering HTML for AJAX
-}
-
-// Fetch all orders from database (✅ includes address)
-$sql = "SELECT id, date, customer, gmail, tel_number, address, animal, total, payment_status, order_status 
-        FROM orders 
-        ORDER BY date DESC, id DESC";
-$result = $conn->query($sql);
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -205,8 +183,8 @@ $result = $conn->query($sql);
           </tr>
         </thead>
         <tbody>
-          <?php if ($result && $result->num_rows > 0): ?>
-            <?php while ($order = $result->fetch_assoc()): ?>
+          <?php if (isset($orders) && !empty($orders)): ?>
+            <?php foreach ($orders as $order): ?>
               <tr id="row-<?= $order['id']; ?>">
                 <td><?= htmlspecialchars($order['id']); ?></td>
                 <td><?= htmlspecialchars($order['date']); ?></td>
@@ -225,9 +203,10 @@ $result = $conn->query($sql);
                           $name  = $animal['name'] ?? 'Unknown';
                           $price = $animal['price'] ?? 'N/A';
                           $qty   = $animal['qty'] ?? 1;
+                          $type  = $animal['type'] ?? 'Unknown';
 
-                          // Display in format: Pookie - $100.0 (x1)
-                          $animalList[] = htmlspecialchars($name) . ' - ' . htmlspecialchars($price) . ' (x' . htmlspecialchars($qty) . ')';
+                          // Display in format: Cat: Pookie - $100.0 (x1)
+                          $animalList[] = '<strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($name) . ' - ' . htmlspecialchars($price) . ' (x' . htmlspecialchars($qty) . ')';
                       }
                       echo implode('<br>', $animalList);
                   } else {
@@ -245,7 +224,7 @@ $result = $conn->query($sql);
                   </a>
                 </td>
               </tr>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
           <?php else: ?>
             <tr>
               <td colspan="11" style="text-align:center; color:#777;">No orders found in database</td>

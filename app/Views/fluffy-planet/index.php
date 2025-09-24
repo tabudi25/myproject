@@ -1,9 +1,3 @@
-<?php
-// Include database connection
-require_once 'db.php';
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -315,14 +309,6 @@ require_once 'db.php';
             <h4>Developed by Jun Alexes Orao (2025)</h4>
         </div>
     </footer>
-<?php 
-    // Database connection is now available as $conn
-    // You can use it for any database operations
-
-    // Print connection status to verify database is connected
-    if ($conn) {}
-
-?>
 </body>
 
 </html>

@@ -34,7 +34,7 @@ class FluffyController extends BaseController
     {
         $orderModel = new OrderModel();
         $data['orders'] = $orderModel->where('order_status','Completed')
-                                      ->orderBy('id','DESC')
+                                      ->orderBy('id','ASC')
                                       ->findAll();
         return view('fluffy-planet/history', $data);
     }
@@ -44,22 +44,36 @@ class FluffyController extends BaseController
     {
         $orderModel = new OrderModel();
 
+        // Get the form data
+        $firstName = $this->request->getPost('first_name');
+        $lastName = $this->request->getPost('last_name');
+        $fullName = trim($firstName . ' ' . $lastName);
+        
+        // Get payment method from the active button (this would need to be added to the form)
+        $paymentMethod = $this->request->getPost('payment_method') ?: 'COD';
+        
         $data = [
-            'customer'       => $this->request->getPost('customer'),
+            'customer'       => $fullName,  // Combined first and last name
             'gmail'          => $this->request->getPost('gmail'),
             'tel_number'     => $this->request->getPost('tel_number'),
-            'animal'         => $this->request->getPost('animal'),
+            'animal'         => $this->request->getPost('animal'),  // JSON string of pets
             'address'        => $this->request->getPost('address'),
-            'total'          => $this->request->getPost('total'),
-            'payment_status' => 'Paid',         // bag-o pa, unpaid
-            'order_status'   => 'Processing',     // default Processing
-            'date'           => date('Y-m-d H:i:s')
+            'total'          => floatval($this->request->getPost('total')),
+            'payment_method' => $paymentMethod,
+            'payment_status' => 'Paid',         
+            'order_status'   => 'Processing',   
+            'date'           => $this->request->getPost('date') ?: date('Y-m-d H:i:s')
         ];
 
-        $orderModel->insert($data);
-
-        return redirect()->to('/order_transactions')
-                         ->with('success', 'Order saved as Processing.');
+        // Insert the order
+        if ($orderModel->insert($data)) {
+            return redirect()->to('/order_transactions')
+                             ->with('success', 'Order saved successfully!');
+        } else {
+            return redirect()->back()
+                             ->with('error', 'Failed to save order. Please try again.')
+                             ->withInput();
+        }
     }
 
     // --- Confirm order: update status to Completed ---
@@ -79,11 +93,11 @@ class FluffyController extends BaseController
         }
 
         $orderModel->update($id, [
-            'payment_status' => 'paid',
+            'payment_status' => 'Paid',
             'order_status'   => 'Completed'
         ]);
 
         return redirect()->to('/order_transactions')
-                         ->with('success','Order confirmed as Completed!');
+                         ->with('success','Order #' . $id . ' has been marked as Completed!');
     }
 }
