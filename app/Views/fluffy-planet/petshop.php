@@ -17,7 +17,9 @@
               <a href="<?= base_url('order') ?>">Order</a>
               <a href="<?= base_url('order_transactions') ?>">Order Transaction</a>
               <a href="<?= base_url('history') ?>">History</a>
-              
+              <?php if (session()->get('isLoggedIn')): ?>
+                <a href="<?= base_url('logout') ?>" style="color: #ff6b6b;">Logout</a>
+              <?php endif; ?>
         </nav>
         <div class="search-box">
           <input type="text" placeholder="Search a Breed..." /><button class="search-btn">Search</button>

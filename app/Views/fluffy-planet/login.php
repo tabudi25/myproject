@@ -52,7 +52,14 @@
   <h2>Login</h2>
 
   <?php if(session()->getFlashdata('msg')): ?>
-    <p style="color:red"><?= session()->getFlashdata('msg') ?></p>
+    <?php 
+    $msg = session()->getFlashdata('msg');
+    $isSuccess = strpos($msg, 'Account created') !== false || strpos($msg, 'Welcome') !== false;
+    $isError = strpos($msg, 'Please login') !== false || strpos($msg, 'Wrong') !== false || strpos($msg, 'not found') !== false;
+    ?>
+    <p style="<?= $isSuccess ? 'color: green; background: #e6ffe6; border: 1px solid #99ff99;' : ($isError ? 'color: red; background: #ffe6e6; border: 1px solid #ff9999;' : 'color: orange; background: #fff3e6; border: 1px solid #ffcc99;') ?> padding: 10px; border-radius: 5px;">
+      <?= $msg ?>
+    </p>
   <?php endif; ?>
 
   <form action="<?= base_url('loginAuth') ?>" method="post">

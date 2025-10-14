@@ -30,7 +30,20 @@ class Auth extends BaseController
                     'isLoggedIn' => true
                 ]);
 
-                return redirect()->to('petshop'); // redirect to your page
+                // Check if user is admin and redirect accordingly
+                if ($user['role'] === 'admin') {
+                    // Clear any redirect URL for admin users
+                    $session->remove('redirect_url');
+                    return redirect()->to('/fluffy-admin')->with('msg', 'Welcome to Admin Dashboard!');
+                } else {
+                    // Get the redirect URL from session, or default to petshop
+                    $redirectUrl = $session->get('redirect_url') ?: '/petshop';
+                    
+                    // Clear the redirect URL from session
+                    $session->remove('redirect_url');
+
+                    return redirect()->to($redirectUrl)->with('msg', 'Welcome back!');
+                }
             } else {
                 return redirect()->back()->with('msg', 'Wrong password');
             }
