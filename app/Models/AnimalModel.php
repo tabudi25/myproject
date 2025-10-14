@@ -12,6 +12,7 @@ class AnimalModel extends Model
         'name', 
         'category', 
         'age', 
+        'gender',
         'price', 
         'description', 
         'image', 
@@ -27,6 +28,7 @@ class AnimalModel extends Model
         'name'     => 'required|min_length[2]|max_length[255]',
         'category' => 'required|in_list[cat,dog,bird,hamster,rabbit,fish]',
         'age'      => 'required|integer|greater_than[0]',
+        'gender'   => 'required|in_list[male,female]',
         'price'    => 'required|decimal|greater_than[0]',
         'description' => 'max_length[1000]',
         'status'   => 'in_list[available,sold,reserved]',
@@ -47,6 +49,10 @@ class AnimalModel extends Model
             'required' => 'Age is required',
             'integer' => 'Age must be a valid number',
             'greater_than' => 'Age must be greater than 0'
+        ],
+        'gender' => [
+            'required' => 'Gender is required',
+            'in_list' => 'Gender must be either male or female'
         ],
         'price' => [
             'required' => 'Price is required',

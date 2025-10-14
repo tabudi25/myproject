@@ -48,6 +48,12 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->post('/admin/animals', 'AdminController::createAnimal');
     $routes->put('/admin/animals/(:num)', 'AdminController::updateAnimal/$1');
     $routes->delete('/admin/animals/(:num)', 'AdminController::deleteAnimal/$1');
+    
+    // User management routes (admin only)
+    $routes->get('/admin/users', 'AdminController::getUsers');
+    $routes->post('/admin/users', 'AdminController::createUser');
+    $routes->put('/admin/users/(:num)', 'AdminController::updateUser/$1');
+    $routes->delete('/admin/users/(:num)', 'AdminController::deleteUser/$1');
 });
 
 // your petshop homepage route

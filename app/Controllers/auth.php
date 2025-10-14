@@ -68,7 +68,7 @@ class Auth extends BaseController
             'name'     => 'required|min_length[2]|max_length[255]',
             'email'    => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[6]',
-            'role'     => 'required|in_list[customer,admin,staff]'
+            'role'     => 'required|in_list[customer]'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
@@ -86,11 +86,16 @@ class Auth extends BaseController
             return redirect()->back()->withInput()->with('msg', 'Name cannot be empty');
         }
 
+        // Ensure role is always customer for public signup
+        if ($role !== 'customer') {
+            return redirect()->back()->withInput()->with('msg', 'Invalid role. Only customer registration is allowed.');
+        }
+
         $data = [
             'name'     => $name,
             'email'    => $email,
             'password' => password_hash($password, PASSWORD_DEFAULT),
-            'role'     => $role
+            'role'     => 'customer'  // Force customer role
         ];
 
         try {

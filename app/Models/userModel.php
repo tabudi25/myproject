@@ -11,12 +11,20 @@ class UserModel extends Model
     protected $allowedFields = ['name', 'email', 'password', 'role'];
     protected $useTimestamps = false;
     
-    // Validation rules
+    // Validation rules (default for public signup - customer only)
     protected $validationRules = [
         'name'     => 'required|min_length[2]|max_length[255]',
         'email'    => 'required|valid_email|is_unique[users.email]',
         'password' => 'required|min_length[6]',
         'role'     => 'required|in_list[customer,admin,staff]'
+    ];
+
+    // Validation rules for admin user creation
+    protected $adminValidationRules = [
+        'name'     => 'required|min_length[2]|max_length[255]',
+        'email'    => 'required|valid_email|is_unique[users.email]',
+        'password' => 'required|min_length[6]',
+        'role'     => 'required|in_list[admin,staff]'
     ];
     
     protected $validationMessages = [

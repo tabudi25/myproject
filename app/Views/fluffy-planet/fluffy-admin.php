@@ -413,8 +413,8 @@
             <ul class="nav-menu">
                 <li><a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a></li>
                 <li><a href="#animals" class="nav-link" data-section="animals">Manage Animals</a></li>
+                <li><a href="#users" class="nav-link" data-section="users">Manage Users</a></li>
                 <li><a href="#orders" class="nav-link" data-section="orders">Orders</a></li>
-                <li><a href="#users" class="nav-link" data-section="users">Users</a></li>
             </ul>
 
             <div class="user-info">
@@ -454,8 +454,8 @@
                         <p>Total Orders</p>
                     </div>
                     <div class="stat-card">
-                        <h3 id="total-revenue">₱0</h3>
-                        <p>Total Revenue</p>
+                        <h3 id="total-users">0</h3>
+                        <p>Total Users</p>
                     </div>
                 </div>
             </div>
@@ -479,17 +479,41 @@
                 </div>
             </div>
 
+            <!-- Users Management Section -->
+            <div id="users-section" class="content-section" style="display: none;">
+                <div class="animals-section">
+                    <div class="section-header">
+                        <h2>Manage Users</h2>
+                        <button class="add-animal-btn" onclick="openUserModal()">Add New User</button>
+                    </div>
+
+                    <div class="loading" id="users-loading">
+                        <div class="spinner"></div>
+                        <p>Loading users...</p>
+                    </div>
+
+                    <div style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: #f8f9fa;">
+                                <tr>
+                                    <th style="padding: 15px; text-align: left; font-weight: 600;">Name</th>
+                                    <th style="padding: 15px; text-align: left; font-weight: 600;">Email</th>
+                                    <th style="padding: 15px; text-align: left; font-weight: 600;">Role</th>
+                                    <th style="padding: 15px; text-align: left; font-weight: 600;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Other sections (placeholder) -->
             <div id="orders-section" class="content-section" style="display: none;">
                 <div class="header">
                     <h1>Orders Management</h1>
-                    <p>Coming soon...</p>
-                </div>
-            </div>
-
-            <div id="users-section" class="content-section" style="display: none;">
-                <div class="header">
-                    <h1>Users Management</h1>
                     <p>Coming soon...</p>
                 </div>
             </div>
@@ -531,6 +555,15 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="animal-gender">Gender *</label>
+                    <select id="animal-gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="male">♂️ Male</option>
+                        <option value="female">♀️ Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="animal-price">Price (₱) *</label>
                     <input type="number" id="animal-price" name="price" min="0" step="0.01" required>
                 </div>
@@ -557,10 +590,57 @@
         </div>
     </div>
 
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="user-modal-title">Add New User</h2>
+                <span class="close" onclick="closeUserModal()">&times;</span>
+            </div>
+
+            <form id="userForm">
+                <input type="hidden" id="user-id" name="id">
+                
+                <div class="form-group">
+                    <label for="user-name">Name *</label>
+                    <input type="text" id="user-name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-email">Email *</label>
+                    <input type="email" id="user-email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-password">Password *</label>
+                    <input type="password" id="user-password" name="password" required minlength="6">
+                    <small style="color: #666; font-size: 12px;">Leave empty when editing to keep current password</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-role">Role *</label>
+                    <select id="user-role" name="role" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                    <small style="color: #666; font-size: 12px;">Only Admin and Staff roles can be created here</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-save">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let animals = [];
+        let users = [];
         let currentAnimalId = null;
+        let currentUserId = null;
 
         // Initialize the admin panel
         document.addEventListener('DOMContentLoaded', function() {
@@ -582,6 +662,9 @@
 
             // Animal form submission
             document.getElementById('animalForm').addEventListener('submit', handleAnimalSubmit);
+            
+            // User form submission
+            document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
         });
 
         // Show specific section
@@ -591,6 +674,8 @@
             
             if (section === 'animals') {
                 loadAnimals();
+            } else if (section === 'users') {
+                loadUsers();
             }
         }
 
@@ -632,7 +717,7 @@
                     <div class="animal-info">
                         <div class="animal-name">${animal.name}</div>
                         <div class="animal-details">
-                            ${animal.category.charAt(0).toUpperCase() + animal.category.slice(1)} • ${animal.age} months old
+                            ${animal.category.charAt(0).toUpperCase() + animal.category.slice(1)} • ${animal.age} months old • ${animal.gender === 'male' ? '♂️' : '♀️'} ${animal.gender.charAt(0).toUpperCase() + animal.gender.slice(1)}
                         </div>
                         <div class="animal-price">₱${parseFloat(animal.price).toLocaleString()}</div>
                         <div class="animal-actions">
@@ -647,12 +732,20 @@
         // Load dashboard stats
         async function loadStats() {
             try {
-                const response = await fetch('<?= base_url('admin/animals') ?>');
-                if (response.ok) {
-                    const animals = await response.json();
+                // Load animals stats
+                const animalsResponse = await fetch('<?= base_url('admin/animals') ?>');
+                if (animalsResponse.ok) {
+                    const animals = await animalsResponse.json();
                     document.getElementById('total-animals').textContent = animals.length;
                     document.getElementById('available-animals').textContent = 
                         animals.filter(a => a.status === 'available').length;
+                }
+
+                // Load users stats
+                const usersResponse = await fetch('<?= base_url('admin/users') ?>');
+                if (usersResponse.ok) {
+                    const users = await usersResponse.json();
+                    document.getElementById('total-users').textContent = users.length;
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
@@ -676,6 +769,7 @@
                     document.getElementById('animal-name').value = animal.name;
                     document.getElementById('animal-category').value = animal.category;
                     document.getElementById('animal-age').value = animal.age;
+                    document.getElementById('animal-gender').value = animal.gender;
                     document.getElementById('animal-price').value = animal.price;
                     document.getElementById('animal-description').value = animal.description || '';
                     
@@ -779,11 +873,185 @@
             }, 5000);
         }
 
+        // ========== USER MANAGEMENT FUNCTIONS ==========
+
+        // Load users from API
+        async function loadUsers() {
+            const loading = document.getElementById('users-loading');
+            const table = document.getElementById('users-table');
+            
+            loading.style.display = 'block';
+            table.innerHTML = '';
+
+            try {
+                const response = await fetch('<?= base_url('admin/users') ?>');
+                if (!response.ok) throw new Error('Failed to load users');
+                
+                users = await response.json();
+                renderUsers();
+            } catch (error) {
+                showAlert('Error loading users: ' + error.message, 'error');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Render users in table
+        function renderUsers() {
+            const table = document.getElementById('users-table');
+            
+            if (users.length === 0) {
+                table.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">No users found.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = users.map(user => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px;">
+                        <div style="font-weight: 600;">${user.name}</div>
+                    </td>
+                    <td style="padding: 15px;">${user.email}</td>
+                    <td style="padding: 15px;">
+                        <span style="background: ${getRoleColor(user.role)}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                            ${user.role}
+                        </span>
+                    </td>
+                    <td style="padding: 15px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-edit" onclick="editUser(${user.id})" style="padding: 6px 12px; font-size: 12px;">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteUser(${user.id})" style="padding: 6px 12px; font-size: 12px;" 
+                                ${user.id == <?= session()->get('user_id') ?> ? 'disabled title="Cannot delete yourself"' : ''}>Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Get role color
+        function getRoleColor(role) {
+            switch(role) {
+                case 'admin': return '#dc3545';
+                case 'staff': return '#007bff';
+                case 'customer': return '#28a745';
+                default: return '#6c757d';
+            }
+        }
+
+        // Open user modal
+        function openUserModal(userId = null) {
+            const modal = document.getElementById('userModal');
+            const form = document.getElementById('userForm');
+            const title = document.getElementById('user-modal-title');
+            const passwordField = document.getElementById('user-password');
+            
+            form.reset();
+            currentUserId = userId;
+            
+            if (userId) {
+                const user = users.find(u => u.id == userId);
+                if (user) {
+                    title.textContent = 'Edit User';
+                    document.getElementById('user-id').value = user.id;
+                    document.getElementById('user-name').value = user.name;
+                    document.getElementById('user-email').value = user.email;
+                    document.getElementById('user-role').value = user.role;
+                    passwordField.removeAttribute('required');
+                    passwordField.placeholder = 'Leave empty to keep current password';
+                }
+            } else {
+                title.textContent = 'Add New User';
+                passwordField.setAttribute('required', 'required');
+                passwordField.placeholder = 'Enter password';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // Close user modal
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
+            currentUserId = null;
+        }
+
+        // Edit user
+        function editUser(id) {
+            openUserModal(id);
+        }
+
+        // Delete user
+        async function deleteUser(id) {
+            if (id == <?= session()->get('user_id') ?>) {
+                showAlert('You cannot delete your own account.', 'error');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this user?')) return;
+
+            try {
+                const response = await fetch(`<?= base_url('admin/users/') ?>${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    loadUsers();
+                    loadStats();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Error deleting user: ' + error.message, 'error');
+            }
+        }
+
+        // Handle user form submission
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const url = currentUserId ? 
+                `<?= base_url('admin/users/') ?>${currentUserId}` : 
+                '<?= base_url('admin/users') ?>';
+            
+            const method = currentUserId ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeUserModal();
+                    loadUsers();
+                    loadStats();
+                } else {
+                    if (result.errors) {
+                        const errorMessages = Object.values(result.errors).join(', ');
+                        showAlert('Validation errors: ' + errorMessages, 'error');
+                    } else {
+                        showAlert(result.message, 'error');
+                    }
+                }
+            } catch (error) {
+                showAlert('Error saving user: ' + error.message, 'error');
+            }
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('animalModal');
-            if (event.target === modal) {
+            const animalModal = document.getElementById('animalModal');
+            const userModal = document.getElementById('userModal');
+            
+            if (event.target === animalModal) {
                 closeAnimalModal();
+            } else if (event.target === userModal) {
+                closeUserModal();
             }
         }
     </script>
