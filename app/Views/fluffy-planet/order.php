@@ -6,150 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fluffy Planet - Checkout</title>
+    <link rel="stylesheet" href="./web/order.css">
     <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #fff8f1;
-            color: #2c2c2c;
-            line-height: 1.6;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 50px;
-            background-color: #fff;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        nav {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            margin-right: 150px;
-        }
-
-        nav a {
-            margin: 0 20px;
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            padding: 5px;
-            border-radius: 10px;
-        }
-
-        nav a:hover {
-            background-color: #7c7a78;
-        }
-
-        .order {
-            text-decoration: underline;
-            background-color: #eccfb2;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 40px auto;
-            max-width: 1100px;
-            flex-wrap: wrap;
-            padding: 0 20px;
-        }
-
-        .box {
-            background-color: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            flex: 1;
-            min-width: 320px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #444;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            font-size: 16px;
-            border-collapse: collapse;
-        }
-
-        table td {
-            padding: 10px 6px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .total {
-            text-align: right;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-
-        .half-input {
-            border-radius: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 8px 0;
-            font-size: 14px;
-            width: calc(50% - 14px);
-            display: inline-block;
-        }
-
-        .payment-methods {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .payment-methods button {
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            background-color: #f5f5f5;
-            font-weight: 500;
-        }
-
-        .payment-methods button.active {
-            background-color: #eccfb2;
-        }
-
-        .confirm-btn {
-            background-color: #4caf50;
-            color: white;
-            font-weight: bold;
-            display: block;
-            margin: 20px auto 0;
-            border: none;
-            border-radius: 20px;
-            padding: 12px 25px;
-            cursor: pointer;
-        }
-
-        .delete-btn {
-            background-color: crimson;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 5px 12px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .delete-btn:hover {
-            background-color: darkred;
-        }
+        
     </style>
 </head>
 
@@ -172,6 +31,21 @@
             <h2>Pet Lists</h2>
             <table id="petTable"></table>
             <div class="total" id="totalAmount">Total: $0.00</div>
+
+            <div id="continueShoppingBtn" style="text-align: center; margin-top: 15px;">
+        <button onclick="continueShopping()" 
+            style="
+                background-color: #f1c40f; 
+                color: white; 
+                font-weight: bold; 
+                border: none; 
+                border-radius: 20px; 
+                padding: 10px 25px; 
+                cursor: pointer;
+            ">
+            Continue Shopping
+        </button>
+    </div>
         </div>
 
         <!-- Payment Info -->
@@ -179,15 +53,15 @@
             <form id="orderForm" method="POST" action="<?= base_url('order') ?>">
                 <h2>Payment Information</h2>
                 <input type="hidden" name="order_id" id="orderId">
-                <input type="hidden" name="animal" id="animalData">
+                <input type="hidden" name="animal_test" id="animalData">
                 <input type="hidden" name="total" id="totalData">
                 <input type="hidden" name="customer" id="customerName">
                 <input type="hidden" name="payment_method" id="paymentMethod">
                 <input type="text" name="first_name" class="half-input" placeholder="First Name" required>
                 <input type="text" name="last_name" class="half-input" placeholder="Last Name" required>
-                <input type="text" name="tel_number" class="half-input" placeholder="Phone Number" required>
-                <input type="email" name="gmail" class="half-input" placeholder="Email" required>
-                <input type="text" name="address" class="half-input" placeholder="Address" required> <!-- ✅ ADDRESS -->
+                <input type="text" name="tel_number_test" class="half-input" placeholder="Phone Number" required>
+                <input type="email" name="gmail_test" class="half-input" placeholder="Email" required>
+                <input type="text" name="address_test" class="half-input" placeholder="Address" required> <!-- ✅ ADDRESS -->
                 <input type="date" name="date" class="half-input" id="orderDate" required>
 
                 <div class="payment-methods">
@@ -210,10 +84,16 @@
         function loadCart() {
             const petTable = document.getElementById("petTable");
             const totalAmount = document.getElementById("totalAmount");
+            const continueBtn = document.getElementById("continueShoppingBtn");
 
             let orderList = JSON.parse(localStorage.getItem("orderList")) || [];
             petTable.innerHTML = "";
             let total = 0;
+        if (orderList.length === 0) {
+            continueBtn.style.display = "none"; // ✅ hide when empty
+        } else {
+            continueBtn.style.display = "block"; // ✅ show when not empty
+        }
 
             orderList.forEach((item, index) => {
                 const row = document.createElement("tr");
@@ -257,9 +137,9 @@
             const firstName = document.querySelector('input[name="first_name"]').value.trim();
             const lastName = document.querySelector('input[name="last_name"]').value.trim();
             const fullName = firstName + " " + lastName;
-            const phone = document.querySelector('input[name="tel_number"]').value.trim();
-            const email = document.querySelector('input[name="gmail"]').value.trim();
-            const address = document.querySelector('input[name="address"]').value.trim(); // ✅ ADDRESS
+            const phone = document.querySelector('input[name="tel_number_test"]').value.trim();
+            const email = document.querySelector('input[name="gmail_test"]').value.trim();
+            const address = document.querySelector('input[name="address_test"]').value.trim(); // ✅ ADDRESS
             const date = document.getElementById("orderDate").value;
 
             if (!firstName || !lastName || !phone || !email || !address || !date) {
@@ -302,6 +182,9 @@
             localStorage.removeItem("orderList");
             document.getElementById('orderForm').submit();
         }
+        function continueShopping() {
+    window.location.href = "<?= base_url('categories') ?>"; 
+}
     </script>
 </body>
 </html>

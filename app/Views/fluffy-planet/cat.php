@@ -137,6 +137,59 @@ require_once 'db.php';
         color: green;
         font-size: 14px;
       }
+
+      /* ===== Missing Modal Styles Added ===== */
+      #confirmModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 20px 30px;
+        border-radius: 10px;
+        text-align: center;
+        width: 300px;
+      }
+
+      .modal-content p {
+        margin-bottom: 20px;
+      }
+
+      .modal-buttons {
+        display: flex;
+        justify-content: space-around;
+      }
+
+      .modal-buttons button {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      #cancelBtn {
+        background-color: #bbb;
+      }
+
+      #continueBtn {
+        background-color: limegreen;
+        color: white;
+      }
+
+      #cancelBtn:hover {
+        background-color: #999;
+      }
+
+      #continueBtn:hover {
+        background-color: rgb(57, 236, 57);
+      }
     </style>
   </head>
 
@@ -144,20 +197,21 @@ require_once 'db.php';
     <header>
       <div class="logo">🐾 Fluffy Planet</div>
       <nav>
-        <a href="petshop.php" class="home">Home</a>
-        <a href="categories.php" class="categories">Categories</a>
-        <a href="newarrival.php">New Arrivals</a>
+        <a href="<?= base_url('petshop') ?>" class="home">Home</a>
+        <a href="<?= base_url('categories') ?>" class="categories">Categories</a>
+        <a href="<?= base_url('newarrival') ?>">New Arrivals</a>
         <a href="order.php">Order</a>
         <a href="order_transactions.php">Order Transaction</a>
         <a href="order.php">History</a>
       </nav>
       <div class="search-box">
-        <input type="text" placeholder="Search a Breed..." /><button class="search-btn">Search</button>
+        <input type="text" placeholder="Search a Breed..." />
+        <button class="search-btn">Search</button>
       </div>
     </header>
 
     <h1 class="breed">Telapia Cat</h1>
-    <div class="grid">
+    <div class="grid" data-category="Cat">
       <div class="card">
         <img src="./web/telapia1.jfif" alt="Pookie" />
         <p>Pookie<span class="prices">$100.0</span></p>
@@ -217,6 +271,7 @@ require_once 'db.php';
         <a href="#" class="buy-btn">Buy</a>
       </div>
     </div>
+
     <h1 class="breed">Persian Cat</h1>
     <div class="grid">
       <div class="card">
@@ -265,8 +320,7 @@ require_once 'db.php';
         <p>Pookie<span class="prices">$100.0</span></p>
         <a href="#" class="buy-btn">Buy</a>
       </div>
-
-      <!-- Repeat more cards to fill rows -->
+        
       <div class="card">
         <img src="./web/persian10.jfif" alt="Pookie" />
         <p>Pookie<span class="prices">$100.0</span></p>
@@ -279,5 +333,90 @@ require_once 'db.php';
         <a href="#" class="buy-btn">Buy</a>
       </div>
     </div>
+
+    <!-- ===== Added Confirmation Modal ===== -->
+    <div id="confirmModal">
+      <div class="modal-content">
+        <p id="confirmText">Are you sure you want to buy this item?</p>
+        <div class="modal-buttons">
+          <button id="cancelBtn">Cancel</button>
+          <button id="continueBtn">Continue</button>
+        </div>
+      </div>
+    </div>
   </body>
+
+  <script>
+    let selectedItem = null;
+
+    function renderPets() {
+      const storedPets = JSON.parse(localStorage.getItem("petList")) || {
+        Cat: [{ name: "Pookie", price: "100.0", image: "./web/telapia3.jfif" }],
+        Rabbit: [{ name: "Pookie", price: "100.0", image: "./web/rabbit1.jfif" }],
+        Dog: [{ name: "Pookie", price: "100.0", image: "./web/dog1.jfif" }],
+      };
+
+      document.querySelectorAll(".grid").forEach((grid) => {
+        grid.innerHTML = ""; // Clear all cards
+      });
+
+      for (const category in storedPets) {
+        const grid = document.querySelector(`.grid[data-category="${category}"]`);
+        if (!grid) continue;
+        storedPets[category].forEach((pet) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${pet.image}" alt="${pet.name}" />
+            <p>${pet.name}<span class="prices">$${pet.price}</span></p>
+            <a href="#" class="buy-btn">Buy</a>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      attachBuyEvents();
+    }
+
+    function attachBuyEvents() {
+      document.querySelectorAll(".buy-btn").forEach((button) => {
+        button.onclick = function (e) {
+          e.preventDefault();
+          const card = this.closest(".card");
+          const grid = card.closest(".grid");
+          const animalType = grid.getAttribute("data-category") || "Cat";
+          const productName = card.querySelector("p").childNodes[0].textContent.trim();
+          const productPrice = card.querySelector(".prices").textContent.trim();
+
+          selectedItem = {
+            name: productName,
+            price: productPrice,
+            qty: 1,
+            type: animalType,
+          };
+
+          document.getElementById("confirmText").innerText =
+            `Are you sure you want to buy ${productName} (${animalType}) for ${productPrice}?`;
+          document.getElementById("confirmModal").style.display = "flex";
+        };
+      });
+    }
+
+    document.getElementById("cancelBtn").onclick = () => {
+      document.getElementById("confirmModal").style.display = "none";
+      selectedItem = null;
+    };
+
+    document.getElementById("continueBtn").onclick = () => {
+      if (selectedItem) {
+        let order = JSON.parse(localStorage.getItem("orderList")) || [];
+        order.push(selectedItem);
+        localStorage.setItem("orderList", JSON.stringify(order));
+        document.getElementById("confirmModal").style.display = "none";
+        window.location.href = "<?= base_url('order') ?>";
+      }
+    };
+
+    attachBuyEvents();
+  </script>
 </html>

@@ -9,142 +9,10 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
   />
+  <link rel="stylesheet" href="./web/history.css">
   <title>Fluffy Planet - Order History</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fff8f1;
-      color: #2c2c2c;
-      line-height: 1.6;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 50px;
-      background-color: #fff;
-    }
-
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    nav {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      margin-right: 150px;
-    }
-
-    nav a {
-      margin: 0 20px;
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-      padding: 5px;
-      border-radius: 10px;
-    }
-
-    nav a:hover {
-      background-color: #7c7a78;
-      color: #fff;
-    }
-
-    .order {
-      text-decoration: underline;
-      background-color: #eccfb2;
-    }
-
-    .container {
-      max-width: 100%;
-      margin: 40px auto;
-      padding: 20px;
-    }
-
-    .box {
-      background-color: #fff;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      overflow-x: auto;
-    }
-
-    h2 {
-      text-align: center;
-      color: #444;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 15px;
-      table-layout: auto;
-      word-wrap: break-word;
-      white-space: normal;
-    }
-
-    table th,
-    table td {
-      padding: 12px 8px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    table th {
-      background-color: #eccfb2;
-      color: #2c2c2c;
-      font-weight: bold;
-    }
-
-    .status {
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: bold;
-      display: inline-block;
-      white-space: nowrap;
-    }
-
-    .pending { background-color: #fff3cd; color: #856404; }
-    .processing { background-color: #cce5ff; color: #004085; }
-    .completed { background-color: #d4edda; color: #155724; }
-    .cancelled { background-color: #f8d7da; color: #721c24; }
-
-    .actions a {
-      text-decoration: none;
-      font-weight: 500;
-      margin-right: 10px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .actions a.view {
-      background-color: #4caf50;
-      color: white;
-    }
-
-    .actions a.view:hover {
-      background-color: #45a049;
-    }
-
-    .actions i {
-      margin-left: 5px;
-    }
-
-    .message {
-      text-align: center;
-      padding: 10px;
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: green;
-    }
+    
   </style>
 </head>
 
@@ -188,7 +56,7 @@
               <tr id="row-<?= $order['id']; ?>">
                 <td><?= htmlspecialchars($order['id']); ?></td>
                 <td><?= htmlspecialchars($order['date']); ?></td>
-                <td><?= htmlspecialchars($order['customer']); ?></td>
+                <td><?= htmlspecialchars($order['customer_name']); ?></td>
                 <td style="word-break: break-word;"><?= htmlspecialchars($order['gmail']); ?></td>
                 <td><?= htmlspecialchars($order['tel_number']); ?></td>
                 <td style="max-width:200px; word-break: break-word;"><?= htmlspecialchars($order['address']); ?></td>
@@ -204,7 +72,7 @@
                           $price = $animal['price'] ?? 'N/A';
                           $qty   = $animal['qty'] ?? 1;
                           $type  = $animal['type'] ?? 'Unknown';
-
+                          
                           // Display in format: Cat: Pookie - $100.0 (x1)
                           $animalList[] = '<strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($name) . ' - ' . htmlspecialchars($price) . ' (x' . htmlspecialchars($qty) . ')';
                       }

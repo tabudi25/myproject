@@ -5,7 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'FluffyController::index');
+// $routes->get('/', 'FluffyController::index');
 $routes->get('/cat', 'FluffyController::cat');
 $routes->get('/dog', 'FluffyController::dog');
 $routes->get('/rabbit', 'FluffyController::rabbit');
@@ -20,6 +20,21 @@ $routes->get('/petshop', 'FluffyController::petshop');
 $routes->post('/order', 'FluffyController::save_order'); 
 $routes->post('confirm_order/(:num)', 'FluffyController::confirm_order/$1');
 $routes->get('view_order/(:num)', 'Order::view_order/$1');
+
+$routes->get('/login', 'Auth::login');
+$routes->post('/loginAuth', 'Auth::loginPost');
+
+$routes->get('/signup', 'Auth::register');
+$routes->post('/register', 'Auth::registerPost');
+
+$routes->get('/logout', 'Auth::logout');
+$routes->post('/register', 'Auth::register');
+$routes->get('/signup', 'Auth::signup');
+
+// your petshop homepage route
+// $routes->get('/petshop', 'Petshop::index'); 
+
+
 
 
 
