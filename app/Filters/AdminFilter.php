@@ -6,12 +6,11 @@ use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
-class GuestFilter implements FilterInterface
+class AdminFilter implements FilterInterface
 {
     /**
      * Do whatever processing this filter needs to do.
-     * This filter is for pages that should only be accessible
-     * to guests (non-logged-in users) like login and signup pages.
+     * This filter ensures only admin users can access admin routes.
      *
      * @param RequestInterface $request
      * @param array|null       $arguments
@@ -22,16 +21,19 @@ class GuestFilter implements FilterInterface
     {
         $session = session();
         
-        // Check if user is already logged in
-        if ($session->get('isLoggedIn')) {
-            // Get the redirect URL from session, or default to homepage
-            $redirectUrl = $session->get('redirect_url') ?: '/';
+        // Check if user is logged in
+        if (!$session->get('isLoggedIn')) {
+            // Store the intended URL to redirect back after login
+            $session->set('redirect_url', current_url());
             
-            // Clear the redirect URL from session
-            $session->remove('redirect_url');
-            
-            // Redirect to the intended page or default page
-            return redirect()->to($redirectUrl)->with('msg', 'You are already logged in.');
+            // Redirect to login page with message
+            return redirect()->to('/login')->with('msg', 'Please login to access the admin panel.');
+        }
+        
+        // Check if user has admin role
+        if ($session->get('role') !== 'admin') {
+            // Redirect to homepage with error message
+            return redirect()->to('/')->with('msg', 'Access denied. Admin privileges required.');
         }
     }
 

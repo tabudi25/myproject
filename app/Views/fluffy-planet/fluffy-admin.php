@@ -420,8 +420,8 @@
             <div class="user-info">
                 <p>Welcome, <?= session()->get('user_name') ?>!</p>
                 <a href="<?= base_url('logout') ?>" class="logout-btn">Logout</a>
+                </div>
             </div>
-        </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -436,9 +436,9 @@
                     <?php if(session()->getFlashdata('msg')): ?>
                         <div class="alert success" style="display: block; margin-top: 10px;">
                             <?= session()->getFlashdata('msg') ?>
-                        </div>
+        </div>
                     <?php endif; ?>
-                </div>
+    </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -466,18 +466,18 @@
                     <div class="section-header">
                         <h2>Manage Animals</h2>
                         <button class="add-animal-btn" onclick="openAnimalModal()">Add New Animal</button>
-                    </div>
+                </div>
 
                     <div class="loading" id="animals-loading">
                         <div class="spinner"></div>
                         <p>Loading animals...</p>
-                    </div>
+                </div>
 
                     <div class="animals-grid" id="animals-grid">
                         <!-- Animals will be loaded here -->
+                </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Users Management Section -->
             <div id="users-section" class="content-section" style="display: none;">
@@ -485,12 +485,12 @@
                     <div class="section-header">
                         <h2>Manage Users</h2>
                         <button class="add-animal-btn" onclick="openUserModal()">Add New User</button>
-                    </div>
+                        </div>
 
                     <div class="loading" id="users-loading">
                         <div class="spinner"></div>
                         <p>Loading users...</p>
-                    </div>
+                        </div>
 
                     <div style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                         <table style="width: 100%; border-collapse: collapse;">
@@ -506,19 +506,19 @@
                                 <!-- Users will be loaded here -->
                             </tbody>
                         </table>
+                        </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
             <!-- Other sections (placeholder) -->
             <div id="orders-section" class="content-section" style="display: none;">
                 <div class="header">
                     <h1>Orders Management</h1>
                     <p>Coming soon...</p>
-                </div>
-            </div>
-        </div>
-    </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
 
     <!-- Animal Modal -->
     <div id="animalModal" class="modal">
@@ -526,7 +526,7 @@
             <div class="modal-header">
                 <h2 id="modal-title">Add New Animal</h2>
                 <span class="close" onclick="closeAnimalModal()">&times;</span>
-            </div>
+                    </div>
 
             <form id="animalForm" enctype="multipart/form-data">
                 <input type="hidden" id="animal-id" name="id">
@@ -534,25 +534,25 @@
                 <div class="form-group">
                     <label for="animal-name">Animal Name *</label>
                     <input type="text" id="animal-name" name="name" required>
-                </div>
+                    </div>
 
                 <div class="form-group">
                     <label for="animal-category">Category *</label>
                     <select id="animal-category" name="category" required>
                         <option value="">Select Category</option>
-                        <option value="cat">Cat</option>
+                                <option value="cat">Cat</option>
                         <option value="dog">Dog</option>
-                        <option value="bird">Bird</option>
+                                <option value="bird">Bird</option>
                         <option value="hamster">Hamster</option>
                         <option value="rabbit">Rabbit</option>
                         <option value="fish">Fish</option>
-                    </select>
-                </div>
+                            </select>
+                        </div>
 
                 <div class="form-group">
                     <label for="animal-age">Age (months) *</label>
                     <input type="number" id="animal-age" name="age" min="1" required>
-                </div>
+                    </div>
 
                 <div class="form-group">
                     <label for="animal-gender">Gender *</label>
@@ -566,12 +566,12 @@
                 <div class="form-group">
                     <label for="animal-price">Price (₱) *</label>
                     <input type="number" id="animal-price" name="price" min="0" step="0.01" required>
-                </div>
+                        </div>
 
                 <div class="form-group">
                     <label for="animal-description">Description</label>
                     <textarea id="animal-description" name="description" placeholder="Enter animal description..."></textarea>
-                </div>
+                    </div>
 
                 <div class="form-group">
                     <label for="animal-image">Image *</label>
@@ -587,8 +587,8 @@
                     <button type="submit" class="btn btn-save">Save Animal</button>
                 </div>
             </form>
-        </div>
-    </div>
+                        </div>
+                    </div>
 
     <!-- User Modal -->
     <div id="userModal" class="modal">
@@ -596,7 +596,7 @@
             <div class="modal-header">
                 <h2 id="user-modal-title">Add New User</h2>
                 <span class="close" onclick="closeUserModal()">&times;</span>
-            </div>
+                    </div>
 
             <form id="userForm">
                 <input type="hidden" id="user-id" name="id">
@@ -604,18 +604,18 @@
                 <div class="form-group">
                     <label for="user-name">Name *</label>
                     <input type="text" id="user-name" name="name" required>
-                </div>
+                        </div>
 
                 <div class="form-group">
                     <label for="user-email">Email *</label>
                     <input type="email" id="user-email" name="email" required>
-                </div>
+                    </div>
 
                 <div class="form-group">
                     <label for="user-password">Password *</label>
                     <input type="password" id="user-password" name="password" required minlength="6">
                     <small style="color: #666; font-size: 12px;">Leave empty when editing to keep current password</small>
-                </div>
+                    </div>
 
                 <div class="form-group">
                     <label for="user-role">Role *</label>
@@ -625,7 +625,7 @@
                         <option value="staff">Staff</option>
                     </select>
                     <small style="color: #666; font-size: 12px;">Only Admin and Staff roles can be created here</small>
-                </div>
+    </div>
 
                 <div class="form-actions">
                     <button type="button" class="btn btn-cancel" onclick="closeUserModal()">Cancel</button>
@@ -921,7 +921,7 @@
                             <button class="btn btn-edit" onclick="editUser(${user.id})" style="padding: 6px 12px; font-size: 12px;">Edit</button>
                             <button class="btn btn-delete" onclick="deleteUser(${user.id})" style="padding: 6px 12px; font-size: 12px;" 
                                 ${user.id == <?= session()->get('user_id') ?> ? 'disabled title="Cannot delete yourself"' : ''}>Delete</button>
-                        </div>
+            </div>
                     </td>
                 </tr>
             `).join('');
@@ -958,7 +958,7 @@
                     passwordField.removeAttribute('required');
                     passwordField.placeholder = 'Leave empty to keep current password';
                 }
-            } else {
+                } else {
                 title.textContent = 'Add New User';
                 passwordField.setAttribute('required', 'required');
                 passwordField.placeholder = 'Enter password';

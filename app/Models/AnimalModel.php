@@ -11,6 +11,7 @@ class AnimalModel extends Model
     protected $allowedFields = [
         'name', 
         'category', 
+        'category_id',
         'age', 
         'gender',
         'price', 
@@ -19,9 +20,9 @@ class AnimalModel extends Model
         'status', 
         'added_by'
     ];
-    protected $useTimestamps = true;
+    protected $useTimestamps = false;
     protected $createdField = 'created_at';
-    protected $updatedField = 'updated_at';
+    protected $updatedField = null;
     
     // Validation rules
     protected $validationRules = [
@@ -71,7 +72,7 @@ class AnimalModel extends Model
         ]
     ];
     
-    protected $skipValidation = false;
+    protected $skipValidation = true;
 
     /**
      * Get animals by category
@@ -80,6 +81,40 @@ class AnimalModel extends Model
     {
         return $this->where('category', $category)
                     ->where('status', 'available')
+                    ->findAll();
+    }
+
+    /**
+     * Get animals by category ID
+     */
+    public function getByCategoryId($categoryId)
+    {
+        return $this->where('category_id', $categoryId)
+                    ->where('status', 'available')
+                    ->findAll();
+    }
+
+    /**
+     * Get animals with category details
+     */
+    public function getAnimalsWithCategory()
+    {
+        return $this->select('animals.*, categories.name as category_name')
+                    ->join('categories', 'categories.id = animals.category_id', 'left')
+                    ->where('animals.status', 'available')
+                    ->findAll();
+    }
+
+    /**
+     * Get featured animals (latest available)
+     */
+    public function getFeaturedAnimals($limit = 8)
+    {
+        return $this->select('animals.*, categories.name as category_name')
+                    ->join('categories', 'categories.id = animals.category_id', 'left')
+                    ->where('animals.status', 'available')
+                    ->orderBy('animals.created_at', 'DESC')
+                    ->limit($limit)
                     ->findAll();
     }
 

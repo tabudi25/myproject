@@ -36,8 +36,8 @@ class Auth extends BaseController
                     $session->remove('redirect_url');
                     return redirect()->to('/fluffy-admin')->with('msg', 'Welcome to Admin Dashboard!');
                 } else {
-                    // Get the redirect URL from session, or default to petshop
-                    $redirectUrl = $session->get('redirect_url') ?: '/petshop';
+                    // Get the redirect URL from session, or default to homepage
+                    $redirectUrl = $session->get('redirect_url') ?: '/';
                     
                     // Clear the redirect URL from session
                     $session->remove('redirect_url');
@@ -112,6 +112,6 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/login');
+        return redirect()->to('/')->with('msg', 'You have been logged out successfully');
     }
 }
