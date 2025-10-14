@@ -48,15 +48,47 @@ class Auth extends BaseController
     {
         $userModel = new UserModel();
 
+        // Validate input
+        $validation = \Config\Services::validation();
+        
+        $validation->setRules([
+            'name'     => 'required|min_length[2]|max_length[255]',
+            'email'    => 'required|valid_email|is_unique[users.email]',
+            'password' => 'required|min_length[6]',
+            'role'     => 'required|in_list[customer,admin,staff]'
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('msg', 'Validation failed: ' . implode(', ', $validation->getErrors()));
+        }
+
+        // Get form data
+        $name = trim($this->request->getVar('name'));
+        $email = trim($this->request->getVar('email'));
+        $password = $this->request->getVar('password');
+        $role = $this->request->getVar('role');
+
+        // Check if name is empty after trimming
+        if (empty($name)) {
+            return redirect()->back()->withInput()->with('msg', 'Name cannot be empty');
+        }
+
         $data = [
-            'name'     => $this->request->getVar('name'),
-            'email'    => $this->request->getVar('email'),
-            'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
-            'role'     => $this->request->getVar('role')
+            'name'     => $name,
+            'email'    => $email,
+            'password' => password_hash($password, PASSWORD_DEFAULT),
+            'role'     => $role
         ];
 
-        $userModel->save($data);
-        return redirect()->to('/login')->with('msg', 'Account created!');
+        try {
+            if ($userModel->save($data)) {
+                return redirect()->to('/login')->with('msg', 'Account created successfully!');
+            } else {
+                return redirect()->back()->withInput()->with('msg', 'Failed to create account. Please try again.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('msg', 'Error: ' . $e->getMessage());
+        }
     }
 
     public function logout()

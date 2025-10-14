@@ -52,17 +52,18 @@
   <h2>Create Account</h2>
 
   <?php if(session()->getFlashdata('msg')): ?>
-    <p style="color:red"><?= session()->getFlashdata('msg') ?></p>
+    <p style="color:red; background: #ffe6e6; padding: 10px; border-radius: 5px; border: 1px solid #ff9999;"><?= session()->getFlashdata('msg') ?></p>
   <?php endif; ?>
 
   <form action="/register" method="post">
-    <input type="text" name="name" placeholder="Name" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
+    <input type="text" name="name" placeholder="Name" value="<?= old('name') ?>" required minlength="2" maxlength="255">
+    <input type="email" name="email" placeholder="Email" value="<?= old('email') ?>" required>
+    <input type="password" name="password" placeholder="Password (min 6 characters)" required minlength="6">
     <select name="role" required>
-        <option value="customer">Customer</option>
-        <option value="admin">Admin</option>
-        <option value="staff">Staff</option>
+        <option value="">Select Role</option>
+        <option value="customer" <?= old('role') == 'customer' ? 'selected' : '' ?>>Customer</option>
+        <option value="admin" <?= old('role') == 'admin' ? 'selected' : '' ?>>Admin</option>
+        <option value="staff" <?= old('role') == 'staff' ? 'selected' : '' ?>>Staff</option>
     </select>
     <button type="submit">Sign Up</button>
 </form>

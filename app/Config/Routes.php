@@ -22,14 +22,12 @@ $routes->post('confirm_order/(:num)', 'FluffyController::confirm_order/$1');
 $routes->get('view_order/(:num)', 'Order::view_order/$1');
 
 $routes->get('/login', 'Auth::login');
-$routes->post('/loginAuth', 'Auth::loginPost');
+$routes->post('/loginAuth', 'Auth::loginAuth');
 
-$routes->get('/signup', 'Auth::register');
-$routes->post('/register', 'Auth::registerPost');
+$routes->get('/signup', 'Auth::signup');
+$routes->post('/register', 'Auth::register');
 
 $routes->get('/logout', 'Auth::logout');
-$routes->post('/register', 'Auth::register');
-$routes->get('/signup', 'Auth::signup');
 
 // your petshop homepage route
 // $routes->get('/petshop', 'Petshop::index'); 
