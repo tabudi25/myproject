@@ -90,6 +90,44 @@ class EcommerceController extends BaseController
                 ->groupEnd();
         }
 
+        // Filter by price range
+        $minPrice = $this->request->getGet('min_price');
+        $maxPrice = $this->request->getGet('max_price');
+        if ($minPrice && is_numeric($minPrice)) {
+            $builder->where('animals.price >=', $minPrice);
+        }
+        if ($maxPrice && is_numeric($maxPrice)) {
+            $builder->where('animals.price <=', $maxPrice);
+        }
+
+        // Filter by gender
+        $genders = $this->request->getGet('gender');
+        if ($genders && is_array($genders) && !empty($genders)) {
+            $builder->whereIn('animals.gender', $genders);
+        }
+
+        // Filter by age range
+        $ageRanges = $this->request->getGet('age');
+        if ($ageRanges && is_array($ageRanges) && !empty($ageRanges)) {
+            $builder->groupStart();
+            foreach ($ageRanges as $range) {
+                if ($range === '0-6') {
+                    $builder->orGroupStart()
+                        ->where('animals.age >=', 0)
+                        ->where('animals.age <=', 6)
+                        ->groupEnd();
+                } elseif ($range === '7-24') {
+                    $builder->orGroupStart()
+                        ->where('animals.age >=', 7)
+                        ->where('animals.age <=', 24)
+                        ->groupEnd();
+                } elseif ($range === '25+') {
+                    $builder->orWhere('animals.age >=', 25);
+                }
+            }
+            $builder->groupEnd();
+        }
+
         // Handle sorting
         $sort = $this->request->getGet('sort') ?? 'newest';
         switch ($sort) {
@@ -430,6 +468,9 @@ class EcommerceController extends BaseController
             // Clear cart
             $this->cartModel->where('user_id', $userId)->delete();
 
+            // Create notifications for all admin and staff users
+            $this->createOrderNotifications($orderId, $orderNumber, $total, $userId);
+
             return redirect()->to('/order-success/' . $orderId)->with('msg', 'Order placed successfully!');
         } else {
             return redirect()->back()->with('msg', 'Failed to place order. Please try again.');
@@ -645,6 +686,41 @@ class EcommerceController extends BaseController
             return redirect()->to('/profile')->with('msg', 'Profile updated successfully!');
         } else {
             return redirect()->back()->withInput()->with('msg', 'Failed to update profile. Please try again.');
+        }
+    }
+
+    // Helper method to create notifications for admin and staff
+    private function createOrderNotifications($orderId, $orderNumber, $totalAmount, $customerId)
+    {
+        $db = \Config\Database::connect();
+        
+        // Get customer name
+        $customer = $db->table('users')->where('id', $customerId)->get()->getRowArray();
+        $customerName = $customer ? $customer['name'] : 'Customer';
+        
+        // Get all admin and staff users
+        $adminStaffUsers = $db->table('users')
+            ->whereIn('role', ['admin', 'staff'])
+            ->get()
+            ->getResultArray();
+        
+        // Create notification for each admin and staff member
+        $notificationData = [
+            'type' => 'new_order',
+            'title' => 'New Order Placed',
+            'message' => sprintf(
+                '%s placed a new order #%s worth ₱%s',
+                $customerName,
+                $orderNumber,
+                number_format($totalAmount, 2)
+            ),
+            'order_id' => $orderId,
+            'is_read' => false
+        ];
+        
+        foreach ($adminStaffUsers as $user) {
+            $notificationData['user_id'] = $user['id'];
+            $db->table('notifications')->insert($notificationData);
         }
     }
 }

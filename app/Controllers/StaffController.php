@@ -390,5 +390,71 @@ class StaffController extends Controller
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to update payment status']);
         }
     }
+
+    // ==================== NOTIFICATIONS ====================
+    
+    public function getNotifications()
+    {
+        $userId = session()->get('user_id');
+        $role = session()->get('role');
+        
+        if (!$userId || !in_array($role, ['staff', 'admin'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        // Get all notifications for this staff member
+        $notifications = $this->db->table('notifications')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'DESC')
+            ->limit(50)
+            ->get()
+            ->getResultArray();
+
+        // Get unread count
+        $unreadCount = $this->db->table('notifications')
+            ->where('user_id', $userId)
+            ->where('is_read', false)
+            ->countAllResults();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount
+        ]);
+    }
+
+    public function markNotificationRead($id)
+    {
+        $userId = session()->get('user_id');
+        
+        $updated = $this->db->table('notifications')
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->update([
+                'is_read' => true,
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
+
+        if ($updated) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Notification marked as read']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to mark notification']);
+        }
+    }
+
+    public function markAllNotificationsRead()
+    {
+        $userId = session()->get('user_id');
+        
+        $updated = $this->db->table('notifications')
+            ->where('user_id', $userId)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
+
+        return $this->response->setJSON(['success' => true, 'message' => 'All notifications marked as read']);
+    }
 }
 

@@ -755,4 +755,80 @@ class AdminController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to reject animal']);
         }
     }
+
+    // ==================== NOTIFICATIONS ====================
+    
+    public function getNotifications()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $db = \Config\Database::connect();
+        $userId = session()->get('user_id');
+        
+        // Get all notifications for this admin
+        $notifications = $db->table('notifications')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'DESC')
+            ->limit(50)
+            ->get()
+            ->getResultArray();
+
+        // Get unread count
+        $unreadCount = $db->table('notifications')
+            ->where('user_id', $userId)
+            ->where('is_read', false)
+            ->countAllResults();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount
+        ]);
+    }
+
+    public function markNotificationRead($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $db = \Config\Database::connect();
+        $userId = session()->get('user_id');
+        
+        $updated = $db->table('notifications')
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->update([
+                'is_read' => true,
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
+
+        if ($updated) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Notification marked as read']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to mark notification']);
+        }
+    }
+
+    public function markAllNotificationsRead()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $db = \Config\Database::connect();
+        $userId = session()->get('user_id');
+        
+        $updated = $db->table('notifications')
+            ->where('user_id', $userId)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
+
+        return $this->response->setJSON(['success' => true, 'message' => 'All notifications marked as read']);
+    }
 }

@@ -59,10 +59,13 @@
     <input type="text" name="name" placeholder="Name" value="<?= old('name') ?>" required minlength="2" maxlength="255">
     <input type="email" name="email" placeholder="Email" value="<?= old('email') ?>" required>
     <input type="password" name="password" placeholder="Password (min 6 characters)" required minlength="6">
-    <input type="hidden" name="role" value="customer">
-    <p style="font-size: 14px; color: #666; text-align: center; margin: 10px 0;">
-      You will be registered as a <strong>Customer</strong>
-    </p>
+    
+    <label for="role" style="font-weight: bold; margin-top: 10px; display: block;">Register as:</label>
+    <select name="role" id="role" required>
+      <option value="customer" <?= old('role') == 'customer' ? 'selected' : '' ?>>Customer</option>
+      <option value="staff" <?= old('role') == 'staff' ? 'selected' : '' ?>>Staff</option>
+    </select>
+    
     <button type="submit">Sign Up</button>
 </form>
 

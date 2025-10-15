@@ -34,12 +34,39 @@
 
         .filter-sidebar {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             height: fit-content;
             position: sticky;
             top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-title i {
+            color: var(--primary-color);
+            margin-right: 8px;
         }
 
         .animal-card {
@@ -107,19 +134,132 @@
         }
 
         .category-filter {
-            border: none;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 10px;
+            padding: 12px 16px;
             margin-bottom: 10px;
             width: 100%;
             text-align: left;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: #495057;
+            font-size: 0.95rem;
         }
 
-        .category-filter:hover, .category-filter.active {
-            background: var(--primary-color);
+        .category-filter:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-color);
+            color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .category-filter.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .category-filter i {
+            font-size: 1.1rem;
+        }
+
+        .filter-badge {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .filter-checkbox {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-option:hover {
+            color: var(--primary-color);
+        }
+
+        .filter-option label {
+            cursor: pointer;
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        .price-range-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .price-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .mobile-filter-toggle {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-filter-toggle {
+                display: block;
+                margin-bottom: 20px;
+            }
+            
+            .filter-sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                height: 100vh;
+                z-index: 9999;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+                max-width: 300px;
+                width: 100%;
+            }
+
+            .filter-sidebar.show {
+                left: 0;
+            }
+
+            .filter-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 9998;
+                display: none;
+            }
+
+            .filter-overlay.show {
+                display: block;
+            }
         }
 
         .sort-dropdown {
@@ -155,12 +295,34 @@
             color: #dee2e6;
         }
 
-        @media (max-width: 768px) {
-            .filter-sidebar {
-                margin-bottom: 20px;
-                position: relative;
-                top: auto;
-            }
+        .clear-filters-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #6c757d;
+            border-radius: 10px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-filters-btn:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .filter-header h5 {
+            margin: 0;
+            font-weight: 700;
+            color: var(--accent-color);
         }
     </style>
 </head>
@@ -280,27 +442,109 @@
         <div class="row">
             <!-- Sidebar Filters -->
             <div class="col-lg-3">
-                <div class="filter-sidebar">
-                    <h5 class="mb-3">
-                        <i class="fas fa-filter me-2"></i>Filters
-                    </h5>
+                <!-- Mobile Filter Toggle -->
+                <div class="mobile-filter-toggle">
+                    <button class="btn btn-primary w-100" onclick="toggleFilters()">
+                        <i class="fas fa-filter me-2"></i>Show Filters
+                    </button>
+                </div>
+
+                <!-- Filter Overlay for Mobile -->
+                <div class="filter-overlay" onclick="toggleFilters()"></div>
+
+                <div class="filter-sidebar" id="filterSidebar">
+                    <!-- Filter Header -->
+                    <div class="filter-header">
+                        <h5>
+                            <i class="fas fa-sliders-h me-2"></i>Filters
+                        </h5>
+                        <button class="btn-close d-lg-none" onclick="toggleFilters()"></button>
+                    </div>
                     
-                    <!-- Categories -->
-                    <h6 class="mb-3">Categories</h6>
-                    <a href="/shop" class="category-filter <?= !$currentCategory ? 'active' : '' ?>">
-                        <i class="fas fa-th-large me-2"></i>All Categories
-                    </a>
-                    <?php foreach ($categories as $category): ?>
-                        <a href="/shop/<?= $category['id'] ?>" class="category-filter <?= $currentCategory && $currentCategory['id'] == $category['id'] ? 'active' : '' ?>">
-                            <i class="fas fa-paw me-2"></i><?= esc($category['name']) ?>
+                    <!-- Categories Section -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            <i class="fas fa-tags"></i>Categories
+                        </div>
+                        <a href="/shop" class="category-filter <?= !$currentCategory ? 'active' : '' ?>">
+                            <span>
+                                <i class="fas fa-th-large me-2"></i>All Categories
+                            </span>
                         </a>
-                    <?php endforeach; ?>
+                        <?php foreach ($categories as $category): ?>
+                            <a href="/shop/<?= $category['id'] ?>" class="category-filter <?= $currentCategory && $currentCategory['id'] == $category['id'] ? 'active' : '' ?>">
+                                <span>
+                                    <i class="fas fa-paw me-2"></i><?= esc($category['name']) ?>
+                                </span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- Price Range Section -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            <i class="fas fa-dollar-sign"></i>Price Range
+                        </div>
+                        <form method="GET" action="/shop" id="priceFilterForm">
+                            <?php if ($currentCategory): ?>
+                                <input type="hidden" name="category" value="<?= $currentCategory['id'] ?>">
+                            <?php endif; ?>
+                            <?php if ($search): ?>
+                                <input type="hidden" name="search" value="<?= esc($search) ?>">
+                            <?php endif; ?>
+                            <div class="price-range-inputs">
+                                <input type="number" name="min_price" class="price-input" placeholder="Min" min="0" step="100" value="<?= $_GET['min_price'] ?? '' ?>">
+                                <span>-</span>
+                                <input type="number" name="max_price" class="price-input" placeholder="Max" min="0" step="100" value="<?= $_GET['max_price'] ?? '' ?>">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-2">
+                                <i class="fas fa-check me-2"></i>Apply
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Gender Filter Section -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            <i class="fas fa-venus-mars"></i>Gender
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" class="filter-checkbox" id="genderMale" onchange="filterByGender('male', this.checked)">
+                            <label for="genderMale">
+                                <i class="fas fa-mars text-primary me-2"></i>Male
+                            </label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" class="filter-checkbox" id="genderFemale" onchange="filterByGender('female', this.checked)">
+                            <label for="genderFemale">
+                                <i class="fas fa-venus text-danger me-2"></i>Female
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Age Range Section -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            <i class="fas fa-birthday-cake"></i>Age
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" class="filter-checkbox" id="ageYoung" onchange="filterByAge('0-6', this.checked)">
+                            <label for="ageYoung">0-6 months (Puppy/Kitten)</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" class="filter-checkbox" id="ageAdult" onchange="filterByAge('7-24', this.checked)">
+                            <label for="ageAdult">7-24 months (Young)</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" class="filter-checkbox" id="ageMature" onchange="filterByAge('25+', this.checked)">
+                            <label for="ageMature">25+ months (Adult)</label>
+                        </div>
+                    </div>
                     
-                    <!-- Clear Filters -->
-                    <?php if ($search || $currentCategory): ?>
-                        <hr>
-                        <a href="/shop" class="btn btn-outline-secondary w-100">
-                            <i class="fas fa-times me-2"></i>Clear Filters
+                    <!-- Clear All Filters -->
+                    <?php if ($search || $currentCategory || isset($_GET['min_price']) || isset($_GET['max_price'])): ?>
+                        <a href="/shop" class="btn clear-filters-btn w-100">
+                            <i class="fas fa-times-circle me-2"></i>Clear All Filters
                         </a>
                     <?php endif; ?>
                 </div>
@@ -394,6 +638,80 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Toggle mobile filters
+        function toggleFilters() {
+            const sidebar = document.getElementById('filterSidebar');
+            const overlay = document.querySelector('.filter-overlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        // Filter by gender
+        function filterByGender(gender, checked) {
+            const urlParams = new URLSearchParams(window.location.search);
+            let genders = urlParams.getAll('gender[]');
+            
+            if (checked) {
+                genders.push(gender);
+            } else {
+                genders = genders.filter(g => g !== gender);
+            }
+            
+            // Clear existing gender params
+            urlParams.delete('gender[]');
+            
+            // Add selected genders
+            genders.forEach(g => urlParams.append('gender[]', g));
+            
+            // Redirect with new params
+            window.location.search = urlParams.toString();
+        }
+
+        // Filter by age range
+        function filterByAge(ageRange, checked) {
+            const urlParams = new URLSearchParams(window.location.search);
+            let ages = urlParams.getAll('age[]');
+            
+            if (checked) {
+                ages.push(ageRange);
+            } else {
+                ages = ages.filter(a => a !== ageRange);
+            }
+            
+            // Clear existing age params
+            urlParams.delete('age[]');
+            
+            // Add selected age ranges
+            ages.forEach(a => urlParams.append('age[]', a));
+            
+            // Redirect with new params
+            window.location.search = urlParams.toString();
+        }
+
+        // Preserve filter checkboxes on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Check gender filters
+            const genders = urlParams.getAll('gender[]');
+            genders.forEach(gender => {
+                const checkbox = document.getElementById('gender' + gender.charAt(0).toUpperCase() + gender.slice(1));
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            // Check age filters
+            const ages = urlParams.getAll('age[]');
+            ages.forEach(age => {
+                let id = '';
+                if (age === '0-6') id = 'ageYoung';
+                else if (age === '7-24') id = 'ageAdult';
+                else if (age === '25+') id = 'ageMature';
+                
+                const checkbox = document.getElementById(id);
+                if (checkbox) checkbox.checked = true;
+            });
+        });
+
         // Add to cart functionality
         function addToCart(animalId) {
             fetch('/add-to-cart', {

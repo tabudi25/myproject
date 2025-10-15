@@ -116,6 +116,151 @@
             display: flex;
             align-items: center;
             margin-left: auto;
+            gap: 20px;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.3rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .notification-icon:hover {
+            color: var(--primary-color);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 30px;
+            width: 400px;
+            max-height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background: #e3f2fd;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .mark-all-read {
+            padding: 10px 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .mark-all-read:hover {
+            background: #e9ecef;
         }
 
         .content-area {
@@ -336,8 +481,28 @@
                 </button>
                 
                 <div class="admin-user">
+                    <!-- Notification Icon -->
+                    <div class="notification-icon" id="notificationIcon" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    
                     <i class="fas fa-user-shield me-2"></i>
                     <span>Welcome, <?= esc($userName) ?></span>
+                </div>
+            </div>
+
+            <!-- Notification Dropdown -->
+            <div class="notification-dropdown" id="notificationDropdown">
+                <div class="notification-header">
+                    <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                    <button class="btn btn-sm btn-light" onclick="markAllAsRead()">Mark all as read</button>
+                </div>
+                <div class="notification-body" id="notificationBody">
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                        <p>No notifications yet</p>
+                    </div>
                 </div>
             </div>
 
@@ -981,6 +1146,147 @@
 
         // Initialize chart on page load
         initSalesChart();
+
+        // ==================== NOTIFICATION SYSTEM ====================
+        
+        // Toggle notification dropdown
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.classList.contains('show')) {
+                loadNotifications();
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const icon = document.getElementById('notificationIcon');
+            
+            if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Load notifications
+        function loadNotifications() {
+            fetch('/fluffy-admin/api/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayNotifications(data.notifications);
+                        updateNotificationBadge(data.unreadCount);
+                    }
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+        }
+
+        // Display notifications
+        function displayNotifications(notifications) {
+            const body = document.getElementById('notificationBody');
+            
+            if (!notifications || notifications.length === 0) {
+                body.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.is_read ? '' : 'unread'}" onclick="markAsRead(${notif.id}, ${notif.order_id})">
+                    <div class="notification-title">${escapeHtml(notif.title)}</div>
+                    <div class="notification-message">${escapeHtml(notif.message)}</div>
+                    <div class="notification-time">
+                        <i class="fas fa-clock me-1"></i>${timeAgo(notif.created_at)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Mark notification as read
+        function markAsRead(notificationId, orderId) {
+            fetch(`/fluffy-admin/api/notifications/${notificationId}/read`, {
+                method: 'PUT'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    
+                    // Redirect to order page if applicable
+                    if (orderId) {
+                        window.location.href = '/fluffy-admin/orders';
+                    }
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        // Mark all notifications as read
+        function markAllAsRead() {
+            fetch('/fluffy-admin/api/notifications/mark-all-read', {
+                method: 'PUT'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking all as read:', error));
+        }
+
+        // Helper: Time ago function
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (let [name, seconds_in] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / seconds_in);
+                if (interval >= 1) {
+                    return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
+                }
+            }
+            
+            return 'Just now';
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load notifications on page load
+        loadNotifications();
+
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
     </script>
 </body>
 </html>
