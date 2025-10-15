@@ -117,6 +117,7 @@
             align-items: center;
             margin-left: auto;
             gap: 20px;
+            z-index: 100;
         }
 
         .notification-icon {
@@ -248,6 +249,101 @@
             color: #6c757d;
         }
 
+        /* Profile Dropdown Styles */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            padding: 10px 18px;
+            background: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: 600;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .profile-trigger:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .profile-header small {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .profile-item:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .profile-item.logout-item {
+            color: #dc3545;
+        }
+
+        .profile-item.logout-item:hover {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 8px 0;
+        }
+
         .mark-all-read {
             padding: 10px 20px;
             text-align: center;
@@ -286,6 +382,12 @@
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #ff6b35; }
+            100% { transform: scale(1); }
         }
 
         .stat-icon {
@@ -463,12 +565,6 @@
                         <span class="menu-text">Visit Site</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="menu-text">Logout</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
@@ -487,8 +583,35 @@
                         <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                     </div>
                     
-                    <i class="fas fa-user-shield me-2"></i>
-                    <span>Welcome, <?= esc($userName) ?></span>
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown" style="display: inline-block;">
+                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                            <i class="fas fa-user-shield me-2"></i>
+                            <span><?= esc($userName) ?></span>
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </div>
+                        <div class="profile-menu" id="profileMenu">
+                            <div class="profile-header">
+                                <i class="fas fa-user-shield me-2"></i>
+                                <span><?= esc($userName) ?></span>
+                                <small class="d-block text-muted">Administrator</small>
+                            </div>
+                            <div class="profile-divider"></div>
+                            <a href="/profile" class="profile-item">
+                                <i class="fas fa-user me-2"></i>
+                                <span>Profile</span>
+                            </a>
+                            <a href="/settings" class="profile-item">
+                                <i class="fas fa-cog me-2"></i>
+                                <span>Settings</span>
+                            </a>
+                            <div class="profile-divider"></div>
+                            <a href="/logout" class="profile-item logout-item">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -539,7 +662,11 @@
                         <div class="stat-label">Total Orders</div>
                         <small class="text-warning">
                             <i class="fas fa-clock me-1"></i>
-                            <?= $stats['pending_orders'] ?> Pending
+                            <span class="pending-orders-count"><?= $stats['pending_orders'] ?></span> Pending
+                        </small>
+                        <small class="text-info d-block mt-1">
+                            <i class="fas fa-calendar-day me-1"></i>
+                            <span class="today-orders-count"><?= $stats['today_orders'] ?></span> Today
                         </small>
                     </div>
                     
@@ -769,9 +896,6 @@
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="editAnimal(${animal.id})">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteAnimal(${animal.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
                         </td>
                     </tr>
                 `;
@@ -872,7 +996,7 @@
                 
                 const formData = new FormData(this);
                 
-                fetch('/admin/animals', {
+                fetch('/fluffy-admin/api/animals', {
                     method: 'POST',
                     body: formData
                 })
@@ -894,7 +1018,7 @@
         }
 
         function loadCategoriesForDropdown() {
-            fetch('/admin/categories')
+            fetch('/fluffy-admin/api/categories')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -934,26 +1058,6 @@
             showAlert('info', `Edit animal ${id} coming soon...`);
         }
 
-        function deleteAnimal(id) {
-            if (confirm('Are you sure you want to delete this animal?')) {
-                fetch(`/admin/animals/${id}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showAlert('success', data.message);
-                        loadAnimalsSection(); // Reload animals table
-                    } else {
-                        showAlert('danger', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'An error occurred while deleting the animal');
-                });
-            }
-        }
 
         function showAlert(type, message) {
             const alertHtml = `
@@ -975,11 +1079,115 @@
             }, 3000);
         }
 
-        // Auto-refresh dashboard data every 30 seconds
+        // Auto-refresh dashboard data every 10 seconds
         setInterval(() => {
-            // In a real implementation, you would refresh the dashboard data here
-            console.log('Refreshing dashboard data...');
-        }, 30000);
+            refreshOrderUpdates();
+        }, 10000);
+
+        // Function to refresh order updates
+        function refreshOrderUpdates() {
+            fetch('/fluffy-admin/api/order-updates')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateOrderStats(data);
+                        updateRecentOrders(data.recentOrders);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing order updates:', error);
+                });
+        }
+
+        // Update order statistics
+        function updateOrderStats(data) {
+            // Update pending orders count with animation
+            const pendingElements = document.querySelectorAll('.pending-orders-count');
+            pendingElements.forEach(el => {
+                const oldValue = parseInt(el.textContent) || 0;
+                const newValue = data.pendingCount;
+                
+                if (newValue > oldValue) {
+                    // Add pulsing animation for new orders
+                    el.style.animation = 'pulse 1s ease-in-out';
+                    setTimeout(() => {
+                        el.style.animation = '';
+                    }, 1000);
+                }
+                
+                el.textContent = data.pendingCount;
+            });
+
+            // Update today's orders count with animation
+            const todayElements = document.querySelectorAll('.today-orders-count');
+            todayElements.forEach(el => {
+                const oldValue = parseInt(el.textContent) || 0;
+                const newValue = data.todayCount;
+                
+                if (newValue > oldValue) {
+                    // Add pulsing animation for new orders
+                    el.style.animation = 'pulse 1s ease-in-out';
+                    setTimeout(() => {
+                        el.style.animation = '';
+                    }, 1000);
+                }
+                
+                el.textContent = data.todayCount;
+            });
+        }
+
+        // Update recent orders section
+        function updateRecentOrders(orders) {
+            const recentOrdersSection = document.querySelector('.recent-orders-section');
+            if (recentOrdersSection && orders.length > 0) {
+                const ordersHtml = orders.slice(0, 5).map(order => `
+                    <tr>
+                        <td><strong>#${order.order_number}</strong></td>
+                        <td>${order.customer_name}</td>
+                        <td>₱${parseFloat(order.total_amount).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        <td><span class="badge bg-${order.status === 'pending' ? 'warning' : (order.status === 'delivered' ? 'success' : 'primary')}">${order.status}</span></td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+
+                const tbody = recentOrdersSection.querySelector('tbody');
+                if (tbody) {
+                    tbody.innerHTML = ordersHtml;
+                }
+            }
+        }
+
+        // Initial load
+        refreshOrderUpdates();
+
+        // Profile dropdown functionality
+        function toggleProfileDropdown() {
+            const profileMenu = document.getElementById('profileMenu');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            // Close notification dropdown if open
+            if (notificationDropdown.classList.contains('show')) {
+                notificationDropdown.classList.remove('show');
+            }
+            
+            // Toggle profile menu
+            profileMenu.classList.toggle('show');
+        }
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileDropdown = document.querySelector('.profile-dropdown');
+            const profileMenu = document.getElementById('profileMenu');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            if (!profileDropdown.contains(event.target)) {
+                profileMenu.classList.remove('show');
+            }
+            
+            if (!document.getElementById('notificationIcon').contains(event.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
 
         // Initialize Sales Chart
         let currentChart = null;

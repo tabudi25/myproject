@@ -10,7 +10,6 @@ class CategoryModel extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'name', 
-        'description', 
         'image', 
         'status'
     ];
@@ -21,7 +20,6 @@ class CategoryModel extends Model
     // Validation rules
     protected $validationRules = [
         'name'        => 'required|min_length[2]|max_length[255]|is_unique[categories.name,id,{id}]',
-        'description' => 'max_length[1000]',
         'status'      => 'in_list[active,inactive]'
     ];
     
@@ -31,9 +29,6 @@ class CategoryModel extends Model
             'min_length' => 'Category name must be at least 2 characters long',
             'max_length' => 'Category name cannot exceed 255 characters',
             'is_unique' => 'This category name already exists'
-        ],
-        'description' => [
-            'max_length' => 'Description cannot exceed 1000 characters'
         ],
         'status' => [
             'in_list' => 'Status must be active or inactive'

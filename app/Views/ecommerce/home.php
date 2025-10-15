@@ -344,6 +344,13 @@
                                         <i class="fas fa-eye me-1"></i>View
                                     </a>
                                 </div>
+                                <?php if ($animal['status'] === 'sold'): ?>
+                                    <div class="mt-2">
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Sold
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -384,6 +391,13 @@
                                         <i class="fas fa-eye me-1"></i>View
                                     </a>
                                 </div>
+                                <?php if ($animal['status'] === 'sold'): ?>
+                                    <div class="mt-2">
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Sold
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -478,27 +492,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart count
-                    const cartBadge = document.querySelector('.cart-badge');
-                    if (cartBadge) {
-                        cartBadge.textContent = data.cartCount;
-                    } else if (data.cartCount > 0) {
-                        // Create cart badge if it doesn't exist
-                        const cartLink = document.querySelector('a[href="/cart"]');
-                        if (cartLink) {
-                            cartLink.innerHTML += '<span class="cart-badge">' + data.cartCount + '</span>';
-                        }
-                    }
-                    
-                    // Show success message
-                    alert(data.message);
+                    alert('✅ ' + data.message);
+                    window.location.href = '/cart';
                 } else {
-                    alert(data.message);
+                    alert('❌ ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert('❌ An error occurred. Please try again.');
             });
         }
     </script>

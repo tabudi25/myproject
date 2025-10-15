@@ -3,8 +3,8 @@ namespace App\Controllers;
 
 use App\Models\AnimalModel;
 use App\Models\CategoryModel;
-use App\Models\OrderModel;
-use App\Models\UserModel;
+use App\Models\orderModel;
+use App\Models\userModel;
 use CodeIgniter\Controller;
 
 class StaffController extends Controller
@@ -19,8 +19,8 @@ class StaffController extends Controller
     {
         $this->animalModel = new AnimalModel();
         $this->categoryModel = new CategoryModel();
-        $this->orderModel = new OrderModel();
-        $this->userModel = new UserModel();
+        $this->orderModel = new orderModel();
+        $this->userModel = new userModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -35,9 +35,10 @@ class StaffController extends Controller
             'total_animals' => $this->animalModel->countAll(),
             'available_animals' => $this->animalModel->where('status', 'available')->countAllResults(),
             'pending_orders' => $this->orderModel->where('status', 'pending')->countAllResults(),
-            'total_inquiries' => $this->db->table('inquiries')->where('status !=', 'closed')->countAllResults(),
-            'pending_reservations' => $this->db->table('reservations')->where('status', 'pending')->countAllResults(),
-            'pending_animals' => $this->db->table('pending_animals')->where('status', 'pending')->countAllResults(),
+            'today_orders' => $this->orderModel->where('DATE(created_at)', date('Y-m-d'))->countAllResults(),
+            'total_inquiries' => $this->getTableCount('inquiries', 'status !=', 'closed'),
+            'pending_reservations' => $this->getTableCount('reservations', 'status', 'pending'),
+            'pending_animals' => $this->getTableCount('pending_animals', 'status', 'pending'),
         ];
         
         return view('staff/dashboard', $data);
@@ -455,6 +456,59 @@ class StaffController extends Controller
             ]);
 
         return $this->response->setJSON(['success' => true, 'message' => 'All notifications marked as read']);
+    }
+
+    // Real-time order status updates for staff
+    public function getOrderUpdates()
+    {
+        $userId = session()->get('user_id');
+        $role = session()->get('role');
+        
+        if (!$userId || !in_array($role, ['staff', 'admin'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+        }
+
+        // Get recent orders (last 10)
+        $recentOrders = $this->db->table('orders')
+            ->select('orders.*, users.name as customer_name, users.email as customer_email')
+            ->join('users', 'users.id = orders.user_id')
+            ->orderBy('orders.created_at', 'DESC')
+            ->limit(10)
+            ->get()
+            ->getResultArray();
+
+        // Get pending orders count
+        $pendingCount = $this->db->table('orders')
+            ->where('status', 'pending')
+            ->countAllResults();
+
+        // Get today's orders count
+        $todayCount = $this->db->table('orders')
+            ->where('DATE(created_at)', date('Y-m-d'))
+            ->countAllResults();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'recentOrders' => $recentOrders,
+            'pendingCount' => $pendingCount,
+            'todayCount' => $todayCount,
+            'timestamp' => time()
+        ]);
+    }
+
+    // Helper method to safely get table counts
+    private function getTableCount($table, $column = null, $value = null)
+    {
+        try {
+            $query = $this->db->table($table);
+            if ($column && $value) {
+                $query->where($column, $value);
+            }
+            return $query->countAllResults();
+        } catch (\Exception $e) {
+            // Table doesn't exist or other error, return 0
+            return 0;
+        }
     }
 }
 

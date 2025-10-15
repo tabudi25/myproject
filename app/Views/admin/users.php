@@ -302,11 +302,6 @@ document.getElementById('editUserForm').addEventListener('submit', function(e){
     .catch(()=>alert('Network error'));
 });
 
-function deleteUser(id){
-  if(!confirm('Delete this user?')) return;
-  fetch('/fluffy-admin/api/users/'+id, { method:'DELETE' })
-    .then(r=>r.json()).then(res=>{ if(res.success){ loadUsers(); } else { alert(res.message||'Failed'); } });
-}
 </script>
 </body>
 </html>

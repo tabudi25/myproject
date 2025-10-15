@@ -598,17 +598,28 @@
                                                 <a href="/animal/<?= $animal['id'] ?>" class="btn btn-outline-primary btn-sm me-2">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <?php if ($isLoggedIn): ?>
-                                                    <button onclick="addToCart(<?= $animal['id'] ?>)" class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-cart-plus"></i>
-                                                    </button>
+                                                <?php if ($animal['status'] === 'available'): ?>
+                                                    <?php if ($isLoggedIn): ?>
+                                                        <button onclick="addToCart(<?= $animal['id'] ?>)" class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-cart-plus"></i>
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <a href="/login" class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-sign-in-alt"></i>
+                                                        </a>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
-                                                    <a href="/login" class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-sign-in-alt"></i>
-                                                    </a>
+                                                    <span class="badge bg-danger">Sold</span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
+                                        <?php if ($animal['status'] === 'sold'): ?>
+                                            <div class="mt-2">
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times-circle me-1"></i>Sold
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -714,6 +725,13 @@
 
         // Add to cart functionality
         function addToCart(animalId) {
+            // Check if user is logged in
+            <?php if (!$isLoggedIn): ?>
+                alert('Please login to add items to cart');
+                window.location.href = '/login';
+                return;
+            <?php endif; ?>
+            
             fetch('/add-to-cart', {
                 method: 'POST',
                 headers: {
@@ -724,50 +742,25 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart count
-                    const cartBadge = document.querySelector('.cart-badge');
-                    if (cartBadge) {
-                        cartBadge.textContent = data.cartCount;
-                    } else if (data.cartCount > 0) {
-                        // Create cart badge if it doesn't exist
-                        const cartLink = document.querySelector('a[href="/cart"]');
-                        if (cartLink) {
-                            cartLink.innerHTML += '<span class="cart-badge">' + data.cartCount + '</span>';
-                        }
-                    }
-                    
-                    // Show success message
-                    showAlert('success', data.message);
+                    alert('✅ ' + data.message);
+                    window.location.href = '/cart';
                 } else {
-                    showAlert('danger', data.message);
+                    alert('❌ ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'An error occurred. Please try again.');
+                alert('❌ An error occurred. Please try again.');
             });
         }
 
         function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            // Insert at the top of the container
-            const container = document.querySelector('.container');
-            container.insertAdjacentHTML('afterbegin', alertHtml);
-            
-            // Auto-dismiss after 3 seconds
-            setTimeout(() => {
-                const alert = container.querySelector('.alert');
-                if (alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }
-            }, 3000);
+            // Create a simple alert using browser's alert for now
+            if (type === 'success') {
+                alert('✅ ' + message);
+            } else {
+                alert('❌ ' + message);
+            }
         }
     </script>
 </body>

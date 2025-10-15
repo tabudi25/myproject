@@ -386,8 +386,8 @@
                             </a>
                         <?php endif; ?>
                     <?php else: ?>
-                        <button class="btn btn-secondary" disabled>
-                            <i class="fas fa-times me-2"></i>Not Available
+                        <button class="btn btn-danger" disabled>
+                            <i class="fas fa-times-circle me-2"></i>Sold
                         </button>
                     <?php endif; ?>
                     
@@ -519,62 +519,25 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart count
-                    const cartBadge = document.querySelector('.cart-badge');
-                    if (cartBadge) {
-                        cartBadge.textContent = data.cartCount;
-                    } else if (data.cartCount > 0) {
-                        // Create cart badge if it doesn't exist
-                        const cartLink = document.querySelector('a[href="/cart"]');
-                        if (cartLink) {
-                            cartLink.innerHTML += '<span class="cart-badge">' + data.cartCount + '</span>';
-                        }
-                    }
-                    
-                    // Update button to show "Already in Cart"
-                    const addButton = document.querySelector('button[onclick*="addToCart"]');
-                    if (addButton) {
-                        addButton.outerHTML = `
-                            <button class="btn btn-success" disabled>
-                                <i class="fas fa-check me-2"></i>Already in Cart
-                            </button>
-                            <a href="/cart" class="btn btn-outline-primary">
-                                <i class="fas fa-shopping-cart me-2"></i>View Cart
-                            </a>
-                        `;
-                    }
-                    
-                    showAlert('success', data.message);
+                    alert('✅ ' + data.message);
+                    window.location.href = '/cart';
                 } else {
-                    showAlert('danger', data.message);
+                    alert('❌ ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'An error occurred. Please try again.');
+                alert('❌ An error occurred. Please try again.');
             });
         }
 
         function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            // Insert at the top of the container
-            const container = document.querySelector('.container');
-            container.insertAdjacentHTML('afterbegin', alertHtml);
-            
-            // Auto-dismiss after 3 seconds
-            setTimeout(() => {
-                const alert = container.querySelector('.alert');
-                if (alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }
-            }, 3000);
+            // Create a simple alert using browser's alert for now
+            if (type === 'success') {
+                alert('✅ ' + message);
+            } else {
+                alert('❌ ' + message);
+            }
         }
     </script>
 </body>

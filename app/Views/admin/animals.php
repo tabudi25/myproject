@@ -354,7 +354,6 @@
                             <td><span class="badge bg-${animal.status==='available'?'success':'secondary'}">${animal.status}</span></td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-1" onclick="openEdit(${animal.id})"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteAnimal(${animal.id})"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     `).join('');
@@ -439,11 +438,6 @@
                 });
         });
 
-        function deleteAnimal(id){
-            if(!confirm('Delete this animal?')) return;
-            fetch('/fluffy-admin/api/animals/'+id, { method:'DELETE' })
-                .then(r=>r.json()).then(res=>{ if(res.success){ loadAnimals(); } else { alert(res.message||'Failed'); } });
-        }
     </script>
 </body>
 </html>

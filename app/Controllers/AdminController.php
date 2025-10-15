@@ -64,7 +64,8 @@ class AdminController extends BaseController
             'total_orders' => $this->orderModel->countAll(),
             'pending_orders' => $this->orderModel->where('status', 'pending')->countAllResults(),
             'confirmed_orders' => $this->orderModel->where('status', 'confirmed')->countAllResults(),
-            'completed_orders' => $this->orderModel->where('status', 'delivered')->countAllResults()
+            'completed_orders' => $this->orderModel->where('status', 'delivered')->countAllResults(),
+            'today_orders' => $this->orderModel->where('DATE(created_at)', date('Y-m-d'))->countAllResults()
         ];
 
         // Get recent orders
@@ -280,7 +281,6 @@ class AdminController extends BaseController
 
         $data = [
             'name' => $this->request->getPost('name'),
-            'description' => $this->request->getPost('description'),
             'status' => $this->request->getPost('status') ?: 'active'
         ];
 
@@ -312,7 +312,6 @@ class AdminController extends BaseController
 
         $data = [
             'name' => $this->request->getPost('name'),
-            'description' => $this->request->getPost('description'),
             'status' => $this->request->getPost('status')
         ];
 
@@ -525,7 +524,10 @@ class AdminController extends BaseController
 
         // Handle both POST and PUT methods
         $status = $this->request->getPost('status') ?: $this->request->getVar('status');
+        $paymentStatus = $this->request->getPost('payment_status') ?: $this->request->getVar('payment_status');
+        
         $validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+        $validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
         
         if (empty($status)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Status is required']);
@@ -534,13 +536,24 @@ class AdminController extends BaseController
         if (!in_array($status, $validStatuses)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid status. Must be: ' . implode(', ', $validStatuses)]);
         }
+        
+        if (!empty($paymentStatus) && !in_array($paymentStatus, $validPaymentStatuses)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid payment status. Must be: ' . implode(', ', $validPaymentStatuses)]);
+        }
 
         // Use direct database update to ensure it works
         $db = \Config\Database::connect();
-        $updated = $db->table('orders')->where('id', $id)->update([
+        $updateData = [
             'status' => $status,
             'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        ];
+        
+        // Add payment status if provided
+        if (!empty($paymentStatus)) {
+            $updateData['payment_status'] = $paymentStatus;
+        }
+        
+        $updated = $db->table('orders')->where('id', $id)->update($updateData);
 
         if ($updated) {
             return $this->response->setJSON(['success' => true, 'message' => 'Order status updated successfully']);
@@ -830,5 +843,42 @@ class AdminController extends BaseController
             ]);
 
         return $this->response->setJSON(['success' => true, 'message' => 'All notifications marked as read']);
+    }
+
+    // Real-time order status updates
+    public function getOrderUpdates()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $db = \Config\Database::connect();
+        
+        // Get recent orders (last 10)
+        $recentOrders = $db->table('orders')
+            ->select('orders.*, users.name as customer_name, users.email as customer_email')
+            ->join('users', 'users.id = orders.user_id')
+            ->orderBy('orders.created_at', 'DESC')
+            ->limit(10)
+            ->get()
+            ->getResultArray();
+
+        // Get pending orders count
+        $pendingCount = $db->table('orders')
+            ->where('status', 'pending')
+            ->countAllResults();
+
+        // Get today's orders count
+        $todayCount = $db->table('orders')
+            ->where('DATE(created_at)', date('Y-m-d'))
+            ->countAllResults();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'recentOrders' => $recentOrders,
+            'pendingCount' => $pendingCount,
+            'todayCount' => $todayCount,
+            'timestamp' => time()
+        ]);
     }
 }

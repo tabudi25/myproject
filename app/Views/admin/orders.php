@@ -230,8 +230,13 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Payment Status</label>
-              <input type="text" class="form-control" id="edit_payment_status" readonly>
+              <label class="form-label">Payment Status *</label>
+              <select class="form-control" name="payment_status" id="edit_payment_status" required>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
+              </select>
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">Delivery Type</label>
@@ -292,7 +297,7 @@ function editOrder(id){
       document.getElementById('edit_order_number').value = order.order_number || order.id;
       document.getElementById('edit_customer').value = order.customer_name || order.user_id;
       document.getElementById('edit_status').value = order.status;
-      document.getElementById('edit_payment_status').value = order.payment_status || 'N/A';
+      document.getElementById('edit_payment_status').value = order.payment_status || 'pending';
       document.getElementById('edit_delivery_type').value = order.delivery_type || 'N/A';
       document.getElementById('edit_total_amount').value = '₱' + parseFloat(order.total_amount).toLocaleString();
       
@@ -304,15 +309,27 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
   e.preventDefault();
   const id = document.getElementById('edit_id').value;
   const status = document.getElementById('edit_status').value;
+  const paymentStatus = document.getElementById('edit_payment_status').value;
   
   if (!status) {
     alert('Please select a status');
     return;
   }
   
+  if (!paymentStatus) {
+    alert('Please select a payment status');
+    return;
+  }
+  
+  // Add confirmation dialog
+  if (!confirm(`Are you sure you want to update this order?\n\nOrder Status: ${status}\nPayment Status: ${paymentStatus}`)) {
+    return;
+  }
+  
   // Use POST with _method override for better compatibility
   const formData = new URLSearchParams();
   formData.append('status', status);
+  formData.append('payment_status', paymentStatus);
   formData.append('_method', 'PUT');
   
   fetch('/fluffy-admin/api/orders/'+id+'/status', { 
@@ -325,9 +342,9 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
       if(res.success){
         bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
         loadOrders();
-        alert('Order status updated successfully!');
+        alert('Order updated successfully!');
       } else { 
-        alert(res.message || 'Failed to update order status'); 
+        alert(res.message || 'Failed to update order'); 
       }
     })
     .catch(err=>{

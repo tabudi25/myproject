@@ -78,6 +78,9 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin/api/notifications', 'AdminController::getNotifications');
     $routes->put('/fluffy-admin/api/notifications/(:num)/read', 'AdminController::markNotificationRead/$1');
     $routes->put('/fluffy-admin/api/notifications/mark-all-read', 'AdminController::markAllNotificationsRead');
+    
+    // Real-time order updates
+    $routes->get('/fluffy-admin/api/order-updates', 'AdminController::getOrderUpdates');
 });
 
 // Staff routes
@@ -115,6 +118,9 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     $routes->get('/staff/api/notifications', 'StaffController::getNotifications');
     $routes->put('/staff/api/notifications/(:num)/read', 'StaffController::markNotificationRead/$1');
     $routes->put('/staff/api/notifications/mark-all-read', 'StaffController::markAllNotificationsRead');
+    
+    // Real-time order updates for staff
+    $routes->get('/staff/api/order-updates', 'StaffController::getOrderUpdates');
 });
 
 // your petshop homepage route

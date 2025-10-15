@@ -30,20 +30,20 @@ class EcommerceController extends BaseController
         // Get categories with animal counts
         $categories = $this->categoryModel->where('status', 'active')->findAll();
         
-        // Get featured animals (available ones)
+        // Get featured animals (both available and sold)
         $featuredAnimals = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->where('animals.status', 'available')
+            ->whereIn('animals.status', ['available', 'sold'])
             ->orderBy('animals.created_at', 'DESC')
             ->limit(8)
             ->findAll();
 
-        // Get new arrivals
+        // Get new arrivals (both available and sold)
         $newArrivals = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->where('animals.status', 'available')
+            ->whereIn('animals.status', ['available', 'sold'])
             ->orderBy('animals.created_at', 'DESC')
             ->limit(4)
             ->findAll();
@@ -73,7 +73,7 @@ class EcommerceController extends BaseController
         $builder = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->where('animals.status', 'available');
+            ->whereIn('animals.status', ['available', 'sold']);
 
         // Filter by category if provided
         if ($categoryId) {
@@ -271,35 +271,54 @@ class EcommerceController extends BaseController
         $quantity = $this->request->getPost('quantity') ?? 1;
         $userId = session()->get('user_id');
 
-        // Check if animal exists and is available
-        $animal = $this->animalModel->asArray()->find($animalId);
-        if (!$animal || $animal['status'] !== 'available') {
-            return $this->response->setJSON(['success' => false, 'message' => 'Animal not available']);
+        // Debug logging
+        log_message('info', 'Add to cart request - Animal ID: ' . $animalId . ', Quantity: ' . $quantity . ', User ID: ' . $userId);
+
+        // Use direct database connection for reliability
+        $db = \Config\Database::connect();
+        
+        try {
+            // Check if animal exists and is available
+            $animal = $db->table('animals')->where('id', $animalId)->get()->getRow();
+            if (!$animal) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Animal not found']);
+            }
+            
+            if ($animal->status !== 'available') {
+                return $this->response->setJSON(['success' => false, 'message' => 'Animal is not available for purchase']);
+            }
+
+            // Check if already in cart
+            $existingItem = $db->table('cart')
+                ->where('user_id', $userId)
+                ->where('animal_id', $animalId)
+                ->get()
+                ->getRow();
+
+            if ($existingItem) {
+                // Update quantity
+                $newQuantity = $existingItem->quantity + $quantity;
+                $db->table('cart')
+                    ->where('id', $existingItem->id)
+                    ->update(['quantity' => $newQuantity]);
+            } else {
+                // Add new item
+                $db->table('cart')->insert([
+                    'user_id' => $userId,
+                    'animal_id' => $animalId,
+                    'quantity' => $quantity
+                ]);
+            }
+
+            // Get updated cart count
+            $cartCount = $db->table('cart')->where('user_id', $userId)->countAllResults();
+
+            return $this->response->setJSON(['success' => true, 'message' => 'Added to cart!', 'cartCount' => $cartCount]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Add to cart error: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'An error occurred. Please try again.']);
         }
-
-        // Check if already in cart
-        $existingItem = $this->cartModel
-            ->where('user_id', $userId)
-            ->where('animal_id', $animalId)
-            ->first();
-
-        if ($existingItem) {
-            // Update quantity
-            $newQuantity = $existingItem['quantity'] + $quantity;
-            $this->cartModel->update($existingItem['id'], ['quantity' => $newQuantity]);
-        } else {
-            // Add new item
-            $this->cartModel->save([
-                'user_id' => $userId,
-                'animal_id' => $animalId,
-                'quantity' => $quantity
-            ]);
-        }
-
-        // Get updated cart count
-        $cartCount = $this->cartModel->where('user_id', $userId)->countAllResults();
-
-        return $this->response->setJSON(['success' => true, 'message' => 'Added to cart!', 'cartCount' => $cartCount]);
     }
 
     public function updateCart()
@@ -445,31 +464,49 @@ class EcommerceController extends BaseController
         // Use direct database insert to bypass model issues
         $db = \Config\Database::connect();
         $builder = $db->table('orders');
-        $result = $builder->insert($orderData);
-        $orderId = $result ? $db->insertID() : false;
+        
+        try {
+            $result = $builder->insert($orderData);
+            $orderId = $result ? $db->insertID() : false;
+        } catch (\Exception $e) {
+            log_message('error', 'Order creation failed: ' . $e->getMessage());
+            return redirect()->back()->with('msg', 'Failed to create order. Please try again.');
+        }
 
         if ($orderId) {
             // Create order items using direct database insert
             $orderItemsBuilder = $db->table('order_items');
-            foreach ($cartItems as $item) {
-                $orderItemsBuilder->insert([
-                    'order_id' => $orderId,
-                    'animal_id' => $item['animal_id'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price']
-                ]);
+            try {
+                foreach ($cartItems as $item) {
+                    $orderItemsBuilder->insert([
+                        'order_id' => $orderId,
+                        'animal_id' => $item['animal_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price']
+                    ]);
 
-                // Update animal status to sold if quantity is 1 (assuming each animal is unique)
-                if ($item['quantity'] == 1) {
-                    $this->animalModel->update($item['animal_id'], ['status' => 'sold']);
+                    // Update animal status to sold if quantity is 1 (assuming each animal is unique)
+                    if ($item['quantity'] == 1) {
+                        $this->animalModel->update($item['animal_id'], ['status' => 'sold']);
+                    }
                 }
+            } catch (\Exception $e) {
+                log_message('error', 'Order items creation failed: ' . $e->getMessage());
+                // If order items fail, we should clean up the order
+                $db->table('orders')->where('id', $orderId)->delete();
+                return redirect()->back()->with('msg', 'Failed to create order items. Please try again.');
             }
 
             // Clear cart
             $this->cartModel->where('user_id', $userId)->delete();
 
             // Create notifications for all admin and staff users
-            $this->createOrderNotifications($orderId, $orderNumber, $total, $userId);
+            try {
+                $this->createOrderNotifications($orderId, $orderNumber, $total, $userId);
+            } catch (\Exception $e) {
+                log_message('error', 'Notification creation failed: ' . $e->getMessage());
+                // Don't fail the order if notifications fail
+            }
 
             return redirect()->to('/order-success/' . $orderId)->with('msg', 'Order placed successfully!');
         } else {
@@ -715,7 +752,8 @@ class EcommerceController extends BaseController
                 number_format($totalAmount, 2)
             ),
             'order_id' => $orderId,
-            'is_read' => false
+            'is_read' => false,
+            'created_at' => date('Y-m-d H:i:s')
         ];
         
         foreach ($adminStaffUsers as $user) {

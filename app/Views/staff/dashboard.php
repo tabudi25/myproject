@@ -211,6 +211,103 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #ff6b35; }
+            100% { transform: scale(1); }
+        }
+
+        /* Profile Dropdown Styles */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .profile-trigger:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .profile-header small {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .profile-item:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .profile-item.logout-item {
+            color: #dc3545;
+        }
+
+        .profile-item.logout-item:hover {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 8px 0;
+        }
+
         .stat-icon {
             width: 60px;
             height: 60px;
@@ -269,13 +366,35 @@
                     <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                 </div>
 
-                <span class="me-3">
-                    <i class="fas fa-user-circle"></i>
-                    <?= esc(session()->get('name')) ?> (Staff)
-                </span>
-                <a href="/logout" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <div class="profile-trigger" onclick="toggleProfileDropdown()">
+                        <i class="fas fa-user-circle me-2"></i>
+                        <span><?= esc(session()->get('name')) ?></span>
+                        <i class="fas fa-chevron-down ms-2"></i>
+                    </div>
+                    <div class="profile-menu" id="profileMenu">
+                        <div class="profile-header">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <span><?= esc(session()->get('name')) ?></span>
+                            <small class="d-block text-muted">Staff Member</small>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <a href="/profile" class="profile-item">
+                            <i class="fas fa-user me-2"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="/settings" class="profile-item">
+                            <i class="fas fa-cog me-2"></i>
+                            <span>Settings</span>
+                        </a>
+                        <div class="profile-divider"></div>
+                        <a href="/logout" class="profile-item logout-item">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -361,8 +480,14 @@
                             <div class="stat-icon blue">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
-                            <div class="stat-value"><?= $stats['pending_orders'] ?></div>
+                            <div class="stat-value">
+                                <span class="pending-orders-count"><?= $stats['pending_orders'] ?></span>
+                            </div>
                             <div class="stat-label">Pending Orders</div>
+                            <small class="text-info d-block mt-1">
+                                <i class="fas fa-calendar-day me-1"></i>
+                                <span class="today-orders-count"><?= $stats['today_orders'] ?></span> Today
+                            </small>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -583,6 +708,116 @@
 
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
+
+        // Auto-refresh order updates every 10 seconds
+        setInterval(() => {
+            refreshOrderUpdates();
+        }, 10000);
+
+        // Function to refresh order updates
+        function refreshOrderUpdates() {
+            fetch('/staff/api/order-updates')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateOrderStats(data);
+                        updateRecentOrders(data.recentOrders);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing order updates:', error);
+                });
+        }
+
+        // Update order statistics
+        function updateOrderStats(data) {
+            // Update pending orders count with animation
+            const pendingElements = document.querySelectorAll('.pending-orders-count');
+            pendingElements.forEach(el => {
+                const oldValue = parseInt(el.textContent) || 0;
+                const newValue = data.pendingCount;
+                
+                if (newValue > oldValue) {
+                    // Add pulsing animation for new orders
+                    el.style.animation = 'pulse 1s ease-in-out';
+                    setTimeout(() => {
+                        el.style.animation = '';
+                    }, 1000);
+                }
+                
+                el.textContent = data.pendingCount;
+            });
+
+            // Update today's orders count with animation
+            const todayElements = document.querySelectorAll('.today-orders-count');
+            todayElements.forEach(el => {
+                const oldValue = parseInt(el.textContent) || 0;
+                const newValue = data.todayCount;
+                
+                if (newValue > oldValue) {
+                    // Add pulsing animation for new orders
+                    el.style.animation = 'pulse 1s ease-in-out';
+                    setTimeout(() => {
+                        el.style.animation = '';
+                    }, 1000);
+                }
+                
+                el.textContent = data.todayCount;
+            });
+        }
+
+        // Update recent orders section
+        function updateRecentOrders(orders) {
+            const recentOrdersSection = document.querySelector('.recent-orders-section');
+            if (recentOrdersSection && orders.length > 0) {
+                const ordersHtml = orders.slice(0, 5).map(order => `
+                    <tr>
+                        <td><strong>#${order.order_number}</strong></td>
+                        <td>${order.customer_name}</td>
+                        <td>₱${parseFloat(order.total_amount).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        <td><span class="badge bg-${order.status === 'pending' ? 'warning' : (order.status === 'delivered' ? 'success' : 'primary')}">${order.status}</span></td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+
+                const tbody = recentOrdersSection.querySelector('tbody');
+                if (tbody) {
+                    tbody.innerHTML = ordersHtml;
+                }
+            }
+        }
+
+        // Initial load
+        refreshOrderUpdates();
+
+        // Profile dropdown functionality
+        function toggleProfileDropdown() {
+            const profileMenu = document.getElementById('profileMenu');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            // Close notification dropdown if open
+            if (notificationDropdown.classList.contains('show')) {
+                notificationDropdown.classList.remove('show');
+            }
+            
+            // Toggle profile menu
+            profileMenu.classList.toggle('show');
+        }
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileDropdown = document.querySelector('.profile-dropdown');
+            const profileMenu = document.getElementById('profileMenu');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            if (!profileDropdown.contains(event.target)) {
+                profileMenu.classList.remove('show');
+            }
+            
+            if (!document.getElementById('notificationIcon').contains(event.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>

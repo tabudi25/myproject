@@ -307,7 +307,6 @@ function loadCategories(){
           <td>${c.animal_count||0}</td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategory(${c.id})"><i class="fas fa-edit"></i></button>
-            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.id})"><i class="fas fa-trash"></i></button>
           </td>
         </tr>
       `).join('');
@@ -354,11 +353,6 @@ document.getElementById('editCategoryForm').addEventListener('submit', function(
     .catch(()=>alert('Network error'));
 });
 
-function deleteCategory(id){
-  if(!confirm('Delete this category?')) return;
-  fetch('/fluffy-admin/api/categories/'+id, { method:'DELETE' })
-    .then(r=>r.json()).then(res=>{ if(res.success){ loadCategories(); } else { alert(res.message||'Failed'); } });
-}
 </script>
 </body>
 </html>

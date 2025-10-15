@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Add to Cart</title>
+  </head>
+  <body>
+    <h1>Test Add to Cart Functionality</h1>
+    <button onclick="testAddToCart()">Test Add to Cart</button>
+    <div id="result"></div>
+
+    <script>
+      function testAddToCart() {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "Testing...";
+
+        fetch("/add-to-cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "animal_id=1&quantity=1",
+        })
+          .then((response) => {
+            console.log("Response status:", response.status);
+            console.log("Response headers:", response.headers);
+            return response.text(); // Get raw response first
+          })
+          .then((text) => {
+            console.log("Raw response:", text);
+            try {
+              const data = JSON.parse(text);
+              resultDiv.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+            } catch (e) {
+              resultDiv.innerHTML = "<p>Error parsing JSON: " + e.message + "</p><p>Raw response: " + text + "</p>";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            resultDiv.innerHTML = "<p>Error: " + error.message + "</p>";
+          });
+      }
+    </script>
+  </body>
+</html>
