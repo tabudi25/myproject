@@ -6,6 +6,7 @@
     <title>Staff Dashboard - Fluffy Planet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/realtime.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -360,6 +361,14 @@
                 <i class="fas fa-paw"></i> Fluffy Planet Staff
             </a>
             <div class="ms-auto d-flex align-items-center">
+                <!-- Real-time Clock -->
+                <div class="realtime-clock me-4">
+                    <div class="clock-time" style="font-size: 1.1rem; font-weight: bold; color: #004e89;"></div>
+                    <div class="clock-date" style="font-size: 0.8rem; color: #666;"></div>
+                </div>
+                
+                
+                
                 <!-- Notification Icon -->
                 <div class="notification-icon" id="notificationIcon" onclick="toggleNotifications()">
                     <i class="fas fa-bell"></i>
@@ -429,9 +438,9 @@
                     <i class="fas fa-plus-circle"></i>
                     <span>Add New Animal</span>
                 </a>
-                <a href="/staff/inquiries" class="sidebar-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>Inquiries</span>
+                <a href="/staff/delivery-confirmations" class="sidebar-item">
+                    <i class="fas fa-truck"></i>
+                    <span>Deliveries</span>
                 </a>
                 <a href="/staff/reservations" class="sidebar-item">
                     <i class="fas fa-calendar-check"></i>
@@ -492,15 +501,6 @@
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
-                            <div class="stat-icon green">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="stat-value"><?= $stats['total_inquiries'] ?></div>
-                            <div class="stat-label">Active Inquiries</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card">
                             <div class="stat-icon purple">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
@@ -541,9 +541,6 @@
                                 </a>
                                 <a href="/staff/orders" class="btn btn-success">
                                     <i class="fas fa-check"></i> Confirm Orders
-                                </a>
-                                <a href="/staff/inquiries" class="btn btn-info text-white">
-                                    <i class="fas fa-reply"></i> Respond to Inquiries
                                 </a>
                                 <a href="/staff/sales-report" class="btn btn-warning">
                                     <i class="fas fa-file-download"></i> Generate Report

@@ -22,6 +22,21 @@ $routes->post('/loginAuth', 'Auth::loginAuth');
 $routes->post('/register', 'Auth::register');
 $routes->get('/logout', 'Auth::logout');
 
+// API routes for real-time functionality
+$routes->group('api', ['filter' => 'auth'], function($routes) {
+    $routes->get('/dashboard-stats', 'ApiController::dashboardStats');
+    $routes->get('/notifications', 'ApiController::notifications');
+});
+
+// Notification routes
+$routes->group('', ['filter' => 'auth'], function($routes) {
+    $routes->get('/notifications', 'NotificationController::index');
+    $routes->post('/notifications/mark-read/(:num)', 'NotificationController::markAsRead/$1');
+    $routes->post('/notifications/mark-all-read', 'NotificationController::markAllAsRead');
+    $routes->get('/api/notifications/unread-count', 'NotificationController::getUnreadCount');
+    $routes->get('/api/notifications/recent', 'NotificationController::getRecent');
+});
+
 // Protected routes (require authentication)
 $routes->group('', ['filter' => 'auth'], function($routes) {
     // Ecommerce routes (customer)
@@ -47,6 +62,8 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin/categories', 'AdminController::categoriesPage');
     $routes->get('/fluffy-admin/orders', 'AdminController::ordersPage');
     $routes->get('/fluffy-admin/users', 'AdminController::usersPage');
+    $routes->get('/fluffy-admin/delivery-confirmations', 'DeliveryController::adminIndex');
+    $routes->post('/fluffy-admin/delivery-confirmations/update-status', 'DeliveryController::updateStatus');
     
     // API routes for admin
     $routes->get('/fluffy-admin/api/animals', 'AdminController::getAnimals');
@@ -94,6 +111,12 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     $routes->get('/staff/orders', 'StaffController::ordersPage');
     $routes->get('/staff/sales-report', 'StaffController::salesReportPage');
     $routes->get('/staff/payments', 'StaffController::paymentsPage');
+    
+    // Delivery confirmation routes
+    $routes->get('/staff/delivery-confirmations', 'DeliveryController::index');
+    $routes->get('/staff/delivery-confirmations/create', 'DeliveryController::create');
+    $routes->post('/staff/delivery-confirmations/store', 'DeliveryController::store');
+    $routes->post('/staff/delivery-confirmations/get-order-details', 'DeliveryController::getOrderDetails');
     
     // Staff API routes
     $routes->get('/staff/api/animals', 'StaffController::getAnimals');

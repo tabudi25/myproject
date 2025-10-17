@@ -289,6 +289,12 @@
                             <i class="fas fa-box me-1"></i>Orders
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="/notifications">
+                            <i class="fas fa-bell me-1"></i>Notifications
+                            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-user me-1"></i><?= esc($userName) ?>
@@ -356,7 +362,11 @@
                                     <div class="order-number">#<?= esc($order['order_number']) ?></div>
                                     <div class="order-date">
                                         <i class="fas fa-calendar me-1"></i>
-                                        <?= date('M d, Y - g:i A', strtotime($order['created_at'])) ?>
+                                        <?= 
+                                            !empty($order['created_at']) && $order['created_at'] !== '0000-00-00 00:00:00' 
+                                                ? date('M d, Y - g:i A', strtotime($order['created_at'])) 
+                                                : date('M d, Y - g:i A') 
+                                        ?>
                                     </div>
                                 </div>
                                 <div>
@@ -481,6 +491,37 @@
                 }
             }, 5000);
         }
+        // Real-time notification updates
+        function updateNotificationBadge() {
+            fetch('/api/notifications/unread-count', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        if (data.unread_count > 0) {
+                            badge.textContent = data.unread_count;
+                            badge.style.display = 'inline';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating notification badge:', error));
+        }
+
+        // Update notification badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+        
+        // Initial load
+        updateNotificationBadge();
     </script>
+    <script src="/js/realtime.js"></script>
 </body>
 </html>

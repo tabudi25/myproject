@@ -115,9 +115,9 @@
                     <i class="fas fa-plus-circle"></i>
                     <span>Add New Animal</span>
                 </a>
-                <a href="/staff/inquiries" class="sidebar-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>Inquiries</span>
+                <a href="/staff/delivery-confirmations" class="sidebar-item">
+                    <i class="fas fa-truck"></i>
+                    <span>Deliveries</span>
                 </a>
                 <a href="/staff/reservations" class="sidebar-item">
                     <i class="fas fa-calendar-check"></i>

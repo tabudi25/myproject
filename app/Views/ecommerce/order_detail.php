@@ -456,7 +456,11 @@
                         <div class="order-number">Order #<?= esc($order['order_number']) ?></div>
                         <div class="order-date">
                             <i class="fas fa-calendar me-2"></i>
-                            Placed on <?= date('M d, Y at g:i A', strtotime($order['created_at'])) ?>
+                            Placed on <?= 
+                                !empty($order['created_at']) && $order['created_at'] !== '0000-00-00 00:00:00' 
+                                    ? date('M d, Y at g:i A', strtotime($order['created_at'])) 
+                                    : date('M d, Y at g:i A') 
+                            ?>
                         </div>
                         <span class="status-badge status-<?= $order['status'] ?>">
                             <?= ucfirst($order['status']) ?>

@@ -6,6 +6,7 @@
     <title><?= $title ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/js/realtime.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -283,6 +284,13 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Real-time Clock -->
+                <div class="realtime-clock me-4">
+                    <div class="clock-time" style="font-size: 1rem; font-weight: bold; color: white;"></div>
+                    <div class="clock-date" style="font-size: 0.8rem; color: rgba(255,255,255,0.8);"></div>
+                </div>
+                
+                
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/shop">
@@ -300,6 +308,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/my-orders">
                             <i class="fas fa-box me-1"></i>Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="/notifications">
+                            <i class="fas fa-bell me-1"></i>Notifications
+                            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -570,6 +584,37 @@
                 }
             }, 5000);
         }
+
+        // Real-time notification updates
+        function updateNotificationBadge() {
+            fetch('/api/notifications/unread-count', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        if (data.unread_count > 0) {
+                            badge.textContent = data.unread_count;
+                            badge.style.display = 'inline';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating notification badge:', error));
+        }
+
+        // Update notification badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+        
+        // Initial load
+        updateNotificationBadge();
     </script>
 </body>
 </html>

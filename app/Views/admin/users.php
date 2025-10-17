@@ -91,8 +91,263 @@
         padding: 15px 30px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+
+    .sidebar-toggle {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: var(--accent-color);
+        cursor: pointer;
+    }
+
+    .admin-user {
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+        gap: 20px;
+        z-index: 100;
+    }
+
+    .notification-icon {
+        position: relative;
+        font-size: 1.3rem;
+        color: var(--accent-color);
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .notification-icon:hover {
+        color: var(--primary-color);
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        min-width: 20px;
+        height: 20px;
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .notification-dropdown {
+        position: absolute;
+        top: 60px;
+        right: 30px;
+        width: 400px;
+        max-height: 500px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        display: none;
+        z-index: 1000;
+        overflow: hidden;
+    }
+
+    .notification-dropdown.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .notification-header {
+        padding: 15px 20px;
+        background: var(--primary-color);
+        color: white;
+        display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    .notification-body {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .notification-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .notification-item:hover {
+        background: #f8f9fa;
+    }
+
+    .notification-item.unread {
+        background: #e3f2fd;
+    }
+
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        background: var(--primary-color);
+        border-radius: 50%;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        color: var(--accent-color);
+        margin-bottom: 5px;
+    }
+
+    .notification-message {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .notification-time {
+        font-size: 0.75rem;
+        color: #adb5bd;
+    }
+
+    .notification-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    /* Profile Dropdown Styles */
+    .profile-dropdown {
+        position: relative;
+        display: inline-block;
+        z-index: 1000;
+    }
+
+    .profile-trigger {
+        display: flex;
+        align-items: center;
+        padding: 10px 18px;
+        background: var(--primary-color);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        font-weight: 600;
+        border: 2px solid var(--primary-color);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .profile-trigger:hover {
+        background: var(--secondary-color);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .profile-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        min-width: 220px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+
+    .profile-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .profile-header {
+        padding: 16px 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .profile-header small {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .profile-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .profile-item:hover {
+        background: #f8f9fa;
+        color: var(--primary-color);
+    }
+
+    .profile-item.logout-item {
+        color: #dc3545;
+    }
+
+    .profile-item.logout-item:hover {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .profile-divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 8px 0;
+    }
+
+    .mark-all-read {
+        padding: 10px 20px;
+        text-align: center;
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+        cursor: pointer;
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+
+    .mark-all-read:hover {
+        background: #e9ecef;
     }
 
     .content-area {
@@ -143,14 +398,20 @@
                     <span class="menu-text">Orders</span>
                 </a>
             </li>
-            <li>
-                <a href="/fluffy-admin/users" class="active">
-                    <i class="fas fa-users"></i>
-                    <span class="menu-text">Users</span>
-                </a>
-            </li>
-            <li>
-                <a href="/">
+                <li>
+                    <a href="/fluffy-admin/users" class="active">
+                        <i class="fas fa-users"></i>
+                        <span class="menu-text">Users</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/delivery-confirmations">
+                        <i class="fas fa-truck"></i>
+                        <span class="menu-text">Deliveries</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/">
                     <i class="fas fa-globe"></i>
                     <span class="menu-text">Visit Site</span>
                 </a>
@@ -165,10 +426,64 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="main-content">
+    <div class="main-content" id="mainContent">
         <!-- Top Navbar -->
         <div class="top-navbar">
-            <h4 class="mb-0"><i class="fas fa-users text-primary me-2"></i>Manage Users</h4>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="admin-user">
+                <!-- Notification Icon -->
+                <div class="notification-icon" id="notificationIcon" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown" style="display: inline-block;">
+                    <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                        <i class="fas fa-user-shield me-2"></i>
+                        <span>Admin</span>
+                        <i class="fas fa-chevron-down ms-2"></i>
+                    </div>
+                    <div class="profile-menu" id="profileMenu">
+                        <div class="profile-header">
+                            <i class="fas fa-user-shield me-2"></i>
+                            <span>Admin</span>
+                            <small class="d-block text-muted">Administrator</small>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <a href="/profile" class="profile-item">
+                            <i class="fas fa-user me-2"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="/settings" class="profile-item">
+                            <i class="fas fa-cog me-2"></i>
+                            <span>Settings</span>
+                        </a>
+                        <div class="profile-divider"></div>
+                        <a href="/logout" class="profile-item logout-item">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Dropdown -->
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                <button class="btn btn-sm btn-light" onclick="markAllAsRead()">Mark all as read</button>
+            </div>
+            <div class="notification-body" id="notificationBody">
+                <div class="notification-empty">
+                    <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                    <p>No notifications yet</p>
+                </div>
+            </div>
         </div>
 
         <!-- Content Area -->
@@ -242,6 +557,172 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Profile dropdown functionality
+        function toggleProfileDropdown() {
+            const profileMenu = document.getElementById('profileMenu');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            // Close notification dropdown if open
+            if (notificationDropdown.classList.contains('show')) {
+                notificationDropdown.classList.remove('show');
+            }
+            
+            // Toggle profile menu
+            profileMenu.classList.toggle('show');
+        }
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileDropdown = document.querySelector('.profile-dropdown');
+            const profileMenu = document.getElementById('profileMenu');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            if (!profileDropdown.contains(event.target)) {
+                profileMenu.classList.remove('show');
+            }
+            
+            if (!document.getElementById('notificationIcon').contains(event.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
+
+        // Toggle notification dropdown
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.classList.contains('show')) {
+                loadNotifications();
+            }
+        }
+
+        // Load notifications
+        function loadNotifications() {
+            fetch('/fluffy-admin/api/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayNotifications(data.notifications);
+                        updateNotificationBadge(data.unreadCount);
+                    }
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+        }
+
+        // Display notifications
+        function displayNotifications(notifications) {
+            const body = document.getElementById('notificationBody');
+            
+            if (!notifications || notifications.length === 0) {
+                body.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.is_read ? '' : 'unread'}" onclick="markAsRead(${notif.id}, ${notif.order_id})">
+                    <div class="notification-title">${escapeHtml(notif.title)}</div>
+                    <div class="notification-message">${escapeHtml(notif.message)}</div>
+                    <div class="notification-time">
+                        <i class="fas fa-clock me-1"></i>${timeAgo(notif.created_at)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Mark notification as read
+        function markAsRead(notificationId, orderId) {
+            fetch(`/fluffy-admin/api/notifications/${notificationId}/read`, {
+                method: 'PUT'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    
+                    // Redirect to order page if applicable
+                    if (orderId) {
+                        window.location.href = '/fluffy-admin/orders';
+                    }
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        // Mark all notifications as read
+        function markAllAsRead() {
+            fetch('/fluffy-admin/api/notifications/mark-all-read', {
+                method: 'PUT'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking all as read:', error));
+        }
+
+        // Helper: Time ago function
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (let [name, seconds_in] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / seconds_in);
+                if (interval >= 1) {
+                    return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
+                }
+            }
+            
+            return 'Just now';
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load notifications on page load
+        loadNotifications();
+
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
+
 loadUsers();
 
 function loadUsers(){

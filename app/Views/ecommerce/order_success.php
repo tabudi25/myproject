@@ -300,7 +300,11 @@
                     <span class="detail-label">
                         <i class="fas fa-calendar me-2"></i>Order Date
                     </span>
-                    <span class="detail-value"><?= date('M d, Y - g:i A', strtotime($order['created_at'])) ?></span>
+                    <span class="detail-value"><?= 
+                        !empty($order['created_at']) && $order['created_at'] !== '0000-00-00 00:00:00' 
+                            ? date('M d, Y - g:i A', strtotime($order['created_at'])) 
+                            : date('M d, Y - g:i A') 
+                    ?></span>
                 </div>
                 
                 <div class="detail-row">

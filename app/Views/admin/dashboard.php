@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
+    <script src="/js/realtime.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -560,6 +561,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/fluffy-admin/delivery-confirmations">
+                        <i class="fas fa-truck"></i>
+                        <span class="menu-text">Deliveries</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/">
                         <i class="fas fa-globe"></i>
                         <span class="menu-text">Visit Site</span>
@@ -575,6 +582,14 @@
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
+                
+                <!-- Real-time Clock -->
+                <div class="realtime-clock me-4">
+                    <div class="clock-time" style="font-size: 1.2rem; font-weight: bold; color: #2c3e50;"></div>
+                    <div class="clock-date" style="font-size: 0.9rem; color: #666;"></div>
+                </div>
+                
+                
                 
                 <div class="admin-user">
                     <!-- Notification Icon -->
@@ -693,6 +708,18 @@
                             <?= $stats['completed_orders'] ?> Completed
                         </small>
                     </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-number pending-deliveries-count"><?= $stats['pending_deliveries'] ?? 0 ?></div>
+                        <div class="stat-label">Pending Deliveries</div>
+                        <small class="text-warning">
+                            <i class="fas fa-clock me-1"></i>
+                            Awaiting Review
+                        </small>
+                    </div>
                 </div>
 
                 <!-- Sales Graph -->
@@ -748,7 +775,11 @@
                                                             <?= ucfirst($order['status']) ?>
                                                         </span>
                                                     </td>
-                                                    <td><?= date('M d, Y', strtotime($order['created_at'])) ?></td>
+                                                    <td><?= 
+                                                        !empty($order['created_at']) && $order['created_at'] !== '0000-00-00 00:00:00' 
+                                                            ? date('M d, Y', strtotime($order['created_at'])) 
+                                                            : date('M d, Y') 
+                                                    ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -1495,6 +1526,13 @@
 
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
+
+        // Initialize real-time manager
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.realtimeManager) {
+                window.realtimeManager.init();
+            }
+        });
     </script>
 </body>
 </html>

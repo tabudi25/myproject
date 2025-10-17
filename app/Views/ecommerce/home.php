@@ -178,6 +178,99 @@
             margin-top: 60px;
         }
 
+        /* Notification Section Styles */
+        .notification-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item.unread {
+            background-color: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 15px;
+        }
+
+        .notification-icon.delivery-ready {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .notification-icon.delivery-confirmed {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .notification-icon.delivery-rejected {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .notification-icon.order-status {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff6b35;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         .alert {
             border-radius: 10px;
             border: none;
@@ -238,6 +331,12 @@
                                 <i class="fas fa-box me-1"></i>Orders
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="/notifications">
+                                <i class="fas fa-bell me-1"></i>Notifications
+                                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user me-1"></i><?= esc($userName) ?>
@@ -291,6 +390,34 @@
             </a>
         </div>
     </section>
+
+    <!-- Notifications Section (for logged in users) -->
+    <?php if ($isLoggedIn): ?>
+    <section class="py-4" style="background-color: #f8f9fa;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="notification-section">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">
+                                <i class="fas fa-bell text-primary me-2"></i>Your Notifications
+                            </h4>
+                            <a href="/notifications" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View All
+                            </a>
+                        </div>
+                        <div id="recentNotifications" class="notification-list">
+                            <!-- Notifications will be loaded here -->
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading notifications...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
 
     <!-- Categories Section -->
     <section class="py-5">
@@ -503,6 +630,147 @@
                 alert('❌ An error occurred. Please try again.');
             });
         }
+
+        // Load recent notifications for homepage
+        function loadRecentNotifications() {
+            fetch('/api/notifications/recent', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('recentNotifications');
+                if (data.success && data.notifications.length > 0) {
+                    let html = '';
+                    data.notifications.forEach(notification => {
+                        const icons = {
+                            'delivery_ready': 'fas fa-truck',
+                            'delivery_confirmed': 'fas fa-check-circle',
+                            'delivery_rejected': 'fas fa-exclamation-triangle',
+                            'order_status': 'fas fa-info-circle'
+                        };
+                        const icon = icons[notification.type] || 'fas fa-bell';
+                        
+                        html += `
+                            <div class="notification-item ${notification.is_read ? '' : 'unread'}" onclick="markAsRead(${notification.id})">
+                                <div class="d-flex align-items-start">
+                                    <div class="notification-icon ${notification.type}">
+                                        <i class="${icon}"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${notification.title}</h6>
+                                        <p class="mb-2">${notification.message}</p>
+                                        <small class="notification-time">
+                                            <i class="fas fa-clock me-1"></i>
+                                            ${formatTime(notification.created_at)}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                            <p class="mb-0">No notifications yet</p>
+                            <small>You'll receive notifications about your orders and deliveries here.</small>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+                document.getElementById('recentNotifications').innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                        <p class="mb-0">Unable to load notifications</p>
+                        <small>Please try refreshing the page.</small>
+                    </div>
+                `;
+            });
+        }
+
+        // Mark notification as read
+        function markAsRead(notificationId) {
+            fetch(`/notifications/mark-read/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove unread styling
+                    const notification = document.querySelector(`[onclick="markAsRead(${notificationId})"]`);
+                    if (notification) {
+                        notification.classList.remove('unread');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Format time for display
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // Real-time notification updates
+        function updateNotificationBadge() {
+            fetch('/api/notifications/unread-count', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        if (data.unread_count > 0) {
+                            badge.textContent = data.unread_count;
+                            badge.style.display = 'inline';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating notification badge:', error));
+        }
+
+        // Load notifications on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if ($isLoggedIn): ?>
+                loadRecentNotifications();
+                updateNotificationBadge();
+                
+                // Update notifications every 30 seconds
+                setInterval(loadRecentNotifications, 30000);
+                setInterval(updateNotificationBadge, 30000);
+            <?php endif; ?>
+        });
     </script>
+    <script src="/js/realtime.js"></script>
 </body>
 </html>

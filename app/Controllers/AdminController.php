@@ -6,6 +6,7 @@ use App\Models\AnimalModel;
 use App\Models\CategoryModel;
 use App\Models\UserModel;
 use App\Models\OrderModel;
+use App\Models\DeliveryConfirmationModel;
 use App\Models\OrderItemModel;
 
 class AdminController extends BaseController
@@ -15,6 +16,7 @@ class AdminController extends BaseController
     protected $userModel;
     protected $orderModel;
     protected $orderItemModel;
+    protected $deliveryModel;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class AdminController extends BaseController
         $this->userModel = new UserModel();
         $this->orderModel = new OrderModel();
         $this->orderItemModel = new OrderItemModel();
+        $this->deliveryModel = new DeliveryConfirmationModel();
     }
 
     public function animalsPage()
@@ -65,7 +68,8 @@ class AdminController extends BaseController
             'pending_orders' => $this->orderModel->where('status', 'pending')->countAllResults(),
             'confirmed_orders' => $this->orderModel->where('status', 'confirmed')->countAllResults(),
             'completed_orders' => $this->orderModel->where('status', 'delivered')->countAllResults(),
-            'today_orders' => $this->orderModel->where('DATE(created_at)', date('Y-m-d'))->countAllResults()
+            'today_orders' => $this->orderModel->where('DATE(created_at)', date('Y-m-d'))->countAllResults(),
+            'pending_deliveries' => $this->deliveryModel->where('status', 'pending')->countAllResults()
         ];
 
         // Get recent orders

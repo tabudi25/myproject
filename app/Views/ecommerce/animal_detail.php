@@ -442,7 +442,11 @@
                         <span class="detail-label">
                             <i class="fas fa-calendar me-2"></i>Available Since
                         </span>
-                        <span class="detail-value"><?= date('M d, Y', strtotime($animal['created_at'])) ?></span>
+                        <span class="detail-value"><?= 
+                            !empty($animal['created_at']) && $animal['created_at'] !== '0000-00-00 00:00:00' 
+                                ? date('M d, Y', strtotime($animal['created_at'])) 
+                                : date('M d, Y') 
+                        ?></span>
                     </div>
                 </div>
             </div>
