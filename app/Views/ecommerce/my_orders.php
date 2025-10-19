@@ -233,28 +233,47 @@
             color: var(--primary-color);
         }
 
-        @media (max-width: 768px) {
-            .orders-container {
-                padding: 20px;
-                margin-top: 20px;
-            }
-            
-            .order-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .order-details {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .order-actions {
-                width: 100%;
-                justify-content: center;
-            }
-        }
+
+         @media (max-width: 768px) {
+             .orders-container {
+                 padding: 20px;
+                 margin-top: 20px;
+             }
+             
+             .order-header {
+                 flex-direction: column;
+                 align-items: flex-start;
+                 gap: 10px;
+             }
+             
+             .order-details {
+                 flex-direction: column;
+                 align-items: flex-start;
+             }
+             
+             .order-actions {
+                 width: 100%;
+                 justify-content: center;
+             }
+
+             .tracking-timeline {
+                 padding-left: 10px;
+             }
+             
+             .timeline-icon {
+                 width: 35px;
+                 height: 35px;
+                 font-size: 12px;
+             }
+             
+             .timeline-title {
+                 font-size: 14px;
+             }
+             
+             .timeline-description {
+                 font-size: 12px;
+             }
+         }
     </style>
 </head>
 <body>
@@ -397,7 +416,7 @@
                                 </div>
                                 
                                 <div class="order-actions">
-                                    <a href="/order/<?= $order['id'] ?>" class="btn btn-primary btn-sm">
+                                    <a href="/order/<?= $order['id'] ?>" class="btn btn-primary btn-sm me-2">
                                         <i class="fas fa-eye me-1"></i>View Details
                                     </a>
                                     <?php if ($order['status'] === 'pending'): ?>

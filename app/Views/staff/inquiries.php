@@ -114,10 +114,6 @@
                     <i class="fas fa-envelope"></i>
                     <span>Inquiries</span>
                 </a>
-                <a href="/staff/reservations" class="sidebar-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Reservations</span>
-                </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Orders</span>

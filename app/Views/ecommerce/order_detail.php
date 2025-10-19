@@ -337,6 +337,91 @@
             border-color: var(--primary-color);
         }
 
+        /* Order Tracking Timeline Styles */
+        .order-tracking {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .tracking-timeline {
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .timeline-line.active {
+            background: var(--primary-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .timeline-icon.completed {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .timeline-icon.current {
+            background: var(--primary-color);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-icon.pending {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+        }
+
+        .timeline-description {
+            color: #6c757d;
+            font-size: 13px;
+            margin: 0;
+        }
+
         @media (max-width: 768px) {
             .order-container {
                 padding: 20px;
@@ -369,6 +454,24 @@
             
             .info-value {
                 text-align: left;
+            }
+
+            .tracking-timeline {
+                padding-left: 10px;
+            }
+            
+            .timeline-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 12px;
+            }
+            
+            .timeline-title {
+                font-size: 14px;
+            }
+            
+            .timeline-description {
+                font-size: 12px;
             }
         }
     </style>
@@ -504,6 +607,7 @@
                         </div>
                     </div>
 
+
                     <!-- Order Summary -->
                     <div class="order-summary">
                         <h5 class="mb-3">
@@ -582,45 +686,71 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Order Tracking -->
+                    <!-- Order Tracking Timeline -->
                     <div class="order-tracking">
                         <h5 class="section-title">
                             <i class="fas fa-truck"></i>
                             Order Tracking
                         </h5>
                         
-                        <?php
-                        $trackingSteps = [
-                            'pending' => ['Order Placed', 'Your order has been received'],
-                            'confirmed' => ['Order Confirmed', 'We have confirmed your order'],
-                            'processing' => ['Preparing Pet', 'Your pet is being prepared'],
-                            'shipped' => ['Ready for Pickup/Delivery', 'Your order is ready'],
-                            'delivered' => ['Completed', 'Order has been completed']
-                        ];
-                        
-                        $statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
-                        $currentStatusIndex = array_search($order['status'], $statusOrder);
-                        ?>
-                        
-                        <?php foreach ($statusOrder as $index => $status): ?>
-                            <?php if (isset($trackingSteps[$status])): ?>
-                                <div class="tracking-step <?= $index < $currentStatusIndex ? 'completed' : ($index === $currentStatusIndex ? 'current' : 'pending') ?>">
-                                    <div class="tracking-icon">
-                                        <?php if ($index < $currentStatusIndex): ?>
-                                            <i class="fas fa-check"></i>
-                                        <?php elseif ($index === $currentStatusIndex): ?>
-                                            <i class="fas fa-clock"></i>
-                                        <?php else: ?>
-                                            <i class="fas fa-circle"></i>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="tracking-content">
-                                        <div class="tracking-title"><?= $trackingSteps[$status][0] ?></div>
-                                        <div class="tracking-time"><?= $trackingSteps[$status][1] ?></div>
-                                    </div>
+                        <div class="tracking-timeline">
+                            <div class="timeline-line <?= in_array($order['status'], ['confirmed', 'processing', 'shipped', 'delivered']) ? 'active' : '' ?>"></div>
+                            
+                            <!-- Order Placed -->
+                            <div class="timeline-item">
+                                <div class="timeline-icon completed">
+                                    <i class="fas fa-check"></i>
                                 </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Order Placed</div>
+                                    <div class="timeline-description">Your order has been received</div>
+                                </div>
+                            </div>
+
+                            <!-- Order Confirmed -->
+                            <div class="timeline-item">
+                                <div class="timeline-icon <?= in_array($order['status'], ['confirmed', 'processing', 'shipped', 'delivered']) ? 'completed' : ($order['status'] === 'pending' ? 'current' : 'pending') ?>">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Order Confirmed</div>
+                                    <div class="timeline-description">We have confirmed your order</div>
+                                </div>
+                            </div>
+
+                            <!-- Preparing Pet -->
+                            <div class="timeline-item">
+                                <div class="timeline-icon <?= in_array($order['status'], ['processing', 'shipped', 'delivered']) ? 'completed' : (in_array($order['status'], ['confirmed']) ? 'current' : 'pending') ?>">
+                                    <i class="fas fa-paw"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Preparing Pet</div>
+                                    <div class="timeline-description">Your pet is being prepared</div>
+                                </div>
+                            </div>
+
+                            <!-- Ready for Pickup/Delivery -->
+                            <div class="timeline-item">
+                                <div class="timeline-icon <?= in_array($order['status'], ['shipped', 'delivered']) ? 'completed' : (in_array($order['status'], ['processing']) ? 'current' : 'pending') ?>">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Ready for <?= $order['delivery_type'] === 'pickup' ? 'Pickup' : 'Delivery' ?></div>
+                                    <div class="timeline-description">Your order is ready</div>
+                                </div>
+                            </div>
+
+                            <!-- Completed -->
+                            <div class="timeline-item">
+                                <div class="timeline-icon <?= $order['status'] === 'delivered' ? 'completed' : (in_array($order['status'], ['shipped']) ? 'current' : 'pending') ?>">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Completed</div>
+                                    <div class="timeline-description">Order has been completed</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Action Buttons -->

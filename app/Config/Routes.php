@@ -61,6 +61,7 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin/animals', 'AdminController::animalsPage');
     $routes->get('/fluffy-admin/categories', 'AdminController::categoriesPage');
     $routes->get('/fluffy-admin/orders', 'AdminController::ordersPage');
+    $routes->get('/fluffy-admin/orders/tracking/(:num)', 'AdminController::viewOrderTracking/$1');
     $routes->get('/fluffy-admin/users', 'AdminController::usersPage');
     $routes->get('/fluffy-admin/delivery-confirmations', 'DeliveryController::adminIndex');
     $routes->post('/fluffy-admin/delivery-confirmations/update-status', 'DeliveryController::updateStatus');
@@ -107,8 +108,8 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     $routes->get('/staff/animals', 'StaffController::animalsPage');
     $routes->get('/staff/add-animal', 'StaffController::addAnimalPage');
     $routes->get('/staff/inquiries', 'StaffController::inquiriesPage');
-    $routes->get('/staff/reservations', 'StaffController::reservationsPage');
     $routes->get('/staff/orders', 'StaffController::ordersPage');
+    $routes->get('/staff/orders/tracking/(:num)', 'AdminController::viewOrderTracking/$1');
     $routes->get('/staff/sales-report', 'StaffController::salesReportPage');
     $routes->get('/staff/payments', 'StaffController::paymentsPage');
     
@@ -126,9 +127,6 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     $routes->get('/staff/api/inquiries', 'StaffController::getInquiries');
     $routes->put('/staff/api/inquiries/(:num)/respond', 'StaffController::respondToInquiry/$1');
     
-    $routes->get('/staff/api/reservations', 'StaffController::getReservations');
-    $routes->put('/staff/api/reservations/(:num)/confirm', 'StaffController::confirmReservation/$1');
-    $routes->put('/staff/api/reservations/(:num)/cancel', 'StaffController::cancelReservation/$1');
     
     $routes->get('/staff/api/orders', 'StaffController::getOrders');
     $routes->put('/staff/api/orders/(:num)/confirm', 'StaffController::confirmOrder/$1');

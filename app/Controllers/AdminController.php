@@ -530,8 +530,8 @@ class AdminController extends BaseController
         $status = $this->request->getPost('status') ?: $this->request->getVar('status');
         $paymentStatus = $this->request->getPost('payment_status') ?: $this->request->getVar('payment_status');
         
-        $validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
-        $validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+        $validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+        $validPaymentStatuses = ['pending', 'paid'];
         
         if (empty($status)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Status is required']);
@@ -560,10 +560,73 @@ class AdminController extends BaseController
         $updated = $db->table('orders')->where('id', $id)->update($updateData);
 
         if ($updated) {
+            // Send notification to customer about status update
+            $this->sendOrderStatusNotification($id, $status);
             return $this->response->setJSON(['success' => true, 'message' => 'Order status updated successfully']);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to update order status']);
         }
+    }
+
+    /**
+     * View order tracking (Admin/Staff)
+     */
+    public function viewOrderTracking($orderId = null)
+    {
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('role'), ['admin', 'staff'])) {
+            return redirect()->to('auth/login')->with('error', 'Please login to access this page');
+        }
+
+        if (!$orderId) {
+            return redirect()->to('admin/orders')->with('error', 'Order ID is required');
+        }
+
+        $orderModel = new OrderModel();
+        $order = $orderModel->getOrderWithItems($orderId);
+
+        if (!$order) {
+            return redirect()->to('admin/orders')->with('error', 'Order not found');
+        }
+
+        return view('admin/order_tracking', [
+            'order' => $order
+        ]);
+    }
+
+    /**
+     * Send notification to customer about order status update
+     */
+    private function sendOrderStatusNotification($orderId, $newStatus)
+    {
+        $orderModel = new OrderModel();
+        $order = $orderModel->find($orderId);
+        
+        if (!$order) {
+            return;
+        }
+
+        $statusMessages = [
+            'pending' => 'Your order is being reviewed',
+            'confirmed' => 'Your order has been confirmed',
+            'processing' => 'Your pet is being prepared',
+            'shipped' => 'Your order is ready for pickup/delivery',
+            'delivered' => 'Your order has been completed',
+            'cancelled' => 'Your order has been cancelled'
+        ];
+
+        $message = $statusMessages[$newStatus] ?? 'Your order status has been updated';
+        
+        $db = \Config\Database::connect();
+        $notificationData = [
+            'user_id' => $order['user_id'],
+            'title' => 'Order Status Update',
+            'message' => $message,
+            'order_id' => $orderId,
+            'is_read' => false,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $db->table('notifications')->insert($notificationData);
     }
 
     public function getSalesData()

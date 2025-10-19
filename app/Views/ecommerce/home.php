@@ -40,6 +40,7 @@
             text-align: center;
         }
 
+
         .hero-title {
             font-size: 3rem;
             font-weight: bold;
@@ -51,6 +52,7 @@
             margin-bottom: 2rem;
             opacity: 0.9;
         }
+
 
         .category-card {
             background: white;
@@ -392,32 +394,6 @@
     </section>
 
     <!-- Notifications Section (for logged in users) -->
-    <?php if ($isLoggedIn): ?>
-    <section class="py-4" style="background-color: #f8f9fa;">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="notification-section">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="mb-0">
-                                <i class="fas fa-bell text-primary me-2"></i>Your Notifications
-                            </h4>
-                            <a href="/notifications" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye me-1"></i>View All
-                            </a>
-                        </div>
-                        <div id="recentNotifications" class="notification-list">
-                            <!-- Notifications will be loaded here -->
-                            <div class="text-center text-muted">
-                                <i class="fas fa-spinner fa-spin"></i> Loading notifications...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <?php endif; ?>
 
     <!-- Categories Section -->
     <section class="py-5">

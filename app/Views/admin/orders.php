@@ -416,12 +416,6 @@
                     <span class="menu-text">Visit Site</span>
                 </a>
             </li>
-            <li>
-                <a href="/logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="menu-text">Logout</span>
-                </a>
-            </li>
         </ul>
     </nav>
 
@@ -541,7 +535,6 @@
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped</option>
                 <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
@@ -549,8 +542,6 @@
               <select class="form-control" name="payment_status" id="edit_payment_status" required>
                 <option value="pending">Pending</option>
                 <option value="paid">Paid</option>
-                <option value="failed">Failed</option>
-                <option value="refunded">Refunded</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
@@ -760,7 +751,8 @@ function loadOrders(){
           <td>${o.created_at||''}</td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-1" onclick="editOrder(${o.id})"><i class="fas fa-edit"></i></button>
-            <a class="btn btn-sm btn-outline-info" href="/order/${o.id}" target="_blank"><i class="fas fa-eye"></i></a>
+            <a class="btn btn-sm btn-outline-info me-1" href="/order/${o.id}" target="_blank"><i class="fas fa-eye"></i></a>
+            <a class="btn btn-sm btn-outline-success" href="/fluffy-admin/orders/tracking/${o.id}" target="_blank"><i class="fas fa-truck"></i></a>
           </td>
         </tr>
       `).join('');

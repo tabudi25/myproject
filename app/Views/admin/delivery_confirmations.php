@@ -251,12 +251,6 @@
                         <span class="menu-text">Visit Site</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="menu-text">Logout</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 

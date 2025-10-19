@@ -105,7 +105,23 @@ class Auth extends BaseController
 
         try {
             if ($userModel->save($data)) {
-                return redirect()->to('/login')->with('msg', 'Account created successfully! Please login.');
+                // If staff role, automatically log them in and redirect to staff dashboard
+                if ($role === 'staff') {
+                    // Set session data for staff
+                    $session = session();
+                    $session->set([
+                        'isLoggedIn' => true,
+                        'user_id' => $userModel->getInsertID(),
+                        'name' => $name,
+                        'email' => $email,
+                        'role' => $role
+                    ]);
+                    
+                    return redirect()->to('/staff-dashboard')->with('msg', 'Welcome to Fluffy Planet Staff! Your account has been created successfully.');
+                } else {
+                    // For customers, redirect to login page
+                    return redirect()->to('/login')->with('msg', 'Account created successfully! Please login.');
+                }
             } else {
                 return redirect()->back()->withInput()->with('msg', 'Failed to create account. Please try again.');
             }

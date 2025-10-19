@@ -761,4 +761,5 @@ class EcommerceController extends BaseController
             $db->table('notifications')->insert($notificationData);
         }
     }
+
 }
