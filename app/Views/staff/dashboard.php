@@ -471,16 +471,20 @@
 
                 <!-- Statistics Grid -->
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon orange">
                                 <i class="fas fa-paw"></i>
                             </div>
                             <div class="stat-value"><?= $stats['available_animals'] ?></div>
                             <div class="stat-label">Available Animals</div>
+                            <small class="text-success d-block mt-1">
+                                <i class="fas fa-check-circle me-1"></i>
+                                <?= $stats['total_animals'] ?> Total
+                            </small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon blue">
                                 <i class="fas fa-shopping-cart"></i>
@@ -493,42 +497,62 @@
                                 <i class="fas fa-calendar-day me-1"></i>
                                 <span class="today-orders-count"><?= $stats['today_orders'] ?></span> Today
                             </small>
+                            <small class="text-warning d-block">
+                                <i class="fas fa-cog me-1"></i>
+                                <?= $stats['processing_orders'] ?> Processing
+                            </small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon green">
                                 <i class="fas fa-money-bill-wave"></i>
                             </div>
                             <div class="stat-value">₱<?= number_format($stats['total_payments'] ?? 0, 2) ?></div>
                             <div class="stat-label">Total Payments</div>
+                            <small class="text-success d-block mt-1">
+                                <i class="fas fa-check-circle me-1"></i>
+                                <?= $stats['completed_orders'] ?> Completed
+                            </small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon purple">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
                             <div class="stat-value"><?= $stats['pending_reservations'] ?></div>
                             <div class="stat-label">Pending Reservations</div>
+                            <small class="text-warning d-block mt-1">
+                                <i class="fas fa-clock me-1"></i>
+                                Awaiting Confirmation
+                            </small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon yellow">
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-value"><?= $stats['pending_animals'] ?></div>
                             <div class="stat-label">Awaiting Admin Approval</div>
+                            <small class="text-warning d-block mt-1">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Needs Review
+                            </small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon red">
-                                <i class="fas fa-database"></i>
+                                <i class="fas fa-truck"></i>
                             </div>
-                            <div class="stat-value"><?= $stats['total_animals'] ?></div>
-                            <div class="stat-label">Total Animals</div>
+                            <div class="stat-value"><?= $stats['shipped_orders'] ?></div>
+                            <div class="stat-label">Shipped Orders</div>
+                            <small class="text-info d-block mt-1">
+                                <i class="fas fa-shipping-fast me-1"></i>
+                                In Transit
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -789,8 +813,47 @@
             }
         }
 
+        // Real-time stat updates
+        function updateStats() {
+            fetch('/api/dashboard-stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update stat cards
+                        document.querySelector('.pending-orders-count').textContent = data.stats.pending_orders || 0;
+                        document.querySelector('.today-orders-count').textContent = data.stats.today_orders || 0;
+                        
+                        // Update other stats if elements exist
+                        const statElements = {
+                            'available-animals': data.stats.available_animals,
+                            'total-animals': data.stats.total_animals,
+                            'total-payments': data.stats.total_payments,
+                            'pending-reservations': data.stats.pending_reservations,
+                            'pending-animals': data.stats.pending_animals,
+                            'shipped-orders': data.stats.shipped_orders,
+                            'processing-orders': data.stats.processing_orders,
+                            'completed-orders': data.stats.completed_orders
+                        };
+                        
+                        Object.keys(statElements).forEach(key => {
+                            const element = document.querySelector(`[data-stat="${key}"]`);
+                            if (element) {
+                                element.textContent = statElements[key] || 0;
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating stats:', error);
+                });
+        }
+
         // Initial load
         refreshOrderUpdates();
+        updateStats();
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(updateStats, 30000);
 
         // Profile dropdown functionality
         function toggleProfileDropdown() {

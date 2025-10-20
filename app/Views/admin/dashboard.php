@@ -668,11 +668,11 @@
                         <div class="stat-icon">
                             <i class="fas fa-paw"></i>
                         </div>
-                        <div class="stat-number"><?= $stats['total_animals'] ?></div>
+                        <div class="stat-number" data-stat="total-animals"><?= $stats['total_animals'] ?></div>
                         <div class="stat-label">Total Animals</div>
                         <small class="text-success">
                             <i class="fas fa-check-circle me-1"></i>
-                            <?= $stats['available_animals'] ?> Available
+                            <span data-stat="available-animals"><?= $stats['available_animals'] ?></span> Available
                         </small>
                     </div>
                     
@@ -680,15 +680,15 @@
                         <div class="stat-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
-                        <div class="stat-number"><?= $stats['total_orders'] ?></div>
+                        <div class="stat-number" data-stat="total-orders"><?= $stats['total_orders'] ?></div>
                         <div class="stat-label">Total Orders</div>
                         <small class="text-warning">
                             <i class="fas fa-clock me-1"></i>
-                            <span class="pending-orders-count"><?= $stats['pending_orders'] ?></span> Pending
+                            <span class="pending-orders-count" data-stat="pending-orders"><?= $stats['pending_orders'] ?></span> Pending
                         </small>
                         <small class="text-info d-block mt-1">
                             <i class="fas fa-calendar-day me-1"></i>
-                            <span class="today-orders-count"><?= $stats['today_orders'] ?></span> Today
+                            <span class="today-orders-count" data-stat="today-orders"><?= $stats['today_orders'] ?></span> Today
                         </small>
                     </div>
                     
@@ -696,11 +696,11 @@
                         <div class="stat-icon">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="stat-number"><?= $stats['total_users'] ?></div>
+                        <div class="stat-number" data-stat="total-users"><?= $stats['total_users'] ?></div>
                         <div class="stat-label">Total Users</div>
                         <small class="text-info">
                             <i class="fas fa-user me-1"></i>
-                            <?= $stats['customer_users'] ?> Customers
+                            <span data-stat="customer-users"><?= $stats['customer_users'] ?></span> Customers
                         </small>
                     </div>
                     
@@ -708,11 +708,11 @@
                         <div class="stat-icon">
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
-                        <div class="stat-number">₱<?= number_format($stats['total_payments'] ?? 0, 2) ?></div>
+                        <div class="stat-number" data-stat="total-payments">₱<?= number_format($stats['total_payments'] ?? 0, 2) ?></div>
                         <div class="stat-label">Total Payments</div>
                         <small class="text-success">
                             <i class="fas fa-check-circle me-1"></i>
-                            Paid Orders
+                            <span data-stat="completed-orders"><?= $stats['completed_orders'] ?></span> Completed
                         </small>
                     </div>
 
@@ -1129,9 +1129,59 @@
             }, 3000);
         }
 
+        // Real-time stat updates
+        function updateDashboardStats() {
+            fetch('/api/dashboard-stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update all stat elements with data attributes
+                        const statElements = {
+                            'total-animals': data.stats.total_animals,
+                            'available-animals': data.stats.available_animals,
+                            'total-orders': data.stats.total_orders,
+                            'pending-orders': data.stats.pending_orders,
+                            'today-orders': data.stats.today_orders,
+                            'total-users': data.stats.total_users,
+                            'customer-users': data.stats.customer_users,
+                            'total-payments': data.stats.total_payments,
+                            'completed-orders': data.stats.completed_orders,
+                            'pending-deliveries': data.stats.pending_deliveries
+                        };
+                        
+                        Object.keys(statElements).forEach(key => {
+                            const elements = document.querySelectorAll(`[data-stat="${key}"]`);
+                            elements.forEach(element => {
+                                const oldValue = element.textContent;
+                                const newValue = statElements[key] || 0;
+                                
+                                // Add animation for increased values
+                                if (parseInt(newValue) > parseInt(oldValue)) {
+                                    element.style.animation = 'pulse 1s ease-in-out';
+                                    setTimeout(() => {
+                                        element.style.animation = '';
+                                    }, 1000);
+                                }
+                                
+                                // Format currency for payment values
+                                if (key === 'total-payments') {
+                                    element.textContent = '₱' + parseFloat(newValue).toLocaleString('en-PH', {minimumFractionDigits: 2});
+                                } else {
+                                    element.textContent = newValue;
+                                }
+                            });
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating dashboard stats:', error);
+                });
+        }
+
         // Auto-refresh dashboard data every 10 seconds
         setInterval(() => {
             refreshOrderUpdates();
+            updateDashboardStats();
         }, 10000);
 
         // Function to refresh order updates
@@ -1209,6 +1259,7 @@
 
         // Initial load
         refreshOrderUpdates();
+        updateDashboardStats();
 
         // Profile dropdown functionality
         function toggleProfileDropdown() {

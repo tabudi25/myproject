@@ -28,9 +28,14 @@ class StaffController extends Controller
     
     public function index()
     {
+        // Check if user is staff
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'staff') {
+            return redirect()->to('/login')->with('msg', 'Staff access required');
+        }
+
         $data['staff'] = session()->get();
         
-        // Get dashboard stats
+        // Get dashboard stats with proper error handling
         $paidTotal = $this->orderModel
             ->selectSum('total_amount')
             ->where('payment_status', 'paid')
@@ -45,6 +50,9 @@ class StaffController extends Controller
             'pending_reservations' => $this->getTableCount('reservations', 'status', 'pending'),
             'pending_animals' => $this->getTableCount('pending_animals', 'status', 'pending'),
             'total_payments' => (float)($paidTotal['total_amount'] ?? 0),
+            'completed_orders' => $this->orderModel->where('status', 'delivered')->countAllResults(),
+            'processing_orders' => $this->orderModel->where('status', 'processing')->countAllResults(),
+            'shipped_orders' => $this->orderModel->where('status', 'shipped')->countAllResults(),
         ];
         
         return view('staff/dashboard', $data);
