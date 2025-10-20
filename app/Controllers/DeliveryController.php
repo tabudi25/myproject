@@ -241,12 +241,16 @@ class DeliveryController extends BaseController
      */
     private function getAvailableOrders()
     {
-        // Get orders that are confirmed and ready for delivery
+        // Show ALL Home delivery orders that are not cancelled or completed
+        // This ensures staff always see orders intended for delivery
         $builder = $this->db->table('orders o');
         $builder->select('o.*, u.name as customer_name');
         $builder->join('users u', 'o.user_id = u.id', 'left');
-        $builder->where('o.status', 'confirmed');
-        $builder->where('o.payment_status', 'paid');
+        $builder->where('o.delivery_type', 'delivery');
+        // Exclude cancelled and delivered (already completed)
+        $builder->whereNotIn('o.status', ['cancelled', 'delivered']);
+        // Payment can be pending or paid for any method (including COD)
+        $builder->whereIn('o.payment_status', ['pending', 'paid']);
         $builder->orderBy('o.created_at', 'DESC');
 
         $result = $builder->get();
@@ -262,9 +266,11 @@ class DeliveryController extends BaseController
         
         // Get order with customer details
         $builder = $this->db->table('orders o');
-        $builder->select('o.*, u.name as customer_name');
+        $builder->select('o.*, u.name as customer_name, u.email as customer_email');
         $builder->join('users u', 'o.user_id = u.id', 'left');
         $builder->where('o.id', $orderId);
+        // Ensure only Home delivery orders are retrievable for this form
+        $builder->where('o.delivery_type', 'delivery');
         $order = $builder->get()->getRowArray();
         
         if (!$order) {

@@ -231,7 +231,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Delivery Address *</label>
-                                <textarea class="form-control" name="delivery_address" rows="3" required placeholder="Enter the delivery address"></textarea>
+                                <textarea class="form-control" name="delivery_address" id="deliveryAddress" rows="3" required placeholder="Enter the delivery address"></textarea>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -351,6 +351,14 @@
                     document.querySelector('form').appendChild(animalIdInput);
                 }
                 animalIdInput.value = items[0].animal_id;
+            }
+            
+            // If the order has a delivery address, auto-fill it
+            if (order.delivery_type === 'delivery' && order.delivery_address) {
+                const addressField = document.getElementById('deliveryAddress');
+                if (addressField && !addressField.value) {
+                    addressField.value = order.delivery_address;
+                }
             }
             
             let html = `

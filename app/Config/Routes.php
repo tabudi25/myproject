@@ -49,6 +49,8 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/order-success/(:num)', 'EcommerceController::orderSuccess/$1');
     $routes->get('/my-orders', 'EcommerceController::myOrders');
     $routes->get('/order/(:num)', 'EcommerceController::orderDetail/$1');
+    $routes->get('/order-tracking/(:num)', 'EcommerceController::orderTracking/$1');
+    $routes->get('/api/order-status/(:num)', 'EcommerceController::getOrderStatus/$1');
     $routes->post('/order/(:num)/cancel', 'EcommerceController::cancelOrder/$1');
     $routes->get('/profile', 'EcommerceController::profile');
     $routes->post('/profile/update', 'EcommerceController::updateProfile');
@@ -59,6 +61,7 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
 $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin', 'AdminController::index');
     $routes->get('/fluffy-admin/animals', 'AdminController::animalsPage');
+    $routes->get('/fluffy-admin/pending-animals', 'AdminController::pendingAnimalsPage');
     $routes->get('/fluffy-admin/categories', 'AdminController::categoriesPage');
     $routes->get('/fluffy-admin/orders', 'AdminController::ordersPage');
     $routes->get('/fluffy-admin/orders/tracking/(:num)', 'AdminController::viewOrderTracking/$1');
@@ -89,8 +92,8 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     
     // Admin approval for pending animals
     $routes->get('/fluffy-admin/api/pending-animals', 'AdminController::getPendingAnimals');
-    $routes->put('/fluffy-admin/api/pending-animals/(:num)/approve', 'AdminController::approvePendingAnimal/$1');
-    $routes->put('/fluffy-admin/api/pending-animals/(:num)/reject', 'AdminController::rejectPendingAnimal/$1');
+    $routes->post('/fluffy-admin/api/pending-animals/(:num)/approve', 'AdminController::approvePendingAnimal/$1');
+    $routes->post('/fluffy-admin/api/pending-animals/(:num)/reject', 'AdminController::rejectPendingAnimal/$1');
     
     // Admin notifications
     $routes->get('/fluffy-admin/api/notifications', 'AdminController::getNotifications');
@@ -130,6 +133,7 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     
     $routes->get('/staff/api/orders', 'StaffController::getOrders');
     $routes->put('/staff/api/orders/(:num)/confirm', 'StaffController::confirmOrder/$1');
+    $routes->post('/staff/api/orders/(:num)/update-status', 'StaffController::updateOrderStatus/$1');
     
     $routes->get('/staff/api/sales-report', 'StaffController::getSalesReport');
     $routes->get('/staff/api/payments', 'StaffController::getPayments');

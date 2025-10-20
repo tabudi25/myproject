@@ -8,6 +8,7 @@ use App\Models\UserModel;
 use App\Models\OrderModel;
 use App\Models\DeliveryConfirmationModel;
 use App\Models\OrderItemModel;
+use App\Models\PendingAnimalModel;
 
 class AdminController extends BaseController
 {
@@ -17,6 +18,7 @@ class AdminController extends BaseController
     protected $orderModel;
     protected $orderItemModel;
     protected $deliveryModel;
+    protected $pendingAnimalModel;
 
     public function __construct()
     {
@@ -26,11 +28,17 @@ class AdminController extends BaseController
         $this->orderModel = new OrderModel();
         $this->orderItemModel = new OrderItemModel();
         $this->deliveryModel = new DeliveryConfirmationModel();
+        $this->pendingAnimalModel = new PendingAnimalModel();
     }
 
     public function animalsPage()
     {
         return view('admin/animals');
+    }
+
+    public function pendingAnimalsPage()
+    {
+        return view('admin/pending_animals');
     }
 
     public function categoriesPage()
@@ -56,6 +64,12 @@ class AdminController extends BaseController
         }
 
         // Get dashboard statistics
+        // Total payments = sum of total_amount for paid orders
+        $paidTotal = $this->orderModel
+            ->selectSum('total_amount')
+            ->where('payment_status', 'paid')
+            ->first();
+
         $stats = [
             'total_animals' => $this->animalModel->countAll(),
             'available_animals' => $this->animalModel->where('status', 'available')->countAllResults(),
@@ -69,7 +83,8 @@ class AdminController extends BaseController
             'confirmed_orders' => $this->orderModel->where('status', 'confirmed')->countAllResults(),
             'completed_orders' => $this->orderModel->where('status', 'delivered')->countAllResults(),
             'today_orders' => $this->orderModel->where('DATE(created_at)', date('Y-m-d'))->countAllResults(),
-            'pending_deliveries' => $this->deliveryModel->where('status', 'pending')->countAllResults()
+            'pending_deliveries' => $this->deliveryModel->where('status', 'pending')->countAllResults(),
+            'total_payments' => (float)($paidTotal['total_amount'] ?? 0)
         ];
 
         // Get recent orders
@@ -759,16 +774,9 @@ class AdminController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
         }
 
-        $db = \Config\Database::connect();
-        $pendingAnimals = $db->table('pending_animals')
-            ->select('pending_animals.*, categories.name as category_name, users.name as added_by_name')
-            ->join('categories', 'categories.id = pending_animals.category_id')
-            ->join('users', 'users.id = pending_animals.added_by')
-            ->orderBy('pending_animals.created_at', 'DESC')
-            ->get()
-            ->getResultArray();
-
-        return $this->response->setJSON(['success' => true, 'data' => $pendingAnimals]);
+        // Return ALL records (pending, approved, rejected); UI handles filtering
+        $animals = $this->pendingAnimalModel->getAllPendingAnimalsWithDetails();
+        return $this->response->setJSON(['success' => true, 'data' => $animals]);
     }
 
     public function approvePendingAnimal($id)
@@ -777,36 +785,12 @@ class AdminController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
         }
 
-        $db = \Config\Database::connect();
-        $pendingAnimal = $db->table('pending_animals')->where('id', $id)->get()->getRowArray();
+        $adminNotes = $this->request->getPost('admin_notes') ?: $this->request->getVar('admin_notes');
+        $adminId = session()->get('user_id');
 
-        if (!$pendingAnimal) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Pending animal not found']);
-        }
+        $result = $this->pendingAnimalModel->approveAnimal($id, $adminId, $adminNotes);
 
-        // Move to animals table
-        $animalData = [
-            'name' => $pendingAnimal['name'],
-            'category_id' => $pendingAnimal['category_id'],
-            'age' => $pendingAnimal['age'],
-            'gender' => $pendingAnimal['gender'],
-            'price' => $pendingAnimal['price'],
-            'description' => $pendingAnimal['description'],
-            'image' => $pendingAnimal['image'],
-            'status' => 'available',
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-
-        $inserted = $db->table('animals')->insert($animalData);
-
-        if ($inserted) {
-            // Update pending animal status
-            $db->table('pending_animals')->where('id', $id)->update([
-                'status' => 'approved',
-                'reviewed_by' => session()->get('user_id'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-
+        if ($result) {
             return $this->response->setJSON(['success' => true, 'message' => 'Animal approved and added to store']);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to approve animal']);
@@ -820,16 +804,11 @@ class AdminController extends BaseController
         }
 
         $adminNotes = $this->request->getPost('admin_notes') ?: $this->request->getVar('admin_notes');
+        $adminId = session()->get('user_id');
 
-        $db = \Config\Database::connect();
-        $updated = $db->table('pending_animals')->where('id', $id)->update([
-            'status' => 'rejected',
-            'admin_notes' => $adminNotes,
-            'reviewed_by' => session()->get('user_id'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        $result = $this->pendingAnimalModel->rejectAnimal($id, $adminId, $adminNotes);
 
-        if ($updated) {
+        if ($result) {
             return $this->response->setJSON(['success' => true, 'message' => 'Animal rejected']);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to reject animal']);

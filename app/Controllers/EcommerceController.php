@@ -599,6 +599,56 @@ class EcommerceController extends BaseController
         return view('ecommerce/order_detail', $data);
     }
 
+    public function orderTracking($orderId)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        $order = $this->orderModel
+            ->where('id', $orderId)
+            ->where('user_id', session()->get('user_id'))
+            ->first();
+
+        if (!$order) {
+            return redirect()->to('/my-orders')->with('msg', 'Order not found');
+        }
+
+        $data = [
+            'title' => 'Order Tracking - #' . $order['order_number'],
+            'order' => $order,
+            'cartCount' => $this->cartModel->where('user_id', session()->get('user_id'))->countAllResults(),
+            'isLoggedIn' => true,
+            'userName' => session()->get('user_name'),
+            'userRole' => session()->get('role')
+        ];
+
+        return view('ecommerce/order_tracking', $data);
+    }
+
+    public function getOrderStatus($orderId)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $order = $this->orderModel
+            ->where('id', $orderId)
+            ->where('user_id', session()->get('user_id'))
+            ->first();
+
+        if (!$order) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Order not found']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'status' => $order['status'],
+            'order_number' => $order['order_number'],
+            'updated_at' => $order['updated_at']
+        ]);
+    }
+
     public function cancelOrder($orderId)
     {
         if (!session()->get('isLoggedIn')) {

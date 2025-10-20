@@ -497,6 +497,15 @@
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-value">₱<?= number_format($stats['total_payments'] ?? 0, 2) ?></div>
+                            <div class="stat-label">Total Payments</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
                             <div class="stat-icon purple">
                                 <i class="fas fa-calendar-check"></i>
                             </div>

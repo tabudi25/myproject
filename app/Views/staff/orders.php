@@ -212,11 +212,28 @@
                     <td><span class="badge badge-${order.status}">${order.status}</span></td>
                     <td>${new Date(order.created_at).toLocaleDateString()}</td>
                     <td>
-                        ${order.status === 'pending' ? `
-                            <button class="btn btn-sm btn-success" onclick="confirmOrder(${order.id})">
-                                <i class="fas fa-check"></i> Confirm
-                            </button>
-                        ` : '-'}
+                        <div class="btn-group" role="group">
+                            ${order.status === 'pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="confirmOrder(${order.id})">
+                                    <i class="fas fa-check"></i> Confirm
+                                </button>
+                            ` : ''}
+                            ${order.status === 'confirmed' ? `
+                                <button class="btn btn-sm btn-info" onclick="startPreparation(${order.id})">
+                                    <i class="fas fa-paw"></i> Start Prep
+                                </button>
+                            ` : ''}
+                            ${order.status === 'processing' ? `
+                                <button class="btn btn-sm btn-warning" onclick="markReadyForDelivery(${order.id})">
+                                    <i class="fas fa-box"></i> Ready
+                                </button>
+                            ` : ''}
+                            ${order.status === 'shipped' ? `
+                                <button class="btn btn-sm btn-primary" onclick="markDelivered(${order.id})">
+                                    <i class="fas fa-truck"></i> Delivered
+                                </button>
+                            ` : ''}
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -246,6 +263,166 @@
                 console.error(err);
                 alert('Network error. Please try again.');
             });
+        }
+
+        function startPreparation(id) {
+            if (!confirm('Start preparing this pet for delivery?')) return;
+            
+            const formData = new URLSearchParams();
+            formData.append('status', 'processing');
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+            button.disabled = true;
+            
+            fetch('/staff/api/orders/' + id + '/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    loadOrders();
+                    showSuccessNotification('Pet preparation started! Customer has been notified and their order tracking page will update automatically.');
+                } else {
+                    alert(res.message || 'Failed to start preparation');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Network error. Please try again.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+
+        function markReadyForDelivery(id) {
+            if (!confirm('Mark this order as ready for delivery?')) return;
+            
+            const formData = new URLSearchParams();
+            formData.append('status', 'shipped');
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Marking...';
+            button.disabled = true;
+            
+            fetch('/staff/api/orders/' + id + '/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    loadOrders();
+                    showSuccessNotification('Order marked as ready for delivery! Customer has been notified and their order tracking page will update automatically.');
+                } else {
+                    alert(res.message || 'Failed to mark as ready');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Network error. Please try again.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+
+        function markDelivered(id) {
+            if (!confirm('Mark this order as delivered?')) return;
+            
+            const formData = new URLSearchParams();
+            formData.append('status', 'delivered');
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Marking...';
+            button.disabled = true;
+            
+            fetch('/staff/api/orders/' + id + '/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    loadOrders();
+                    showSuccessNotification('Order marked as delivered! Customer has been notified and their order tracking page will update automatically.');
+                } else {
+                    alert(res.message || 'Failed to mark as delivered');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Network error. Please try again.');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+
+        // Show success notification
+        function showSuccessNotification(message) {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-check-circle" style="margin-right: 10px; color: #28a745;"></i>
+                    <div>
+                        <strong>Success!</strong><br>
+                        ${message}
+                    </div>
+                </div>
+            `;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-size: 14px;
+                z-index: 1000;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                max-width: 350px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            
+            // Add animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideInRight 0.5s ease-out reverse';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 500);
+                }
+            }, 5000);
         }
     </script>
 </body>

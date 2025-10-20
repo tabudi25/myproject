@@ -543,6 +543,13 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/fluffy-admin/pending-animals">
+                        <i class="fas fa-clock"></i>
+                        <span class="menu-text">Pending Animals</span>
+                        <span class="badge bg-warning pending-count" id="sidebarPendingCount">0</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/fluffy-admin/categories">
                         <i class="fas fa-tags"></i>
                         <span class="menu-text">Categories</span>
@@ -697,6 +704,18 @@
                         </small>
                     </div>
                     
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-number">₱<?= number_format($stats['total_payments'] ?? 0, 2) ?></div>
+                        <div class="stat-label">Total Payments</div>
+                        <small class="text-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Paid Orders
+                        </small>
+                    </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-peso-sign"></i>
@@ -1527,11 +1546,31 @@
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
 
+        // Load pending animals count
+        function loadPendingAnimalsCount() {
+            fetch('/fluffy-admin/api/pending-animals')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const pendingCount = data.data.filter(animal => animal.status === 'pending').length;
+                        const sidebarCount = document.getElementById('sidebarPendingCount');
+                        if (sidebarCount) {
+                            sidebarCount.textContent = pendingCount;
+                            sidebarCount.style.display = pendingCount > 0 ? 'inline' : 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading pending animals count:', error);
+                });
+        }
+
         // Initialize real-time manager
         document.addEventListener('DOMContentLoaded', function() {
             if (window.realtimeManager) {
                 window.realtimeManager.init();
             }
+            loadPendingAnimalsCount();
         });
     </script>
 </body>

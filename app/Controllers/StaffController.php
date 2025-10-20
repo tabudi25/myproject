@@ -31,6 +31,11 @@ class StaffController extends Controller
         $data['staff'] = session()->get();
         
         // Get dashboard stats
+        $paidTotal = $this->orderModel
+            ->selectSum('total_amount')
+            ->where('payment_status', 'paid')
+            ->first();
+
         $data['stats'] = [
             'total_animals' => $this->animalModel->countAll(),
             'available_animals' => $this->animalModel->where('status', 'available')->countAllResults(),
@@ -39,6 +44,7 @@ class StaffController extends Controller
             'total_inquiries' => $this->getTableCount('inquiries', 'status !=', 'closed'),
             'pending_reservations' => $this->getTableCount('reservations', 'status', 'pending'),
             'pending_animals' => $this->getTableCount('pending_animals', 'status', 'pending'),
+            'total_payments' => (float)($paidTotal['total_amount'] ?? 0),
         ];
         
         return view('staff/dashboard', $data);
@@ -177,9 +183,43 @@ class StaffController extends Controller
         $inserted = $this->db->table('pending_animals')->insert($data);
 
         if ($inserted) {
+            // Send notification to all admins
+            $this->sendPendingAnimalNotification($data['name'], session()->get('user_id'));
+            
             return $this->response->setJSON(['success' => true, 'message' => 'Animal submitted for admin approval']);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to submit animal']);
+        }
+    }
+
+    /**
+     * Send notification to admins about new pending animal
+     */
+    private function sendPendingAnimalNotification($animalName, $staffId)
+    {
+        try {
+            // Get staff name
+            $staff = $this->db->table('users')->where('id', $staffId)->get()->getRowArray();
+            $staffName = $staff ? $staff['name'] : 'Unknown Staff';
+
+            // Get all admin users
+            $admins = $this->db->table('users')->where('role', 'admin')->get()->getResultArray();
+
+            // Create notification for each admin
+            foreach ($admins as $admin) {
+                $notificationData = [
+                    'user_id' => $admin['id'],
+                    'type' => 'pending_animal',
+                    'title' => 'New Animal Pending Approval',
+                    'message' => "Staff member {$staffName} has submitted a new animal '{$animalName}' for approval.",
+                    'is_read' => 0,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                $this->db->table('notifications')->insert($notificationData);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to send pending animal notification: ' . $e->getMessage());
         }
     }
 
@@ -298,9 +338,77 @@ class StaffController extends Controller
         $updated = $this->db->table('orders')->where('id', $id)->update($data);
 
         if ($updated) {
+            // Send notification to customer
+            $this->sendOrderStatusNotification($order['user_id'], $order['order_number'], 'confirmed', 'Your order has been confirmed and is being prepared.');
+            
             return $this->response->setJSON(['success' => true, 'message' => 'Order confirmed successfully']);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to confirm order']);
+        }
+    }
+
+    public function updateOrderStatus($id)
+    {
+        $order = $this->orderModel->find($id);
+        if (!$order) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Order not found']);
+        }
+
+        $status = $this->request->getPost('status');
+        $validStatuses = ['processing', 'shipped', 'delivered'];
+        
+        if (!in_array($status, $validStatuses)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid status']);
+        }
+
+        $data = [
+            'status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        $updated = $this->db->table('orders')->where('id', $id)->update($data);
+
+        if ($updated) {
+            // Send appropriate notification to customer
+            $message = $this->getStatusMessage($status, $order['delivery_type']);
+            $this->sendOrderStatusNotification($order['user_id'], $order['order_number'], $status, $message);
+            
+            return $this->response->setJSON(['success' => true, 'message' => 'Order status updated successfully']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update order status']);
+        }
+    }
+
+    private function getStatusMessage($status, $deliveryType)
+    {
+        switch ($status) {
+            case 'processing':
+                return 'We are now preparing your pet for delivery. This may take some time to ensure your pet is healthy and ready.';
+            case 'shipped':
+                $action = $deliveryType === 'pickup' ? 'ready for pickup' : 'ready for delivery';
+                return "Your order is {$action}! Please check your order tracking for more details.";
+            case 'delivered':
+                return 'Your order has been successfully delivered! Thank you for choosing Fluffy Planet.';
+            default:
+                return 'Your order status has been updated.';
+        }
+    }
+
+    private function sendOrderStatusNotification($userId, $orderNumber, $status, $message)
+    {
+        try {
+            $notificationData = [
+                'user_id' => $userId,
+                'type' => 'order_status',
+                'title' => 'Order Status Update - #' . $orderNumber,
+                'message' => $message,
+                'is_read' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            $this->db->table('notifications')->insert($notificationData);
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to send order status notification: ' . $e->getMessage());
         }
     }
 

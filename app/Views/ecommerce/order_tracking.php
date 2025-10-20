@@ -224,7 +224,15 @@
                     </div>
                     <div class="timeline-content">
                         <h4 class="timeline-title">Preparing Pet</h4>
-                        <p class="timeline-description">Your pet is being prepared</p>
+                        <p class="timeline-description">
+                            <?php if ($order['status'] === 'processing'): ?>
+                                We are now preparing your pet for delivery. This may take some time to ensure your pet is healthy and ready.
+                            <?php elseif (in_array($order['status'], ['shipped', 'delivered'])): ?>
+                                Your pet has been prepared and is ready for <?= $order['delivery_type'] === 'pickup' ? 'pickup' : 'delivery' ?>.
+                            <?php else: ?>
+                                Your pet will be prepared once the order is confirmed.
+                            <?php endif; ?>
+                        </p>
                     </div>
                 </div>
 
@@ -235,7 +243,15 @@
                     </div>
                     <div class="timeline-content">
                         <h4 class="timeline-title">Ready for <?= $order['delivery_type'] === 'pickup' ? 'Pickup' : 'Delivery' ?></h4>
-                        <p class="timeline-description">Your order is ready</p>
+                        <p class="timeline-description">
+                            <?php if ($order['status'] === 'shipped'): ?>
+                                Your order is ready for <?= $order['delivery_type'] === 'pickup' ? 'pickup' : 'delivery' ?>! <?= $order['delivery_type'] === 'pickup' ? 'Please come to our store to collect your pet.' : 'We will deliver your pet to the specified address.' ?>
+                            <?php elseif ($order['status'] === 'delivered'): ?>
+                                Your order has been successfully <?= $order['delivery_type'] === 'pickup' ? 'picked up' : 'delivered' ?>!
+                            <?php else: ?>
+                                Your order will be prepared and made ready for <?= $order['delivery_type'] === 'pickup' ? 'pickup' : 'delivery' ?>.
+                            <?php endif; ?>
+                        </p>
                     </div>
                 </div>
 
@@ -280,5 +296,146 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced real-time order tracking updates
+        let refreshInterval;
+        let lastStatus = '<?= $order['status'] ?>';
+        let updateCount = 0;
+        
+        function startAutoRefresh() {
+            // Only refresh if order is not completed
+            const currentStatus = '<?= $order['status'] ?>';
+            if (!['delivered', 'cancelled'].includes(currentStatus)) {
+                // More frequent updates for better real-time experience
+                refreshInterval = setInterval(() => {
+                    checkForUpdates();
+                }, 10000); // Check every 10 seconds
+            }
+        }
+        
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+        
+        // Check for order status updates without full page reload
+        function checkForUpdates() {
+            fetch(`/api/order-status/<?= $order['id'] ?>`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.status !== lastStatus) {
+                    // Status has changed, reload the page to show updates
+                    showStatusUpdateNotification(data.status, lastStatus);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000); // Reload after showing notification
+                }
+            })
+            .catch(error => {
+                console.log('Status check failed, will retry...');
+            });
+        }
+        
+        // Show notification when status changes
+        function showStatusUpdateNotification(newStatus, oldStatus) {
+            const statusMessages = {
+                'confirmed': 'Order Confirmed!',
+                'processing': 'Pet Preparation Started!',
+                'shipped': 'Order Ready for Pickup/Delivery!',
+                'delivered': 'Order Delivered Successfully!'
+            };
+            
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-bell" style="margin-right: 10px; color: #ff6b35;"></i>
+                    <div>
+                        <strong>Status Update!</strong><br>
+                        ${statusMessages[newStatus] || 'Order status updated'}
+                    </div>
+                </div>
+            `;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ff6b35, #f7931e);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-size: 14px;
+                z-index: 1000;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                max-width: 300px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            
+            // Add animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideInRight 0.5s ease-out reverse';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 500);
+                }
+            }, 5000);
+        }
+        
+        // Show live indicator
+        function showLiveIndicator() {
+            const indicator = document.createElement('div');
+            indicator.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Live Tracking';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 8px 15px;
+                border-radius: 20px;
+                font-size: 12px;
+                z-index: 1000;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            `;
+            document.body.appendChild(indicator);
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.parentNode.removeChild(indicator);
+                }
+            }, 3000);
+        }
+        
+        // Start auto-refresh when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoRefresh();
+            showLiveIndicator();
+            
+            // Stop auto-refresh when user leaves the page
+            window.addEventListener('beforeunload', stopAutoRefresh);
+        });
+    </script>
 </body>
 </html>
