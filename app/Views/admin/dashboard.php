@@ -537,16 +537,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/animals">
-                        <i class="fas fa-paw"></i>
-                        <span class="menu-text">Animals</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/fluffy-admin/pending-animals">
-                        <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Animals</span>
-                        <span class="badge bg-warning pending-count" id="sidebarPendingCount">0</span>
+                    <a href="/fluffy-admin/users">
+                        <i class="fas fa-users"></i>
+                        <span class="menu-text">Users</span>
                     </a>
                 </li>
                 <li>
@@ -556,15 +549,22 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/orders">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="menu-text">Orders</span>
+                    <a href="/fluffy-admin/animals">
+                        <i class="fas fa-paw"></i>
+                        <span class="menu-text">Animals</span>
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/users">
-                        <i class="fas fa-users"></i>
-                        <span class="menu-text">Users</span>
+                    <a href="/fluffy-admin/pending-animals">
+                        <i class="fas fa-clock"></i>
+                        <span class="menu-text">Pending Animal</span>
+                        <span class="badge bg-warning pending-count" id="sidebarPendingCount">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/orders">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="menu-text">Orders</span>
                     </a>
                 </li>
                 <li>

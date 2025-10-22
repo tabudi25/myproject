@@ -35,10 +35,10 @@ class StaffController extends Controller
 
         $data['staff'] = session()->get();
         
-        // Get dashboard stats with proper error handling
+        // Get dashboard stats with proper error handling - delivered orders only
         $paidTotal = $this->orderModel
             ->selectSum('total_amount')
-            ->where('payment_status', 'paid')
+            ->where('status', 'delivered')
             ->first();
 
         $data['stats'] = [
@@ -430,7 +430,7 @@ class StaffController extends Controller
 
         $builder = $this->db->table('orders')
             ->select('DATE(created_at) as date, COUNT(*) as total_orders, SUM(total_amount) as total_sales')
-            ->where('status !=', 'cancelled');
+            ->where('status', 'delivered');
 
         if ($period === 'daily') {
             $builder->where('DATE(created_at)', date('Y-m-d'));
@@ -447,7 +447,7 @@ class StaffController extends Controller
         // Get total summary
         $summary = $this->db->table('orders')
             ->select('COUNT(*) as total_orders, SUM(total_amount) as total_sales, AVG(total_amount) as avg_sale')
-            ->where('status !=', 'cancelled');
+            ->where('status', 'delivered');
 
         if ($period === 'daily') {
             $summary->where('DATE(created_at)', date('Y-m-d'));

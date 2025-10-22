@@ -106,7 +106,6 @@ class DeliveryController extends BaseController
             
             $rules = [
                 'order_id' => 'required|integer',
-                'animal_id' => 'required|integer',
                 'delivery_photo' => 'uploaded[delivery_photo]|max_size[delivery_photo,5120]|ext_in[delivery_photo,jpg,jpeg,png,gif]',
                 'payment_photo' => 'uploaded[payment_photo]|max_size[payment_photo,5120]|ext_in[payment_photo,jpg,jpeg,png,gif]',
                 'delivery_notes' => 'permit_empty|string',
@@ -134,6 +133,18 @@ class DeliveryController extends BaseController
                 $order = $order->toArray();
             }
 
+            // Get the first animal from the order items
+            $orderItems = $this->db->table('order_items')
+                ->where('order_id', $order['id'])
+                ->get()
+                ->getResultArray();
+            
+            if (empty($orderItems)) {
+                return redirect()->back()->with('msg', 'No animals found in this order');
+            }
+            
+            $animalId = $orderItems[0]['animal_id']; // Get the first animal
+
             // Upload delivery photo
             $deliveryPhoto = $this->request->getFile('delivery_photo');
             $deliveryPhotoName = null;
@@ -159,7 +170,7 @@ class DeliveryController extends BaseController
                 'order_id' => $this->request->getPost('order_id'),
                 'staff_id' => session()->get('user_id'),
                 'customer_id' => $order['user_id'],
-                'animal_id' => $this->request->getPost('animal_id'),
+                'animal_id' => $animalId, // Use the automatically retrieved animal_id
                 'delivery_photo' => $deliveryPhotoName,
                 'payment_photo' => $paymentPhotoName,
                 'delivery_notes' => $this->request->getPost('delivery_notes'),
@@ -176,7 +187,7 @@ class DeliveryController extends BaseController
                 log_message('info', 'Delivery confirmation inserted successfully');
                 
                 // Send notification to customer
-                $this->sendDeliveryReadyNotification($order['user_id'], $this->request->getPost('order_id'), $deliveryId);
+                $this->sendDeliveryReadyNotification($order['user_id'], $this->request->getPost('order_id'), $deliveryId, $animalId);
                 
                 return redirect()->to('/staff/delivery-confirmations')
                     ->with('msg', 'Delivery confirmation submitted successfully! Customer has been notified.');
@@ -241,12 +252,13 @@ class DeliveryController extends BaseController
      */
     private function getAvailableOrders()
     {
-        // Show ALL Home delivery orders that are not cancelled or completed
-        // This ensures staff always see orders intended for delivery
+        // Show ALL customer orders (both pickup and delivery) that are not cancelled or completed
+        // This ensures staff can confirm delivery for all customer orders
         $builder = $this->db->table('orders o');
         $builder->select('o.*, u.name as customer_name');
         $builder->join('users u', 'o.user_id = u.id', 'left');
-        $builder->where('o.delivery_type', 'delivery');
+        // Include both pickup and delivery orders
+        $builder->whereIn('o.delivery_type', ['pickup', 'delivery']);
         // Exclude cancelled and delivered (already completed)
         $builder->whereNotIn('o.status', ['cancelled', 'delivered']);
         // Payment can be pending or paid for any method (including COD)
@@ -269,8 +281,8 @@ class DeliveryController extends BaseController
         $builder->select('o.*, u.name as customer_name, u.email as customer_email');
         $builder->join('users u', 'o.user_id = u.id', 'left');
         $builder->where('o.id', $orderId);
-        // Ensure only Home delivery orders are retrievable for this form
-        $builder->where('o.delivery_type', 'delivery');
+        // Support both pickup and delivery orders
+        $builder->whereIn('o.delivery_type', ['pickup', 'delivery']);
         $order = $builder->get()->getRowArray();
         
         if (!$order) {
@@ -294,11 +306,11 @@ class DeliveryController extends BaseController
     /**
      * Send delivery ready notification to customer
      */
-    private function sendDeliveryReadyNotification($customerId, $orderId, $deliveryId)
+    private function sendDeliveryReadyNotification($customerId, $orderId, $deliveryId, $animalId)
     {
         try {
             // Get animal name for notification
-            $animal = $this->animalModel->find($this->request->getPost('animal_id'));
+            $animal = $this->animalModel->find($animalId);
             $animalName = $animal ? (is_array($animal) ? $animal['name'] : $animal->name) : 'your animal';
             
             // Create notification

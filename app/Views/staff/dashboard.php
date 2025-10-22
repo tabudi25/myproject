@@ -430,29 +430,29 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
+                <a href="/staff/add-animal" class="sidebar-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add New Animals</span>
+                </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
                     <span>Manage Animals</span>
-                </a>
-                <a href="/staff/add-animal" class="sidebar-item">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animal</span>
-                </a>
-                <a href="/staff/delivery-confirmations" class="sidebar-item">
-                    <i class="fas fa-truck"></i>
-                    <span>Deliveries</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Orders</span>
                 </a>
-                <a href="/staff/sales-report" class="sidebar-item">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Sales Report</span>
+                <a href="/staff/delivery-confirmations" class="sidebar-item">
+                    <i class="fas fa-truck"></i>
+                    <span>Deliveries</span>
                 </a>
                 <a href="/staff/payments" class="sidebar-item">
                     <i class="fas fa-credit-card"></i>
-                    <span>Payments</span>
+                    <span>Payment</span>
+                </a>
+                <a href="/staff/sales-report" class="sidebar-item">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Sales Report</span>
                 </a>
             </div>
 
@@ -513,19 +513,6 @@
                             <small class="text-success d-block mt-1">
                                 <i class="fas fa-check-circle me-1"></i>
                                 <?= $stats['completed_orders'] ?> Completed
-                            </small>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="stat-card">
-                            <div class="stat-icon purple">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="stat-value"><?= $stats['pending_reservations'] ?></div>
-                            <div class="stat-label">Pending Reservations</div>
-                            <small class="text-warning d-block mt-1">
-                                <i class="fas fa-clock me-1"></i>
-                                Awaiting Confirmation
                             </small>
                         </div>
                     </div>

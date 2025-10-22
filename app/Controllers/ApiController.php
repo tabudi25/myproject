@@ -73,7 +73,7 @@ class ApiController extends BaseController
         // Total orders
         $totalOrders = $this->orderModel->countAll();
         $pendingOrders = $this->orderModel->where('status', 'pending')->countAllResults();
-        $completedOrders = $this->orderModel->where('status', 'completed')->countAllResults();
+        $completedOrders = $this->orderModel->where('status', 'delivered')->countAllResults();
         
         // Today's orders
         $todayOrders = $this->orderModel
@@ -93,10 +93,16 @@ class ApiController extends BaseController
         // Pending deliveries
         $pendingDeliveries = $this->deliveryModel->where('status', 'pending')->countAllResults();
         
-        // Monthly revenue
+        // Total payments - delivered orders only
+        $totalPayments = $this->orderModel
+            ->selectSum('total_amount')
+            ->where('status', 'delivered')
+            ->first();
+
+        // Monthly revenue - delivered orders only
         $monthlyRevenue = $this->orderModel
             ->select('SUM(total_amount) as revenue')
-            ->where('status', 'completed')
+            ->where('status', 'delivered')
             ->where('MONTH(created_at)', date('m'))
             ->where('YEAR(created_at)', date('Y'))
             ->get()
@@ -112,6 +118,7 @@ class ApiController extends BaseController
             'customer_users' => $customerUsers,
             'pending_reservations' => $pendingReservations,
             'pending_deliveries' => $pendingDeliveries,
+            'total_payments' => (float)($totalPayments['total_amount'] ?? 0),
             'monthly_revenue' => $monthlyRevenue ? $monthlyRevenue->revenue : 0
         ];
     }
@@ -138,12 +145,19 @@ class ApiController extends BaseController
         // Pending delivery confirmations
         $pendingDeliveries = $this->deliveryModel->where('status', 'pending')->countAllResults();
         
+        // Total payments - delivered orders only
+        $totalPayments = $this->orderModel
+            ->selectSum('total_amount')
+            ->where('status', 'delivered')
+            ->first();
+        
         return [
             'pending_orders' => $pendingOrders,
             'today_orders' => $todayOrders,
             'available_animals' => $availableAnimals,
             'pending_reservations' => $pendingReservations,
-            'pending_deliveries' => $pendingDeliveries
+            'pending_deliveries' => $pendingDeliveries,
+            'total_payments' => (float)($totalPayments['total_amount'] ?? 0)
         ];
     }
 

@@ -64,10 +64,10 @@ class AdminController extends BaseController
         }
 
         // Get dashboard statistics
-        // Total payments = sum of total_amount for paid orders
+        // Total payments = sum of total_amount for delivered orders (completed orders)
         $paidTotal = $this->orderModel
             ->selectSum('total_amount')
-            ->where('payment_status', 'paid')
+            ->where('status', 'delivered')
             ->first();
 
         $stats = [
@@ -103,7 +103,7 @@ class AdminController extends BaseController
             ->limit(5)
             ->findAll();
 
-        // Calculate monthly revenue
+        // Calculate monthly revenue - delivered orders only
         $monthlyRevenue = $this->orderModel
             ->selectSum('total_amount')
             ->where('status', 'delivered')
@@ -666,7 +666,7 @@ class AdminController extends BaseController
                         ->selectSum('total_amount')
                         ->where('DATE(created_at)', date('Y-m-d'))
                         ->where('HOUR(created_at)', $i)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->first();
                     
                     $sales[] = (float)($hourSales['total_amount'] ?? 0);
@@ -674,7 +674,7 @@ class AdminController extends BaseController
                     $hourOrders = $this->orderModel
                         ->where('DATE(created_at)', date('Y-m-d'))
                         ->where('HOUR(created_at)', $i)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->countAllResults();
                     
                     $orders[] = $hourOrders;
@@ -692,14 +692,14 @@ class AdminController extends BaseController
                     $daySales = $this->orderModel
                         ->selectSum('total_amount')
                         ->where('DATE(created_at)', $date)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->first();
                     
                     $sales[] = (float)($daySales['total_amount'] ?? 0);
                     
                     $dayOrders = $this->orderModel
                         ->where('DATE(created_at)', $date)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->countAllResults();
                     
                     $orders[] = $dayOrders;
