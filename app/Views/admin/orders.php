@@ -737,6 +737,18 @@
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
 
+// Helper function to format dates properly
+function formatDate(dateString) {
+    if (!dateString || dateString === '0000-00-00 00:00:00' || dateString === '1970-01-01 00:00:00') {
+        return new Date().toLocaleDateString();
+    }
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return new Date().toLocaleDateString();
+    }
+    return date.toLocaleDateString();
+}
+
 loadOrders();
 
 function loadOrders(){
@@ -752,9 +764,9 @@ function loadOrders(){
           <td>${o.customer_name||o.user_id}</td>
           <td>₱${parseFloat(o.total_amount).toLocaleString()}</td>
           <td><span class="badge bg-${o.status==='pending'?'warning':o.status==='delivered'?'success':'secondary'}">${o.status}</span></td>
-          <td>${o.payment_method||''} / ${o.payment_status||''}</td>
+          <td>${o.payment_method||''} / <span class="badge bg-${o.payment_status==='pending'?'warning':o.payment_status==='paid'?'success':o.payment_status==='failed'?'danger':'secondary'} text-white">${o.payment_status||''}</span></td>
           <td>${o.delivery_type||''}</td>
-          <td>${o.created_at||''}</td>
+          <td>${formatDate(o.created_at)}</td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-1" onclick="editOrder(${o.id})"><i class="fas fa-edit"></i></button>
             <a class="btn btn-sm btn-outline-info me-1" href="/order/${o.id}" target="_blank"><i class="fas fa-eye"></i></a>

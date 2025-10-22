@@ -70,11 +70,16 @@
         }
 
         .badge-pending { background: #ffc107; color: #000; }
-        .badge-confirmed { background: #28a745; }
-        .badge-processing { background: #17a2b8; }
-        .badge-shipped { background: #6610f2; }
-        .badge-delivered { background: #198754; }
-        .badge-cancelled { background: #dc3545; }
+        .badge-confirmed { background: #28a745; color: #fff; }
+        .badge-processing { background: #17a2b8; color: #fff; }
+        .badge-shipped { background: #6610f2; color: #fff; }
+        .badge-delivered { background: #198754; color: #fff; }
+        .badge-cancelled { background: #dc3545; color: #fff; }
+        
+        /* Payment status badges */
+        .badge-paid { background: #28a745; color: #fff; }
+        .badge-failed { background: #dc3545; color: #fff; }
+        .badge-refunded { background: #6c757d; color: #fff; }
     </style>
 </head>
 <body>
@@ -170,6 +175,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Helper function to format dates properly
+        function formatDate(dateString) {
+            if (!dateString || dateString === '0000-00-00 00:00:00' || dateString === '1970-01-01 00:00:00') {
+                return new Date().toLocaleDateString();
+            }
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return new Date().toLocaleDateString();
+            }
+            return date.toLocaleDateString();
+        }
+
         loadOrders();
 
         function loadOrders() {
@@ -208,9 +225,9 @@
                     <td>₱${parseFloat(order.total_amount).toLocaleString()}</td>
                     <td>${order.delivery_type}</td>
                     <td>${order.payment_method}</td>
-                    <td><span class="badge badge-${order.payment_status}">${order.payment_status}</span></td>
-                    <td><span class="badge badge-${order.status}">${order.status}</span></td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    <td><span class="badge badge-${order.payment_status} text-white">${order.payment_status}</span></td>
+                    <td><span class="badge badge-${order.status} text-white">${order.status}</span></td>
+                    <td>${formatDate(order.created_at)}</td>
                     <td>
                         <div class="btn-group" role="group">
                             ${order.status === 'pending' ? `

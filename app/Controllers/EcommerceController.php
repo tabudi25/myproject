@@ -458,7 +458,9 @@ class EcommerceController extends BaseController
             'delivery_fee' => $deliveryFee,
             'payment_method' => $paymentMethod,
             'payment_status' => 'pending',
-            'notes' => $this->request->getPost('notes') ?: null
+            'notes' => $this->request->getPost('notes') ?: null,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
         ];
 
         // Use direct database insert to bypass model issues
