@@ -65,6 +65,8 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin/categories', 'AdminController::categoriesPage');
     $routes->get('/fluffy-admin/orders', 'AdminController::ordersPage');
     $routes->get('/fluffy-admin/orders/tracking/(:num)', 'AdminController::viewOrderTracking/$1');
+    $routes->get('/fluffy-admin/sales-report', 'AdminController::salesReport');
+    $routes->get('/fluffy-admin/payments', 'AdminController::paymentsPage');
     $routes->get('/fluffy-admin/users', 'AdminController::usersPage');
     $routes->get('/fluffy-admin/delivery-confirmations', 'DeliveryController::adminIndex');
     $routes->post('/fluffy-admin/delivery-confirmations/update-status', 'DeliveryController::updateStatus');
@@ -78,17 +80,23 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin/api/users', 'AdminController::getUsers');
     $routes->post('/fluffy-admin/api/users', 'AdminController::createUser');
     $routes->put('/fluffy-admin/api/users/(:num)', 'AdminController::updateUser/$1');
+    $routes->put('/fluffy-admin/api/users/(:num)/toggle-status', 'AdminController::toggleUserStatus/$1');
     $routes->delete('/fluffy-admin/api/users/(:num)', 'AdminController::deleteUser/$1');
     
     $routes->get('/fluffy-admin/api/categories', 'AdminController::getCategories');
     $routes->post('/fluffy-admin/api/categories', 'AdminController::createCategory');
     $routes->put('/fluffy-admin/api/categories/(:num)', 'AdminController::updateCategory/$1');
+    $routes->put('/fluffy-admin/api/categories/(:num)/toggle-status', 'AdminController::toggleCategoryStatus/$1');
     $routes->delete('/fluffy-admin/api/categories/(:num)', 'AdminController::deleteCategory/$1');
     
     $routes->get('/fluffy-admin/api/orders', 'AdminController::getOrders');
     $routes->put('/fluffy-admin/api/orders/(:num)/status', 'AdminController::updateOrderStatus/$1');
     
     $routes->get('/fluffy-admin/api/sales-data', 'AdminController::getSalesData');
+    $routes->get('/fluffy-admin/api/completed-deliveries', 'AdminController::getCompletedDeliveries');
+    
+    $routes->get('/fluffy-admin/api/payments', 'AdminController::getPayments');
+    $routes->put('/fluffy-admin/api/payments/(:num)/status', 'AdminController::updatePaymentStatus/$1');
     
     // Admin approval for pending animals
     $routes->get('/fluffy-admin/api/pending-animals', 'AdminController::getPendingAnimals');

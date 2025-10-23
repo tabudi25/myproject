@@ -110,6 +110,18 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/fluffy-admin/payments">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="menu-text">Payments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/sales-report">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="menu-text">Sales Report</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/fluffy-admin/delivery-confirmations">
                         <i class="fas fa-truck"></i>
                         <span class="menu-text">Deliveries</span>
@@ -206,8 +218,6 @@
                                 <label class="btn btn-outline-warning" for="pending">Pending</label>
                                 <input type="radio" class="btn-check" name="statusFilter" id="approved" value="approved">
                                 <label class="btn btn-outline-success" for="approved">Approved</label>
-                                <input type="radio" class="btn-check" name="statusFilter" id="rejected" value="rejected">
-                                <label class="btn btn-outline-danger" for="rejected">Rejected</label>
                             </div>
                         </div>
                     </div>
@@ -270,47 +280,6 @@
         </div>
     </div>
 
-    <!-- Rejection Modal -->
-    <div class="modal fade" id="rejectionModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-times-circle me-2"></i>Reject Animal
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img id="rejectionImage" src="" alt="Animal" class="img-fluid rounded">
-                        </div>
-                        <div class="col-md-8">
-                            <h6 id="rejectionName"></h6>
-                            <p class="text-muted mb-2">
-                                <strong>Category:</strong> <span id="rejectionCategory"></span><br>
-                                <strong>Age:</strong> <span id="rejectionAge"></span> months<br>
-                                <strong>Gender:</strong> <span id="rejectionGender"></span><br>
-                                <strong>Price:</strong> ₱<span id="rejectionPrice"></span><br>
-                                <strong>Added by:</strong> <span id="rejectionAddedBy"></span>
-                            </p>
-                            <p id="rejectionDescription" class="text-muted"></p>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="rejectionNotes" class="form-label">Reason for Rejection <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="rejectionNotes" rows="3" placeholder="Please provide a reason for rejecting this animal..." required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="rejectAnimal()">
-                        <i class="fas fa-times me-2"></i>Reject Animal
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -476,14 +445,12 @@
             animals.forEach(animal => {
                 const statusClass = {
                     'pending': 'warning',
-                    'approved': 'success',
-                    'rejected': 'danger'
+                    'approved': 'success'
                 }[animal.status] || 'secondary';
 
                 const statusIcon = {
                     'pending': 'clock',
-                    'approved': 'check-circle',
-                    'rejected': 'times-circle'
+                    'approved': 'check-circle'
                 }[animal.status] || 'question';
 
                 html += `
@@ -516,9 +483,6 @@
                                 ${animal.status === 'pending' ? `
                                     <button class="btn btn-success btn-action" onclick="showApprovalModal(${animal.id})">
                                         <i class="fas fa-check"></i> Approve
-                                    </button>
-                                    <button class="btn btn-danger btn-action" onclick="showRejectionModal(${animal.id})">
-                                        <i class="fas fa-times"></i> Reject
                                     </button>
                                 ` : `
                                     <p class="small text-muted mb-0">
@@ -569,23 +533,6 @@
             new bootstrap.Modal(document.getElementById('approvalModal')).show();
         }
 
-        function showRejectionModal(animalId) {
-            const animal = allPendingAnimals.find(a => a.id == animalId);
-            if (!animal) return;
-
-            currentAnimalId = animalId;
-            document.getElementById('rejectionImage').src = `/uploads/${animal.image}`;
-            document.getElementById('rejectionName').textContent = animal.name;
-            document.getElementById('rejectionCategory').textContent = animal.category_name || 'N/A';
-            document.getElementById('rejectionAge').textContent = animal.age;
-            document.getElementById('rejectionGender').textContent = animal.gender;
-            document.getElementById('rejectionPrice').textContent = parseFloat(animal.price).toLocaleString('en-PH', {minimumFractionDigits: 2});
-            document.getElementById('rejectionAddedBy').textContent = `${animal.added_by_name} (${animal.added_by_email})`;
-            document.getElementById('rejectionDescription').textContent = animal.description || 'No description provided';
-            document.getElementById('rejectionNotes').value = '';
-
-            new bootstrap.Modal(document.getElementById('rejectionModal')).show();
-        }
 
         function approveAnimal() {
             const adminNotes = document.getElementById('approvalNotes').value;
@@ -613,36 +560,6 @@
             });
         }
 
-        function rejectAnimal() {
-            const adminNotes = document.getElementById('rejectionNotes').value;
-
-            if (!adminNotes.trim()) {
-                showAlert('warning', 'Please provide a reason for rejection');
-                return;
-            }
-
-            fetch(`/fluffy-admin/api/pending-animals/${currentAnimalId}/reject`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ admin_notes: adminNotes })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('rejectionModal')).hide();
-                    showAlert('success', data.message);
-                    loadPendingAnimals(); // Reload the list
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'An error occurred while rejecting the animal');
-            });
-        }
 
         function showAlert(type, message) {
             const alertDiv = document.createElement('div');

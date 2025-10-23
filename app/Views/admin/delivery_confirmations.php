@@ -246,6 +246,18 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/fluffy-admin/payments">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="menu-text">Payments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/sales-report">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="menu-text">Sales Report</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/fluffy-admin/delivery-confirmations" class="active">
                         <i class="fas fa-truck"></i>
                         <span class="menu-text">Deliveries</span>

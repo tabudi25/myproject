@@ -51,6 +51,16 @@ class AdminController extends BaseController
         return view('admin/orders');
     }
 
+    public function salesReport()
+    {
+        return view('admin/sales_report');
+    }
+
+    public function paymentsPage()
+    {
+        return view('admin/payments');
+    }
+
     public function usersPage()
     {
         return view('admin/users');
@@ -300,6 +310,7 @@ class AdminController extends BaseController
 
         $data = [
             'name' => $this->request->getPost('name'),
+            'description' => $this->request->getPost('description'),
             'status' => $this->request->getPost('status') ?: 'active'
         ];
 
@@ -331,6 +342,7 @@ class AdminController extends BaseController
 
         $data = [
             'name' => $this->request->getPost('name'),
+            'description' => $this->request->getPost('description'),
             'status' => $this->request->getPost('status')
         ];
 
@@ -382,6 +394,43 @@ class AdminController extends BaseController
         }
     }
 
+    public function toggleCategoryStatus($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $category = $this->categoryModel->find($id);
+        if (!$category) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Category not found']);
+        }
+
+        // Get status from request - try different methods
+        $status = $this->request->getVar('status');
+        if (empty($status)) {
+            $status = $this->request->getPost('status');
+        }
+        if (empty($status)) {
+            // Try to get from raw input
+            $rawInput = $this->request->getBody();
+            parse_str($rawInput, $data);
+            $status = $data['status'] ?? null;
+        }
+        
+        // Debug logging
+        log_message('info', 'Toggle category status request - Category ID: ' . $id . ', Status: ' . ($status ?? 'null') . ', Raw input: ' . $this->request->getBody());
+        
+        if (empty($status) || !in_array($status, ['active', 'inactive'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid status: ' . ($status ?? 'empty')]);
+        }
+
+        if ($this->categoryModel->update($id, ['status' => $status])) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Category status updated successfully']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update category status']);
+        }
+    }
+
     // User Management
     public function getUsers()
     {
@@ -390,7 +439,7 @@ class AdminController extends BaseController
         }
 
         $users = $this->userModel
-            ->select('id, name, email, role')
+            ->select('id, name, email, role, status')
             ->orderBy('id', 'DESC')
             ->findAll();
 
@@ -426,7 +475,8 @@ class AdminController extends BaseController
             'name' => $name,
             'email' => $email,
             'password' => password_hash($password, PASSWORD_DEFAULT),
-            'role' => $role
+            'role' => $role,
+            'status' => 'active'
         ];
 
         if ($this->userModel->save($data)) {
@@ -511,6 +561,48 @@ class AdminController extends BaseController
             return $this->response->setJSON(['success' => true, 'message' => 'User deleted successfully']);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete user']);
+        }
+    }
+
+    public function toggleUserStatus($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            return $this->response->setJSON(['success' => false, 'message' => 'User not found']);
+        }
+
+        // Prevent deactivating current admin user
+        if ($id == session()->get('user_id')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Cannot deactivate your own account']);
+        }
+
+        // Get status from request - try different methods
+        $status = $this->request->getVar('status');
+        if (empty($status)) {
+            $status = $this->request->getPost('status');
+        }
+        if (empty($status)) {
+            // Try to get from raw input
+            $rawInput = $this->request->getBody();
+            parse_str($rawInput, $data);
+            $status = $data['status'] ?? null;
+        }
+        
+        // Debug logging
+        log_message('info', 'Toggle status request - User ID: ' . $id . ', Status: ' . ($status ?? 'null') . ', Raw input: ' . $this->request->getBody());
+        
+        if (empty($status) || !in_array($status, ['active', 'inactive'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid status: ' . ($status ?? 'empty')]);
+        }
+
+        if ($this->userModel->update($id, ['status' => $status])) {
+            return $this->response->setJSON(['success' => true, 'message' => 'User status updated successfully']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update user status']);
         }
     }
 
@@ -764,6 +856,105 @@ class AdminController extends BaseController
             'orders' => $orders,
             'period' => $period
         ]);
+    }
+
+    public function getCompletedDeliveries()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        // Get period from request
+        $period = $this->request->getGet('period') ?: 'month';
+        
+        // Calculate date range based on period
+        $endDate = date('Y-m-d');
+        switch ($period) {
+            case 'today':
+                $startDate = date('Y-m-d');
+                break;
+            case 'week':
+                $startDate = date('Y-m-d', strtotime('-7 days'));
+                break;
+            case 'month':
+                $startDate = date('Y-m-01');
+                break;
+            case 'year':
+                $startDate = date('Y-01-01');
+                break;
+            default:
+                $startDate = date('Y-m-01');
+        }
+
+        // Get completed deliveries
+        $deliveries = $this->orderModel
+            ->select('orders.id, orders.order_number, orders.total_amount as amount, orders.created_at as delivery_date, users.name as customer_name, animals.name as animal_name')
+            ->join('users', 'users.id = orders.user_id')
+            ->join('order_items', 'order_items.order_id = orders.id')
+            ->join('animals', 'animals.id = order_items.animal_id')
+            ->where('orders.status', 'completed')
+            ->where('orders.created_at >=', $startDate)
+            ->where('orders.created_at <=', $endDate . ' 23:59:59')
+            ->orderBy('orders.created_at', 'DESC')
+            ->findAll();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'deliveries' => $deliveries
+        ]);
+    }
+
+    public function getPayments()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        // Get payments with order and user details
+        $payments = $this->orderModel
+            ->select('orders.id, orders.order_number, orders.total_amount, orders.payment_status, orders.payment_method, orders.created_at, users.name as customer_name, users.email as customer_email')
+            ->join('users', 'users.id = orders.user_id')
+            ->orderBy('orders.created_at', 'DESC')
+            ->findAll();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $payments
+        ]);
+    }
+
+    public function updatePaymentStatus($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        $order = $this->orderModel->find($id);
+        if (!$order) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Order not found']);
+        }
+
+        // Get status from request
+        $status = $this->request->getVar('status');
+        if (empty($status)) {
+            $status = $this->request->getPost('status');
+        }
+        if (empty($status)) {
+            // Try to get from raw input
+            $rawInput = $this->request->getBody();
+            parse_str($rawInput, $data);
+            $status = $data['status'] ?? null;
+        }
+
+        if (empty($status) || !in_array($status, ['pending', 'paid'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid status. Must be pending or paid']);
+        }
+
+        if ($this->orderModel->update($id, ['payment_status' => $status])) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Payment status updated successfully']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update payment status']);
+        }
     }
 
     // ==================== PENDING ANIMALS APPROVAL ====================

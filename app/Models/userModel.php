@@ -8,7 +8,7 @@ class UserModel extends Model
 {
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['name', 'email', 'password', 'role'];
+    protected $allowedFields = ['name', 'email', 'password', 'role', 'status'];
     protected $useTimestamps = false;
     
     // Validation rules (default for public signup - customer only)

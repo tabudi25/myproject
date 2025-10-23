@@ -411,6 +411,18 @@
                 </a>
             </li>
             <li>
+                <a href="/fluffy-admin/payments">
+                    <i class="fas fa-credit-card"></i>
+                    <span class="menu-text">Payments</span>
+                </a>
+            </li>
+            <li>
+                <a href="/fluffy-admin/sales-report">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="menu-text">Sales Report</span>
+                </a>
+            </li>
+            <li>
                 <a href="/fluffy-admin/delivery-confirmations">
                     <i class="fas fa-truck"></i>
                     <span class="menu-text">Deliveries</span>
@@ -488,6 +500,9 @@
 
         <!-- Content Area -->
         <div class="content-area">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">List of Adoption</h4>
+            </div>
             <div class="page-card">
                 <div class="table-responsive">
                     <table class="table align-middle" id="ordersTable">

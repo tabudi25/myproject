@@ -234,14 +234,14 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3" id="deliveryAddressField">
                                 <label class="form-label">Delivery Address *</label>
                                 <textarea class="form-control" name="delivery_address" id="deliveryAddress" rows="3" required placeholder="Enter the delivery address"></textarea>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Delivery Notes</label>
-                                <textarea class="form-control" name="delivery_notes" rows="3" placeholder="Any additional notes about the delivery"></textarea>
+                                <label class="form-label" id="notesLabel">Delivery Notes</label>
+                                <textarea class="form-control" name="delivery_notes" id="deliveryNotes" rows="3" placeholder="Any additional notes about the delivery"></textarea>
                             </div>
                         </div>
 
@@ -358,11 +358,34 @@
                 animalIdInput.value = items[0].animal_id;
             }
             
-            // If the order has a delivery address, auto-fill it
-            if (order.delivery_type === 'delivery' && order.delivery_address) {
-                const addressField = document.getElementById('deliveryAddress');
-                if (addressField && !addressField.value) {
-                    addressField.value = order.delivery_address;
+            // Handle delivery type - hide/show delivery address and change labels
+            const deliveryAddressField = document.getElementById('deliveryAddressField');
+            const deliveryAddress = document.getElementById('deliveryAddress');
+            const notesLabel = document.getElementById('notesLabel');
+            const deliveryNotes = document.getElementById('deliveryNotes');
+            
+            if (order.delivery_type === 'pickup') {
+                // Hide delivery address field for pickup
+                deliveryAddressField.style.display = 'none';
+                deliveryAddress.required = false;
+                
+                // Change label from "Delivery Notes" to "Notes"
+                notesLabel.textContent = 'Notes';
+                deliveryNotes.placeholder = 'Any additional notes about the pickup';
+            } else {
+                // Show delivery address field for delivery
+                deliveryAddressField.style.display = 'block';
+                deliveryAddress.required = true;
+                
+                // Change label back to "Delivery Notes"
+                notesLabel.textContent = 'Delivery Notes';
+                deliveryNotes.placeholder = 'Any additional notes about the delivery';
+                
+                // If the order has a delivery address, auto-fill it
+                if (order.delivery_address) {
+                    if (deliveryAddress && !deliveryAddress.value) {
+                        deliveryAddress.value = order.delivery_address;
+                    }
                 }
             }
             

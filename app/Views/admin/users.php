@@ -404,18 +404,30 @@
                     <span class="menu-text">Pending Animal</span>
                 </a>
             </li>
-            <li>
-                <a href="/fluffy-admin/orders">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="menu-text">Orders</span>
-                </a>
-            </li>
-            <li>
-                <a href="/fluffy-admin/delivery-confirmations">
-                    <i class="fas fa-truck"></i>
-                    <span class="menu-text">Deliveries</span>
-                </a>
-            </li>
+                <li>
+                    <a href="/fluffy-admin/orders">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="menu-text">Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/payments">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="menu-text">Payments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/sales-report">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="menu-text">Sales Report</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fluffy-admin/delivery-confirmations">
+                        <i class="fas fa-truck"></i>
+                        <span class="menu-text">Deliveries</span>
+                    </a>
+                </li>
                 <li>
                     <a href="/">
                     <i class="fas fa-globe"></i>
@@ -489,7 +501,8 @@
         <!-- Content Area -->
         <div class="content-area">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fas fa-user-plus me-2"></i>Add User</button>
+                <h4 class="mb-0">List of Users</h4>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fas fa-user-plus me-2"></i>Add Staff</button>
             </div>
             <div class="page-card">
                 <div class="table-responsive">
@@ -499,11 +512,12 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Status</th>
                                 <th style="width:130px">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="4" class="text-center py-4">Loading...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -533,27 +547,6 @@
   </div>
 </div>
 
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Edit User</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form id="editUserForm">
-        <input type="hidden" name="edit_id" id="edit_id">
-        <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Name *</label><input class="form-control" name="name" id="edit_name" required></div>
-          <div class="mb-3"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" id="edit_email" required></div>
-          <div class="mb-3"><label class="form-label">Password (leave empty to keep current)</label><input type="password" class="form-control" name="password" minlength="6"></div>
-          <div class="mb-3"><label class="form-label">Role *</label><select class="form-control" name="role" id="edit_role" required><option value="customer">Customer</option><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
-        </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Update</button></div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -730,18 +723,27 @@ function loadUsers(){
     .then(r=>r.json())
     .then(({success, data})=>{
       const tbody = document.querySelector('#usersTable tbody');
-      if(!success){ tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load</td></tr>'; return; }
-      if(!data.length){ tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No users</td></tr>'; return; }
-      tbody.innerHTML = data.map(u=>`
+      if(!success){ tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load</td></tr>'; return; }
+      if(!data.length){ tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No users</td></tr>'; return; }
+      tbody.innerHTML = data.map(u=>{
+        // Ensure status is properly set
+        const status = u.status || 'active';
+        const isActive = status === 'active';
+        
+        return `
         <tr>
           <td>${u.name}</td>
           <td>${u.email}</td>
           <td><span class="badge bg-${u.role==='admin'?'dark':u.role==='staff'?'info':'secondary'}">${u.role}</span></td>
+          <td><span class="badge bg-${isActive ? 'success' : 'danger'}">${status}</span></td>
           <td>
-            <button class="btn btn-sm btn-outline-primary" onclick="editUser(${u.id})"><i class="fas fa-edit"></i> Edit</button>
+            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleUserStatus(${u.id}, '${status}')">
+              <i class="fas fa-${isActive ? 'user-times' : 'user-check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
+            </button>
           </td>
         </tr>
-      `).join('');
+        `;
+      }).join('');
     });
 }
 
@@ -752,36 +754,53 @@ document.getElementById('addUserForm').addEventListener('submit', function(e){
     .then(r=>r.json()).then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide(); this.reset(); loadUsers(); } else { alert(res.message||'Failed'); } });
 });
 
-function editUser(id){
-  fetch('/fluffy-admin/api/users')
-    .then(r=>r.json())
-    .then(({success, data})=>{
-      const user = data.find(u => u.id == id);
-      if(!user) return alert('User not found');
-      
-      document.getElementById('edit_id').value = user.id;
-      document.getElementById('edit_name').value = user.name;
-      document.getElementById('edit_email').value = user.email;
-      document.getElementById('edit_role').value = user.role;
-      
-      new bootstrap.Modal(document.getElementById('editUserModal')).show();
-    });
+function toggleUserStatus(userId, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  const action = newStatus === 'active' ? 'activate' : 'deactivate';
+  
+  if (!confirm(`Are you sure you want to ${action} this user?`)) {
+    return;
+  }
+  
+  // Show loading state
+  const button = event.target;
+  const originalText = button.innerHTML;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+  button.disabled = true;
+  
+  console.log('Sending status:', newStatus, 'for user:', userId);
+  
+  fetch(`/fluffy-admin/api/users/${userId}/toggle-status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `status=${newStatus}`
+  })
+  .then(r => {
+    if (!r.ok) {
+      throw new Error(`HTTP error! status: ${r.status}`);
+    }
+    return r.json();
+  })
+  .then(res => {
+    if (res.success) {
+      loadUsers();
+      alert(`User ${action}d successfully!`);
+    } else {
+      alert(res.message || 'Failed to update user status');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Network error: ' + error.message);
+  })
+  .finally(() => {
+    // Restore button state
+    button.innerHTML = originalText;
+    button.disabled = false;
+  });
 }
-
-document.getElementById('editUserForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const formData = new FormData(this);
-  const id = document.getElementById('edit_id').value;
-  fetch('/fluffy-admin/api/users/'+id, { method:'PUT', body:new URLSearchParams(formData) })
-    .then(r=>r.json())
-    .then(res=>{
-      if(res.success){
-        bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
-        loadUsers();
-      } else { alert(res.message || 'Failed'); }
-    })
-    .catch(()=>alert('Network error'));
-});
 
 </script>
 </body>
