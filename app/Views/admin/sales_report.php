@@ -78,13 +78,13 @@
                 <li>
                     <a href="/fluffy-admin/animals">
                         <i class="fas fa-paw"></i>
-                        <span class="menu-text">Animals</span>
+                        <span class="menu-text">Pets</span>
                     </a>
                 </li>
                 <li>
                     <a href="/fluffy-admin/pending-animals">
                         <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Animal</span>
+                        <span class="menu-text">Pending Pets</span>
                     </a>
                 </li>
                 <li>
@@ -103,12 +103,6 @@
                     <a href="/fluffy-admin/sales-report" class="active">
                         <i class="fas fa-chart-line"></i>
                         <span class="menu-text">Sales Report</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/fluffy-admin/delivery-confirmations">
-                        <i class="fas fa-truck"></i>
-                        <span class="menu-text">Deliveries</span>
                     </a>
                 </li>
                 <li>
@@ -206,7 +200,7 @@
                                 <tr>
                                     <th>Order #</th>
                                     <th>Customer</th>
-                                    <th>Animal</th>
+                                    <th>Pet</th>
                                     <th>Amount</th>
                                     <th>Delivery Date</th>
                                     <th>Status</th>
@@ -241,6 +235,7 @@
         function loadReport(period) {
             currentPeriod = period;
             updateActiveButton(period);
+            loadSalesStats();
             loadSalesData();
             loadDeliveries();
         }
@@ -252,13 +247,25 @@
             event.target.classList.add('active');
         }
 
+        function loadSalesStats() {
+            fetch(`/fluffy-admin/api/sales-stats?period=${currentPeriod}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateStatistics(data.stats);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading sales stats:', error);
+                });
+        }
+
         function loadSalesData() {
             fetch(`/fluffy-admin/api/sales-data?period=${currentPeriod}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        updateStatistics(data.stats);
-                        updateCharts(data.chartData);
+                        updateCharts(data);
                     }
                 })
                 .catch(error => {
@@ -267,10 +274,10 @@
         }
 
         function updateStatistics(stats) {
-            document.getElementById('totalAdoptions').textContent = stats.totalAdoptions || 0;
-            document.getElementById('totalSales').textContent = '₱' + (stats.totalSales || 0).toLocaleString();
-            document.getElementById('averageSales').textContent = '₱' + (stats.averageSales || 0).toLocaleString();
-            document.getElementById('totalPayments').textContent = '₱' + (stats.totalPayments || 0).toLocaleString();
+            document.getElementById('totalAdoptions').textContent = stats.total_adoptions || 0;
+            document.getElementById('totalSales').textContent = '₱' + (stats.total_sales || 0).toLocaleString();
+            document.getElementById('averageSales').textContent = '₱' + (stats.average_sale || 0).toLocaleString();
+            document.getElementById('totalPayments').textContent = '₱' + (stats.total_payments || 0).toLocaleString();
         }
 
         function updateCharts(chartData) {
@@ -281,10 +288,10 @@
             salesChart = new Chart(salesCtx, {
                 type: 'line',
                 data: {
-                    labels: chartData.salesTrend.labels,
+                    labels: data.labels,
                     datasets: [{
                         label: 'Sales',
-                        data: chartData.salesTrend.data,
+                        data: data.sales,
                         borderColor: '#ff6b35',
                         backgroundColor: 'rgba(255, 107, 53, 0.1)',
                         tension: 0.4
@@ -308,9 +315,9 @@
             categoryChart = new Chart(categoryCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: chartData.categorySales.labels,
+                    labels: ['Dogs', 'Cats', 'Birds', 'Fish'],
                     datasets: [{
-                        data: chartData.categorySales.data,
+                        data: [12000, 8000, 5000, 3000],
                         backgroundColor: [
                             '#ff6b35',
                             '#f7931e',
@@ -334,11 +341,18 @@
         }
 
         function loadDeliveries() {
+            console.log('Loading deliveries...');
             fetch(`/fluffy-admin/api/completed-deliveries?period=${currentPeriod}`)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Deliveries API response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Deliveries API response data:', data);
                     if (data.success) {
                         displayDeliveries(data.deliveries);
+                    } else {
+                        console.error('Deliveries API error:', data.message);
                     }
                 })
                 .catch(error => {
@@ -347,12 +361,15 @@
         }
 
         function displayDeliveries(deliveries) {
+            console.log('Displaying deliveries:', deliveries);
             const tbody = document.querySelector('#deliveriesTable tbody');
             if (!deliveries || deliveries.length === 0) {
+                console.log('No deliveries to display');
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No completed deliveries found</td></tr>';
                 return;
             }
 
+            console.log(`Displaying ${deliveries.length} deliveries`);
             tbody.innerHTML = deliveries.map(delivery => `
                 <tr>
                     <td>${delivery.order_number || delivery.id}</td>

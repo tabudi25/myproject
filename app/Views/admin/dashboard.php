@@ -551,13 +551,13 @@
                 <li>
                     <a href="/fluffy-admin/animals">
                         <i class="fas fa-paw"></i>
-                        <span class="menu-text">Animals</span>
+                        <span class="menu-text">Pets</span>
                     </a>
                 </li>
                 <li>
                     <a href="/fluffy-admin/pending-animals">
                         <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Animal</span>
+                        <span class="menu-text">Pending Pets</span>
                         <span class="badge bg-warning pending-count" id="sidebarPendingCount">0</span>
                     </a>
                 </li>
@@ -577,12 +577,6 @@
                     <a href="/fluffy-admin/sales-report">
                         <i class="fas fa-chart-line"></i>
                         <span class="menu-text">Sales Report</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/fluffy-admin/delivery-confirmations">
-                        <i class="fas fa-truck"></i>
-                        <span class="menu-text">Deliveries</span>
                     </a>
                 </li>
                 <li>
@@ -681,7 +675,7 @@
                             <i class="fas fa-paw"></i>
                         </div>
                         <div class="stat-number" data-stat="total-animals"><?= $stats['total_animals'] ?></div>
-                        <div class="stat-label">Total Animals</div>
+                        <div class="stat-label">Total Pets</div>
                         <small class="text-success">
                             <i class="fas fa-check-circle me-1"></i>
                             <span data-stat="available-animals"><?= $stats['available_animals'] ?></span> Available
@@ -822,12 +816,12 @@
                         </div>
                     </div>
                     
-                    <!-- Recent Animals -->
+                    <!-- Recent Pets -->
                     <div class="col-lg-4">
                         <div class="dashboard-section">
                             <h4 class="section-title">
                                 <i class="fas fa-paw"></i>
-                                Recent Animals
+                                Recent Pets
                             </h4>
                             
                             <?php if (!empty($recentAnimals)): ?>
@@ -846,12 +840,12 @@
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <p class="text-muted">No recent animals found.</p>
+                                <p class="text-muted">No recent pets found.</p>
                             <?php endif; ?>
                             
                             <div class="text-center mt-3">
                                 <button class="btn btn-primary" onclick="loadSection('animals')">
-                                    View All Animals
+                                    View All Pets
                                 </button>
                             </div>
                         </div>
@@ -923,10 +917,10 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="section-title">
                             <i class="fas fa-paw"></i>
-                            Manage Animals
+                            Manage Pets
                         </h4>
                         <button class="btn btn-primary" onclick="showAddAnimalModal()">
-                            <i class="fas fa-plus me-2"></i>Add Animal
+                            <i class="fas fa-plus me-2"></i>Add Pet
                         </button>
                     </div>
                     <div class="table-responsive">
@@ -980,7 +974,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Add New Animal</h5>
+                                <h5 class="modal-title">Add New Pet</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <form id="addAnimalForm" enctype="multipart/form-data">
@@ -1028,7 +1022,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Add Animal</button>
+                                    <button type="submit" class="btn btn-primary">Add Pet</button>
                                 </div>
                             </form>
                         </div>
@@ -1067,14 +1061,14 @@
                     if (data.success) {
                         modal.hide();
                         showAlert('success', data.message);
-                        loadAnimalsSection(); // Reload animals table
+                        loadAnimalsSection(); // Reload pets table
                     } else {
                         showAlert('danger', data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('danger', 'An error occurred while adding the animal');
+                    showAlert('danger', 'An error occurred while adding the pet');
                 });
             });
         }
@@ -1117,7 +1111,7 @@
         }
 
         function editAnimal(id) {
-            showAlert('info', `Edit animal ${id} coming soon...`);
+            showAlert('info', `Edit pet ${id} coming soon...`);
         }
 
 
@@ -1609,7 +1603,7 @@
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
 
-        // Load pending animals count
+        // Load pending pets count
         function loadPendingAnimalsCount() {
             fetch('/fluffy-admin/api/pending-animals')
                 .then(response => response.json())

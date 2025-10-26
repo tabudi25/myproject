@@ -393,15 +393,15 @@
                 </a>
             </li>
             <li>
-                <a href="/fluffy-admin/animals">
-                    <i class="fas fa-paw"></i>
-                    <span class="menu-text">Animals</span>
-                </a>
+                    <a href="/fluffy-admin/animals">
+                        <i class="fas fa-paw"></i>
+                        <span class="menu-text">Pets</span>
+                    </a>
             </li>
             <li>
                 <a href="/fluffy-admin/pending-animals">
                     <i class="fas fa-clock"></i>
-                    <span class="menu-text">Pending Animal</span>
+                    <span class="menu-text">Pending Pets</span>
                 </a>
             </li>
             <li>
@@ -420,12 +420,6 @@
                 <a href="/fluffy-admin/sales-report">
                     <i class="fas fa-chart-line"></i>
                     <span class="menu-text">Sales Report</span>
-                </a>
-            </li>
-            <li>
-                <a href="/fluffy-admin/delivery-confirmations">
-                    <i class="fas fa-truck"></i>
-                    <span class="menu-text">Deliveries</span>
                 </a>
             </li>
                 <li>
@@ -520,6 +514,41 @@
                         </thead>
                         <tbody>
                             <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Delivery Confirmations -->
+            <div class="page-card mb-4" id="deliveryConfirmationsSection">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-truck"></i> Delivery Confirmations
+                    </h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="filterConfirmations('all')">All</button>
+                        <button type="button" class="btn btn-outline-warning" onclick="filterConfirmations('pending')">Pending</button>
+                        <button type="button" class="btn btn-outline-success" onclick="filterConfirmations('confirmed')">Confirmed</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="deliveryConfirmationsTable">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Pet</th>
+                                <th>Staff</th>
+                                <th>Payment Amount</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Loading...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -857,6 +886,228 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
       console.error('Error:', err);
       alert('Network error. Please try again.');
     });
+});
+
+// Delivery Confirmation Functions
+let currentFilter = 'all';
+
+function loadDeliveryConfirmations() {
+    const tbody = document.querySelector('#deliveryConfirmationsTable tbody');
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>';
+    
+    fetch('/fluffy-admin/api/delivery-confirmations')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                let filteredData = data.data;
+                if (currentFilter !== 'all') {
+                    filteredData = data.data.filter(confirmation => confirmation.status === currentFilter);
+                }
+                
+                tbody.innerHTML = filteredData.map(confirmation => `
+                    <tr>
+                        <td>${confirmation.order_number}</td>
+                        <td>${confirmation.customer_name}</td>
+                        <td>${confirmation.animal_name}</td>
+                        <td>${confirmation.staff_name}</td>
+                        <td>₱${parseFloat(confirmation.payment_amount).toLocaleString()}</td>
+                        <td>
+                            <span class="badge bg-${confirmation.status === 'pending' ? 'warning' : confirmation.status === 'confirmed' ? 'success' : 'danger'}">
+                                ${confirmation.status.charAt(0).toUpperCase() + confirmation.status.slice(1)}
+                            </span>
+                        </td>
+                        <td>${new Date(confirmation.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewConfirmation(${confirmation.id})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${confirmation.status === 'pending' ? `
+                                    <button class="btn btn-outline-success" onclick="approveConfirmation(${confirmation.id})" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            <i class="fas fa-truck fa-2x mb-2"></i><br>
+                            No delivery confirmations found.<br>
+                            <small>Staff members haven't submitted any delivery confirmations yet.</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading delivery confirmations:', error);
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+
+function filterConfirmations(status) {
+    currentFilter = status;
+    
+    // Update button states
+    document.querySelectorAll('#deliveryConfirmationsSection .btn-group button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    loadDeliveryConfirmations();
+}
+
+function viewConfirmation(confirmationId) {
+    // Fetch confirmation details and show modal
+    fetch(`/fluffy-admin/api/delivery-confirmations/${confirmationId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showConfirmationModal(data.data);
+            } else {
+                alert('Failed to load confirmation details: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        });
+}
+
+function showConfirmationModal(confirmation) {
+    const modalHtml = `
+        <div class="modal fade" id="confirmationViewModal" tabindex="-1" aria-labelledby="confirmationViewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationViewModalLabel">
+                            <i class="fas fa-truck"></i> Delivery Confirmation Details
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-info-circle"></i> Order Information</h6>
+                                <p><strong>Order #:</strong> ${confirmation.order_number}</p>
+                                <p><strong>Customer:</strong> ${confirmation.customer_name}</p>
+                                <p><strong>Pet:</strong> ${confirmation.animal_name}</p>
+                                <p><strong>Staff:</strong> ${confirmation.staff_name}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-money-bill"></i> Payment Information</h6>
+                                <p><strong>Amount:</strong> ₱${parseFloat(confirmation.payment_amount).toLocaleString()}</p>
+                                <p><strong>Method:</strong> ${confirmation.payment_method}</p>
+                                <p><strong>Submitted:</strong> ${new Date(confirmation.created_at).toLocaleString()}</p>
+                                <p><strong>Status:</strong> <span class="badge bg-warning">Pending</span></p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-map-marker-alt"></i> Delivery Address</h6>
+                            <p class="bg-light p-3 rounded">${confirmation.delivery_address || 'N/A'}</p>
+                        </div>
+                        
+                        ${confirmation.delivery_notes ? `
+                            <div class="mb-3">
+                                <h6><i class="fas fa-sticky-note"></i> Delivery Notes</h6>
+                                <p class="bg-light p-3 rounded">${confirmation.delivery_notes}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-camera"></i> Delivery Photo</h6>
+                                <div class="bg-light p-3 rounded text-center">
+                                    <img src="/uploads/delivery_confirmations/${confirmation.delivery_photo}" class="img-fluid" style="max-height: 200px;" alt="Delivery photo">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-receipt"></i> Payment Proof Photo</h6>
+                                <div class="bg-light p-3 rounded text-center">
+                                    <img src="/uploads/delivery_confirmations/${confirmation.payment_photo}" class="img-fluid" style="max-height: 200px;" alt="Payment proof">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="approveConfirmation(${confirmation.id})">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('confirmationViewModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('confirmationViewModal'));
+    modal.show();
+}
+
+function approveConfirmation(confirmationId) {
+    console.log('Approving confirmation ID:', confirmationId);
+    
+    if (confirm('Are you sure you want to approve this delivery confirmation?')) {
+        const notes = prompt('Add admin notes (optional):') || '';
+        
+        const formData = new URLSearchParams();
+        formData.append('admin_notes', notes);
+        
+        console.log('Sending approval request to:', `/fluffy-admin/api/delivery-confirmations/${confirmationId}/approve`);
+        
+        fetch(`/fluffy-admin/api/delivery-confirmations/${confirmationId}/approve`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                alert('Delivery confirmation approved successfully!');
+                loadDeliveryConfirmations();
+                loadOrders(); // Refresh orders
+                // Close modal if open
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmationViewModal'));
+                if (modal) modal.hide();
+            } else {
+                alert('Failed to approve delivery confirmation: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        });
+    }
+}
+
+// Load data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadOrders();
+    loadDeliveryConfirmations();
 });
 </script>
 </body>

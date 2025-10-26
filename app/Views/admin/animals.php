@@ -401,13 +401,13 @@
                 <li>
                     <a href="/fluffy-admin/animals" class="active">
                         <i class="fas fa-paw"></i>
-                        <span class="menu-text">Animals</span>
+                        <span class="menu-text">Pets</span>
                     </a>
                 </li>
                 <li>
                     <a href="/fluffy-admin/pending-animals">
                         <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Animal</span>
+                        <span class="menu-text">Pending Pets</span>
                     </a>
                 </li>
                 <li>
@@ -426,12 +426,6 @@
                     <a href="/fluffy-admin/sales-report">
                         <i class="fas fa-chart-line"></i>
                         <span class="menu-text">Sales Report</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/fluffy-admin/delivery-confirmations">
-                        <i class="fas fa-truck"></i>
-                        <span class="menu-text">Deliveries</span>
                     </a>
                 </li>
                 <li>
@@ -508,7 +502,7 @@
             <div class="content-area">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnimalModal">
-                        <i class="fas fa-plus me-2"></i>Add Animal
+                        <i class="fas fa-plus me-2"></i>Add Pet
                     </button>
                 </div>
                 <div class="page-card">
@@ -536,12 +530,12 @@
         </div>
     </div>
 
-    <!-- Add Animal Modal -->
+    <!-- Add Pet Modal -->
     <div class="modal fade" id="addAnimalModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Animal</h5>
+                    <h5 class="modal-title">Add New Pet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="addAnimalForm" enctype="multipart/form-data">
@@ -585,7 +579,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Animal</button>
+                        <button type="submit" class="btn btn-primary">Add Pet</button>
                     </div>
                 </form>
             </div>

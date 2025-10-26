@@ -393,15 +393,15 @@
                 </a>
             </li>
             <li>
-                <a href="/fluffy-admin/animals">
-                    <i class="fas fa-paw"></i>
-                    <span class="menu-text">Animals</span>
-                </a>
+                    <a href="/fluffy-admin/animals">
+                        <i class="fas fa-paw"></i>
+                        <span class="menu-text">Pets</span>
+                    </a>
             </li>
             <li>
                 <a href="/fluffy-admin/pending-animals">
                     <i class="fas fa-clock"></i>
-                    <span class="menu-text">Pending Animal</span>
+                    <span class="menu-text">Pending Pets</span>
                 </a>
             </li>
                 <li>
@@ -421,13 +421,7 @@
                         <i class="fas fa-chart-line"></i>
                         <span class="menu-text">Sales Report</span>
                     </a>
-                </li>
-                <li>
-                    <a href="/fluffy-admin/delivery-confirmations">
-                        <i class="fas fa-truck"></i>
-                        <span class="menu-text">Deliveries</span>
-                    </a>
-                </li>
+            </li>
                 <li>
                     <a href="/">
                     <i class="fas fa-globe"></i>

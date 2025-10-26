@@ -249,6 +249,9 @@
                                 <button class="btn btn-sm btn-primary" onclick="markDelivered(${order.id})">
                                     <i class="fas fa-truck"></i> Delivered
                                 </button>
+                                <button class="btn btn-sm btn-success" onclick="confirmDelivery(${order.id})">
+                                    <i class="fas fa-check-circle"></i> Confirm Delivery
+                                </button>
                             ` : ''}
                         </div>
                     </td>
@@ -441,6 +444,242 @@
                 }
             }, 5000);
         }
+    </script>
+
+    <!-- Delivery Confirmation Modal -->
+    <div class="modal fade" id="deliveryConfirmationModal" tabindex="-1" aria-labelledby="deliveryConfirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deliveryConfirmationModalLabel">
+                        <i class="fas fa-check-circle"></i> Confirm Animal Delivery
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deliveryConfirmationForm" enctype="multipart/form-data">
+                        <input type="hidden" id="confirmationOrderId" name="order_id">
+                        
+                        <!-- Order Details Section -->
+                        <div id="confirmationOrderDetails" class="mb-4" style="display: none;">
+                            <h6><i class="fas fa-info-circle"></i> Order Details</h6>
+                            <div id="confirmationOrderInfo" class="bg-light p-3 rounded"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="confirmationDeliveryAddressField">
+                                <label for="confirmationDeliveryAddress" class="form-label">Delivery Address <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="confirmationDeliveryAddress" name="delivery_address" rows="3" required placeholder="Enter the delivery address"></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmationDeliveryNotes" class="form-label" id="confirmationNotesLabel">Delivery Notes</label>
+                                <textarea class="form-control" id="confirmationDeliveryNotes" name="delivery_notes" rows="3" placeholder="Any additional notes about the delivery"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmationPaymentAmount" class="form-label">Payment Amount Received <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="confirmationPaymentAmount" name="payment_amount" required placeholder="0.00">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmationPaymentMethod" class="form-label">Payment Method <span class="text-danger">*</span></label>
+                                <select class="form-select" id="confirmationPaymentMethod" name="payment_method" required>
+                                    <option value="">Select payment method...</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="gcash">GCash</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="paypal">PayPal</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmationDeliveryPhoto" class="form-label">Delivery Photo <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="confirmationDeliveryPhoto" name="delivery_photo" accept="image/*" required>
+                                <div class="form-text">Take a photo of the animal being delivered to the customer</div>
+                                <div id="confirmationDeliveryPhotoPreview"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmationPaymentPhoto" class="form-label">Payment Proof Photo <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="confirmationPaymentPhoto" name="payment_photo" accept="image/*" required>
+                                <div class="form-text">Photo of payment receipt or transaction proof</div>
+                                <div id="confirmationPaymentPhotoPreview"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> This confirmation will be reviewed by admin and the order status will be updated accordingly.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitDeliveryConfirmation()">
+                        <i class="fas fa-check"></i> Submit Delivery Confirmation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Delivery Confirmation Functions
+        function confirmDelivery(orderId) {
+            document.getElementById('confirmationOrderId').value = orderId;
+            loadConfirmationOrderDetails(orderId);
+            const modal = new bootstrap.Modal(document.getElementById('deliveryConfirmationModal'));
+            modal.show();
+        }
+        
+        function loadConfirmationOrderDetails(orderId) {
+            fetch('/staff/delivery-confirmations/get-order-details', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'order_id=' + orderId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayConfirmationOrderDetails(data.order, data.items);
+                } else {
+                    alert('Failed to load order details: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading order details:', error);
+                alert('Error loading order details. Please try again.');
+            });
+        }
+        
+        function displayConfirmationOrderDetails(order, items) {
+            const orderInfo = document.getElementById('confirmationOrderInfo');
+            const orderDetails = document.getElementById('confirmationOrderDetails');
+            
+            // Handle delivery type - hide/show delivery address and change labels
+            const deliveryAddressField = document.getElementById('confirmationDeliveryAddressField');
+            const deliveryAddress = document.getElementById('confirmationDeliveryAddress');
+            const notesLabel = document.getElementById('confirmationNotesLabel');
+            const deliveryNotes = document.getElementById('confirmationDeliveryNotes');
+            
+            if (order.delivery_type === 'pickup') {
+                deliveryAddressField.style.display = 'none';
+                deliveryAddress.required = false;
+                notesLabel.textContent = 'Notes';
+                deliveryNotes.placeholder = 'Any additional notes about the pickup';
+            } else {
+                deliveryAddressField.style.display = 'block';
+                deliveryAddress.required = true;
+                notesLabel.textContent = 'Delivery Notes';
+                deliveryNotes.placeholder = 'Any additional notes about the delivery';
+                if (order.delivery_address) {
+                    if (deliveryAddress && !deliveryAddress.value) {
+                        deliveryAddress.value = order.delivery_address;
+                    }
+                }
+            }
+            
+            let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Order Number:</strong> #${order.order_number || 'N/A'}</p>
+                        <p><strong>Customer:</strong> ${order.customer_name || 'Customer Name Not Available'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Total Amount:</strong> ₱${parseFloat(order.total_amount || 0).toLocaleString()}</p>
+                        <p><strong>Delivery Type:</strong> ${order.delivery_type}</p>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Animal Being Delivered:</h6>
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <img src="/uploads/${items[0].animal_image}" class="me-3" alt="${items[0].animal_name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            <div>
+                                <h6 class="mb-1">${items[0].animal_name}</h6>
+                                <p class="mb-0 text-muted">₱${parseFloat(items[0].price).toLocaleString()}</p>
+                                <small class="text-success"><i class="fas fa-check-circle me-1"></i>Selected for delivery</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            orderInfo.innerHTML = html;
+            orderDetails.style.display = 'block';
+        }
+        
+        function submitDeliveryConfirmation() {
+            const form = document.getElementById('deliveryConfirmationForm');
+            const formData = new FormData(form);
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.querySelector('#deliveryConfirmationModal .btn-success');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.disabled = true;
+            
+            fetch('/staff/delivery-confirmations/store', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessNotification('Delivery confirmation submitted successfully! Admin will review it.');
+                    bootstrap.Modal.getInstance(document.getElementById('deliveryConfirmationModal')).hide();
+                    form.reset();
+                    loadOrders(); // Refresh orders
+                } else {
+                    alert('Failed to submit delivery confirmation: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+        
+        // Preview uploaded images for delivery confirmation
+        document.getElementById('confirmationDeliveryPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('confirmationDeliveryPhotoPreview').innerHTML = 
+                        `<img src="${e.target.result}" class="img-thumbnail mt-2" style="max-width: 200px; max-height: 200px;" alt="Delivery photo preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('confirmationPaymentPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('confirmationPaymentPhotoPreview').innerHTML = 
+                        `<img src="${e.target.result}" class="img-thumbnail mt-2" style="max-width: 200px; max-height: 200px;" alt="Payment photo preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>

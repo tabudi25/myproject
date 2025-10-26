@@ -858,6 +858,68 @@ class AdminController extends BaseController
         ]);
     }
 
+    public function getSalesStats()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        // Get period from request
+        $period = $this->request->getGet('period') ?: 'month';
+        
+        // Calculate date range based on period
+        $endDate = date('Y-m-d');
+        switch ($period) {
+            case 'today':
+                $startDate = date('Y-m-d');
+                break;
+            case 'week':
+                $startDate = date('Y-m-d', strtotime('-7 days'));
+                break;
+            case 'month':
+                $startDate = date('Y-m-01');
+                break;
+            case 'year':
+                $startDate = date('Y-01-01');
+                break;
+            default:
+                $startDate = date('Y-m-01');
+        }
+
+        // Get statistics for delivered orders
+        $totalAdoptions = $this->orderModel
+            ->where('status', 'delivered')
+            ->where('created_at >=', $startDate)
+            ->where('created_at <=', $endDate . ' 23:59:59')
+            ->countAllResults();
+
+        $totalSales = $this->orderModel
+            ->selectSum('total_amount')
+            ->where('status', 'delivered')
+            ->where('created_at >=', $startDate)
+            ->where('created_at <=', $endDate . ' 23:59:59')
+            ->first();
+
+        $totalPayments = $this->orderModel
+            ->selectSum('total_amount')
+            ->where('status', 'delivered')
+            ->where('created_at >=', $startDate)
+            ->where('created_at <=', $endDate . ' 23:59:59')
+            ->first();
+
+        $averageSale = $totalAdoptions > 0 ? (float)($totalSales['total_amount'] ?? 0) / $totalAdoptions : 0;
+
+        return $this->response->setJSON([
+            'success' => true,
+            'stats' => [
+                'total_adoptions' => $totalAdoptions,
+                'total_sales' => (float)($totalSales['total_amount'] ?? 0),
+                'average_sale' => $averageSale,
+                'total_payments' => (float)($totalPayments['total_amount'] ?? 0)
+            ]
+        ]);
+    }
+
     public function getCompletedDeliveries()
     {
         if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
@@ -886,15 +948,14 @@ class AdminController extends BaseController
                 $startDate = date('Y-m-01');
         }
 
-        // Get completed deliveries
+        // Get completed deliveries (orders with 'delivered' status)
+        // For now, let's get all delivered orders regardless of date to test
         $deliveries = $this->orderModel
             ->select('orders.id, orders.order_number, orders.total_amount as amount, orders.created_at as delivery_date, users.name as customer_name, animals.name as animal_name')
             ->join('users', 'users.id = orders.user_id')
             ->join('order_items', 'order_items.order_id = orders.id')
             ->join('animals', 'animals.id = order_items.animal_id')
-            ->where('orders.status', 'completed')
-            ->where('orders.created_at >=', $startDate)
-            ->where('orders.created_at <=', $endDate . ' 23:59:59')
+            ->where('orders.status', 'delivered')
             ->orderBy('orders.created_at', 'DESC')
             ->findAll();
 
@@ -1117,5 +1178,148 @@ class AdminController extends BaseController
             'todayCount' => $todayCount,
             'timestamp' => time()
         ]);
+    }
+
+    // ==================== DELIVERY CONFIRMATION MANAGEMENT ====================
+    
+    public function getDeliveryConfirmations()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $deliveryConfirmationModel = new \App\Models\DeliveryConfirmationModel();
+            $confirmations = $deliveryConfirmationModel->getDeliveriesWithDetails();
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => $confirmations
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getDeliveryConfirmations: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error retrieving delivery confirmations: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    public function getPendingDeliveryConfirmations()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $deliveryConfirmationModel = new \App\Models\DeliveryConfirmationModel();
+            $confirmations = $deliveryConfirmationModel->getPendingConfirmations();
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => $confirmations
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getPendingDeliveryConfirmations: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error retrieving pending confirmations: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getDeliveryConfirmation($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $deliveryConfirmationModel = new \App\Models\DeliveryConfirmationModel();
+            $confirmation = $deliveryConfirmationModel->getConfirmationWithDetails($id);
+
+            if (!$confirmation) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Delivery confirmation not found']);
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => $confirmation
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getDeliveryConfirmation: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error retrieving delivery confirmation: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function approveDeliveryConfirmation($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $deliveryConfirmationModel = new \App\Models\DeliveryConfirmationModel();
+            $confirmation = $deliveryConfirmationModel->find($id);
+
+            if (!$confirmation) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Delivery confirmation not found']);
+            }
+
+            $adminNotes = $this->request->getVar('admin_notes') ?? $this->request->getPost('admin_notes') ?? '';
+
+            if ($deliveryConfirmationModel->update($id, [
+                'status' => 'confirmed',
+                'admin_notes' => $adminNotes,
+                'approved_by' => session()->get('user_id'),
+                'approved_at' => date('Y-m-d H:i:s')
+            ])) {
+                // Update order status to delivered
+                $orderModel = new \App\Models\OrderModel();
+                $orderModel->update($confirmation['order_id'], ['status' => 'delivered']);
+                
+                return $this->response->setJSON(['success' => true, 'message' => 'Delivery confirmation approved successfully']);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to approve delivery confirmation']);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error in approveDeliveryConfirmation: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error approving delivery confirmation']);
+        }
+    }
+
+    public function rejectDeliveryConfirmation($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $deliveryConfirmationModel = new \App\Models\DeliveryConfirmationModel();
+            $confirmation = $deliveryConfirmationModel->find($id);
+
+            if (!$confirmation) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Delivery confirmation not found']);
+            }
+
+            $adminNotes = $this->request->getPost('admin_notes') ?? '';
+
+            if ($deliveryConfirmationModel->update($id, [
+                'status' => 'rejected',
+                'admin_notes' => $adminNotes,
+                'approved_by' => session()->get('user_id'),
+                'approved_at' => date('Y-m-d H:i:s')
+            ])) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Delivery confirmation rejected']);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to reject delivery confirmation']);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error in rejectDeliveryConfirmation: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error rejecting delivery confirmation']);
+        }
     }
 }

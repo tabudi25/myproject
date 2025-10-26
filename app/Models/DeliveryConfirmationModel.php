@@ -149,4 +149,35 @@ class DeliveryConfirmationModel extends Model
         
         return $this->update($id, $data);
     }
+
+    public function getPendingConfirmations()
+    {
+        $builder = $this->db->table('delivery_confirmations dc');
+        $builder->select('dc.*, o.order_number, o.delivery_type,
+                         u1.name as staff_name, u1.email as staff_email,
+                         u2.name as customer_name, u2.email as customer_email,
+                         a.name as animal_name, a.image as animal_image');
+        $builder->join('orders o', 'o.id = dc.order_id');
+        $builder->join('users u1', 'u1.id = dc.staff_id');
+        $builder->join('users u2', 'u2.id = dc.customer_id');
+        $builder->join('animals a', 'a.id = dc.animal_id');
+        $builder->where('dc.status', 'pending');
+        $builder->orderBy('dc.created_at', 'DESC');
+        return $builder->get()->getResultArray();
+    }
+
+    public function getConfirmationWithDetails($id)
+    {
+        $builder = $this->db->table('delivery_confirmations dc');
+        $builder->select('dc.*, o.order_number, o.delivery_type,
+                         u1.name as staff_name, u1.email as staff_email,
+                         u2.name as customer_name, u2.email as customer_email,
+                         a.name as animal_name, a.image as animal_image');
+        $builder->join('orders o', 'o.id = dc.order_id');
+        $builder->join('users u1', 'u1.id = dc.staff_id');
+        $builder->join('users u2', 'u2.id = dc.customer_id');
+        $builder->join('animals a', 'a.id = dc.animal_id');
+        $builder->where('dc.id', $id);
+        return $builder->get()->getRowArray();
+    }
 }

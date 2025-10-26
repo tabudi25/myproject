@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Animals - Admin</title>
+    <title>Pending Pets - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -94,13 +94,13 @@
                 <li>
                     <a href="/fluffy-admin/animals">
                         <i class="fas fa-paw"></i>
-                        <span class="menu-text">Animals</span>
+                        <span class="menu-text">Pets</span>
                     </a>
                 </li>
                 <li>
                     <a href="/fluffy-admin/pending-animals" class="active">
                         <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Animal</span>
+                        <span class="menu-text">Pending Pets</span>
                     </a>
                 </li>
                 <li>
@@ -119,12 +119,6 @@
                     <a href="/fluffy-admin/sales-report">
                         <i class="fas fa-chart-line"></i>
                         <span class="menu-text">Sales Report</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/fluffy-admin/delivery-confirmations">
-                        <i class="fas fa-truck"></i>
-                        <span class="menu-text">Deliveries</span>
                     </a>
                 </li>
                 <li>
@@ -200,7 +194,7 @@
             <!-- Content Area -->
             <div class="content-area">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Animals</h4>
+                    <h4 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Pets</h4>
                     <span class="badge bg-warning text-dark">Pending: <span id="pendingCount">0</span></span>
                 </div>
 
@@ -223,7 +217,7 @@
                     </div>
                 </div>
 
-                <!-- Pending Animals List -->
+                <!-- Pending Pets List -->
                 <div class="page-card">
                     <div id="pendingAnimalsList">
                         <div class="text-center py-5">
