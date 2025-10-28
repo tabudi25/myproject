@@ -82,15 +82,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/pending-animals">
-                        <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Pets</span>
-                    </a>
-                </li>
-                <li>
                     <a href="/fluffy-admin/orders">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="menu-text">Orders</span>
+                        <span class="menu-text">Adoptions</span>
                     </a>
                 </li>
                 <li>
@@ -198,7 +192,7 @@
                         <table class="table align-middle" id="deliveriesTable">
                             <thead>
                                 <tr>
-                                    <th>Order #</th>
+                                    <th>Adoptions #</th>
                                     <th>Customer</th>
                                     <th>Pet</th>
                                     <th>Amount</th>

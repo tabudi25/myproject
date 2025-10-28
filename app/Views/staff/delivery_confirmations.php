@@ -71,29 +71,41 @@
             margin-bottom: 20px;
         }
 
-        .delivery-card {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
+        .delivery-row {
             transition: all 0.3s;
         }
 
-        .delivery-card:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(255, 107, 53, 0.1);
+        .delivery-row:hover {
+            background-color: rgba(255, 107, 53, 0.05);
         }
 
-        .delivery-card.pending {
-            border-left: 5px solid #ffc107;
+        .delivery-row.pending {
+            border-left: 4px solid #ffc107;
         }
 
-        .delivery-card.confirmed {
-            border-left: 5px solid #28a745;
+        .delivery-row.confirmed {
+            border-left: 4px solid #28a745;
         }
 
-        .delivery-card.rejected {
-            border-left: 5px solid #dc3545;
+        .delivery-row.rejected {
+            border-left: 4px solid #dc3545;
+        }
+
+        .notes-cell {
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 12px 8px;
         }
 
         .status-badge {
@@ -119,16 +131,18 @@
         }
 
         .photo-thumbnail {
-            width: 80px;
-            height: 80px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: transform 0.3s;
+            border: 2px solid #e9ecef;
         }
 
         .photo-thumbnail:hover {
-            transform: scale(1.1);
+            transform: scale(1.2);
+            border-color: var(--primary-color);
         }
 
         .btn-primary {
@@ -228,13 +242,39 @@
                         <div class="alert alert-info">
                             <small>Debug: Found <?= count($deliveries) ?> delivery confirmations</small>
                         </div>
-                        <div class="row">
-                            <?php foreach ($deliveries as $delivery): ?>
-                                <div class="col-md-6 mb-4">
-                                    <div class="delivery-card <?= isset($delivery['status']) ? $delivery['status'] : 'pending' ?>">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
-                                            <div>
-                                                <h6 class="mb-1">Order #<?= isset($delivery['order_id']) ? $delivery['order_id'] : 'N/A' ?></h6>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th>Animal</th>
+                                        <th>Amount</th>
+                                        <th>Payment Method</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Photos</th>
+                                        <th>Address</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($deliveries as $delivery): ?>
+                                        <tr class="delivery-row <?= isset($delivery['status']) ? $delivery['status'] : 'pending' ?>">
+                                            <td>
+                                                <strong>#<?= isset($delivery['order_id']) ? $delivery['order_id'] : 'N/A' ?></strong>
+                                            </td>
+                                            <td><?= $delivery['customer_name'] ?? 'N/A' ?></td>
+                                            <td><?= $delivery['animal_name'] ?? 'N/A' ?></td>
+                                            <td>₱<?= isset($delivery['payment_amount']) ? number_format($delivery['payment_amount'], 2) : '0.00' ?></td>
+                                            <td><?= isset($delivery['payment_method']) ? ucfirst($delivery['payment_method']) : 'N/A' ?></td>
+                                            <td>
+                                                <span class="status-badge badge-<?= isset($delivery['status']) ? $delivery['status'] : 'pending' ?>">
+                                                    <?= isset($delivery['status']) ? ucfirst($delivery['status']) : 'Pending' ?>
+                                                </span>
+                                            </td>
+                                            <td>
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar me-1"></i>
                                                     <?= 
@@ -243,67 +283,61 @@
                                                             : date('M d, Y') 
                                                     ?>
                                                 </small>
-                                            </div>
-                                            <span class="status-badge badge-<?= isset($delivery['status']) ? $delivery['status'] : 'pending' ?>">
-                                                <?= isset($delivery['status']) ? ucfirst($delivery['status']) : 'Pending' ?>
-                                            </span>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p class="mb-2">
-                                                    <strong>Customer:</strong> <?= $delivery['customer_name'] ?? 'N/A' ?>
-                                                </p>
-                                                <p class="mb-2">
-                                                    <strong>Animal:</strong> <?= $delivery['animal_name'] ?? 'N/A' ?>
-                                                </p>
-                                                <p class="mb-2">
-                                                    <strong>Amount:</strong> ₱<?= isset($delivery['payment_amount']) ? number_format($delivery['payment_amount'], 2) : '0.00' ?>
-                                                </p>
-                                                <p class="mb-2">
-                                                    <strong>Method:</strong> <?= isset($delivery['payment_method']) ? ucfirst($delivery['payment_method']) : 'N/A' ?>
-                                                </p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <?php if (!empty($delivery['delivery_photo'])): ?>
-                                                    <img src="/uploads/deliveries/<?= $delivery['delivery_photo'] ?>" 
-                                                         class="photo-thumbnail mb-2" 
-                                                         alt="Delivery photo"
-                                                         onclick="showImageModal(this.src, 'Delivery Photo')">
-                                                <?php endif; ?>
-                                                
-                                                <?php if (!empty($delivery['payment_photo'])): ?>
-                                                    <img src="/uploads/payments/<?= $delivery['payment_photo'] ?>" 
-                                                         class="photo-thumbnail mb-2" 
-                                                         alt="Payment photo"
-                                                         onclick="showImageModal(this.src, 'Payment Proof')">
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-
-                                        <?php if (!empty($delivery['delivery_notes'])): ?>
-                                            <div class="mt-3">
-                                                <strong>Notes:</strong>
-                                                <p class="mb-0 text-muted"><?= $delivery['delivery_notes'] ?></p>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($delivery['admin_notes'])): ?>
-                                            <div class="mt-3">
-                                                <strong>Admin Notes:</strong>
-                                                <p class="mb-0 text-info"><?= $delivery['admin_notes'] ?></p>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <div class="mt-3">
-                                            <small class="text-muted">
-                                                <i class="fas fa-map-marker-alt me-1"></i>
-                                                <?= isset($delivery['delivery_address']) ? $delivery['delivery_address'] : 'N/A' ?>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    <?php if (!empty($delivery['delivery_photo'])): ?>
+                                                        <img src="/uploads/deliveries/<?= $delivery['delivery_photo'] ?>" 
+                                                             class="photo-thumbnail" 
+                                                             alt="Delivery photo"
+                                                             title="Delivery Photo"
+                                                             onclick="showImageModal(this.src, 'Delivery Photo')">
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if (!empty($delivery['payment_photo'])): ?>
+                                                        <img src="/uploads/payments/<?= $delivery['payment_photo'] ?>" 
+                                                             class="photo-thumbnail" 
+                                                             alt="Payment photo"
+                                                             title="Payment Proof"
+                                                             onclick="showImageModal(this.src, 'Payment Proof')">
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if (empty($delivery['delivery_photo']) && empty($delivery['payment_photo'])): ?>
+                                                        <span class="text-muted">No photos</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    <?= isset($delivery['delivery_address']) ? $delivery['delivery_address'] : 'N/A' ?>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="notes-cell">
+                                                    <?php if (!empty($delivery['delivery_notes'])): ?>
+                                                        <div class="mb-1">
+                                                            <strong>Delivery:</strong>
+                                                            <small class="text-muted d-block"><?= $delivery['delivery_notes'] ?></small>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if (!empty($delivery['admin_notes'])): ?>
+                                                        <div>
+                                                            <strong>Admin:</strong>
+                                                            <small class="text-info d-block"><?= $delivery['admin_notes'] ?></small>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if (empty($delivery['delivery_notes']) && empty($delivery['admin_notes'])): ?>
+                                                        <span class="text-muted">No notes</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     <?php endif; ?>
                 </div>

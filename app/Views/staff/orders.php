@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Orders - Staff Dashboard</title>
+    <title>Manage Adoptions - Staff Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -119,7 +119,7 @@
                 </a>
                 <a href="/staff/orders" class="sidebar-item active">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
+                    <span>Adoptions</span>
                 </a>
                 <a href="/staff/delivery-confirmations" class="sidebar-item">
                     <i class="fas fa-truck"></i>
@@ -139,14 +139,14 @@
             <div class="col-md-10 main-content">
                 <div class="content-card">
                     <h3 class="mb-4">
-                        <i class="fas fa-shopping-cart"></i> Customer Orders
+                        <i class="fas fa-shopping-cart"></i> Customer Adoptions
                     </h3>
 
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Order #</th>
+                                    <th>Adoption #</th>
                                     <th>Customer</th>
                                     <th>Total</th>
                                     <th>Delivery Type</th>
@@ -187,17 +187,17 @@
             return date.toLocaleDateString();
         }
 
-        loadOrders();
+        loadAdoptions();
 
-        function loadOrders() {
+        function loadAdoptions() {
             fetch('/staff/api/orders')
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        renderOrders(data.data);
+                        renderAdoptions(data.data);
                     } else {
                         document.getElementById('ordersTableBody').innerHTML = 
-                            '<tr><td colspan="9" class="text-center text-danger">Failed to load orders</td></tr>';
+                            '<tr><td colspan="9" class="text-center text-danger">Failed to load adoptions</td></tr>';
                     }
                 })
                 .catch(err => {
@@ -207,11 +207,11 @@
                 });
         }
 
-        function renderOrders(orders) {
+        function renderAdoptions(orders) {
             const tbody = document.getElementById('ordersTableBody');
             
             if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No orders found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No adoptions found</td></tr>';
                 return;
             }
 
@@ -231,7 +231,7 @@
                     <td>
                         <div class="btn-group" role="group">
                             ${order.status === 'pending' ? `
-                                <button class="btn btn-sm btn-success" onclick="confirmOrder(${order.id})">
+                                <button class="btn btn-sm btn-success" onclick="confirmAdoption(${order.id})">
                                     <i class="fas fa-check"></i> Confirm
                                 </button>
                             ` : ''}
@@ -249,7 +249,7 @@
                                 <button class="btn btn-sm btn-primary" onclick="markDelivered(${order.id})">
                                     <i class="fas fa-truck"></i> Delivered
                                 </button>
-                                <button class="btn btn-sm btn-success" onclick="confirmDelivery(${order.id})">
+                                <button class="btn btn-sm btn-success" onclick="confirmAdoption(${order.id})">
                                     <i class="fas fa-check-circle"></i> Confirm Delivery
                                 </button>
                             ` : ''}
@@ -259,8 +259,8 @@
             `).join('');
         }
 
-        function confirmOrder(id) {
-            if (!confirm('Confirm this order?')) return;
+        function confirmAdoption(id) {
+            if (!confirm('Confirm this adoption?')) return;
             
             const formData = new URLSearchParams();
             formData.append('_method', 'PUT');
@@ -273,10 +273,10 @@
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    loadOrders();
-                    alert('Order confirmed successfully!');
+                    loadAdoptions();
+                    alert('Adoption confirmed successfully!');
                 } else {
-                    alert(res.message || 'Failed to confirm order');
+                    alert(res.message || 'Failed to confirm adoption');
                 }
             })
             .catch(err => {
@@ -305,8 +305,8 @@
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    loadOrders();
-                    showSuccessNotification('Pet preparation started! Customer has been notified and their order tracking page will update automatically.');
+                    loadAdoptions();
+                    showSuccessNotification('Pet preparation started! Customer has been notified and their adoption tracking page will update automatically.');
                 } else {
                     alert(res.message || 'Failed to start preparation');
                 }
@@ -322,7 +322,7 @@
         }
 
         function markReadyForDelivery(id) {
-            if (!confirm('Mark this order as ready for delivery?')) return;
+            if (!confirm('Mark this adoption as ready for delivery?')) return;
             
             const formData = new URLSearchParams();
             formData.append('status', 'shipped');
@@ -341,8 +341,8 @@
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    loadOrders();
-                    showSuccessNotification('Order marked as ready for delivery! Customer has been notified and their order tracking page will update automatically.');
+                    loadAdoptions();
+                    showSuccessNotification('Adoption marked as ready for delivery! Customer has been notified and their adoption tracking page will update automatically.');
                 } else {
                     alert(res.message || 'Failed to mark as ready');
                 }
@@ -358,7 +358,7 @@
         }
 
         function markDelivered(id) {
-            if (!confirm('Mark this order as delivered?')) return;
+            if (!confirm('Mark this adoption as delivered?')) return;
             
             const formData = new URLSearchParams();
             formData.append('status', 'delivered');
@@ -377,8 +377,8 @@
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    loadOrders();
-                    showSuccessNotification('Order marked as delivered! Customer has been notified and their order tracking page will update automatically.');
+                    loadAdoptions();
+                    showSuccessNotification('Adoption marked as delivered! Customer has been notified and their adoption tracking page will update automatically.');
                 } else {
                     alert(res.message || 'Failed to mark as delivered');
                 }
@@ -452,7 +452,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deliveryConfirmationModalLabel">
-                        <i class="fas fa-check-circle"></i> Confirm Animal Delivery
+                        <i class="fas fa-check-circle"></i> Confirm Animal Adoption
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -460,9 +460,9 @@
                     <form id="deliveryConfirmationForm" enctype="multipart/form-data">
                         <input type="hidden" id="confirmationOrderId" name="order_id">
                         
-                        <!-- Order Details Section -->
+                        <!-- Adoption Details Section -->
                         <div id="confirmationOrderDetails" class="mb-4" style="display: none;">
-                            <h6><i class="fas fa-info-circle"></i> Order Details</h6>
+                            <h6><i class="fas fa-info-circle"></i> Adoption Details</h6>
                             <div id="confirmationOrderInfo" class="bg-light p-3 rounded"></div>
                         </div>
                         
@@ -512,14 +512,14 @@
                         
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Note:</strong> This confirmation will be reviewed by admin and the order status will be updated accordingly.
+                            <strong>Note:</strong> This confirmation will be reviewed by admin and the adoption status will be updated accordingly.
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-success" onclick="submitDeliveryConfirmation()">
-                        <i class="fas fa-check"></i> Submit Delivery Confirmation
+                        <i class="fas fa-check"></i> Submit Adoption Confirmation
                     </button>
                 </div>
             </div>
@@ -528,7 +528,7 @@
 
     <script>
         // Delivery Confirmation Functions
-        function confirmDelivery(orderId) {
+        function confirmAdoption(orderId) {
             document.getElementById('confirmationOrderId').value = orderId;
             loadConfirmationOrderDetails(orderId);
             const modal = new bootstrap.Modal(document.getElementById('deliveryConfirmationModal'));
@@ -549,12 +549,12 @@
                 if (data.success) {
                     displayConfirmationOrderDetails(data.order, data.items);
                 } else {
-                    alert('Failed to load order details: ' + data.message);
+                    alert('Failed to load adoption details: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Error loading order details:', error);
-                alert('Error loading order details. Please try again.');
+                console.error('Error loading adoption details:', error);
+                alert('Error loading adoption details. Please try again.');
             });
         }
         
@@ -588,7 +588,7 @@
             let html = `
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Order Number:</strong> #${order.order_number || 'N/A'}</p>
+                        <p><strong>Adoption Number:</strong> #${order.order_number || 'N/A'}</p>
                         <p><strong>Customer:</strong> ${order.customer_name || 'Customer Name Not Available'}</p>
                     </div>
                     <div class="col-md-6">
@@ -638,12 +638,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showSuccessNotification('Delivery confirmation submitted successfully! Admin will review it.');
+                    showSuccessNotification('Adoption confirmation submitted successfully! Admin will review it.');
                     bootstrap.Modal.getInstance(document.getElementById('deliveryConfirmationModal')).hide();
                     form.reset();
-                    loadOrders(); // Refresh orders
+                    loadAdoptions(); // Refresh adoptions
                 } else {
-                    alert('Failed to submit delivery confirmation: ' + (data.message || 'Unknown error'));
+                    alert('Failed to submit adoption confirmation: ' + (data.message || 'Unknown error'));
                 }
             })
             .catch(error => {

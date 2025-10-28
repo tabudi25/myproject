@@ -79,15 +79,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/pending-animals">
-                        <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Pets</span>
-                    </a>
-                </li>
-                <li>
                     <a href="/fluffy-admin/orders">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="menu-text">Orders</span>
+                        <span class="menu-text">Adoptions</span>
                     </a>
                 </li>
                 <li>
@@ -147,7 +141,7 @@
                         <table class="table align-middle" id="paymentsTable">
                             <thead>
                                 <tr>
-                                    <th>Order #</th>
+                                    <th>Adoptions #</th>
                                     <th>Customer</th>
                                     <th>Amount</th>
                                     <th>Payment Method</th>
@@ -246,9 +240,9 @@
                                     <i class="fas fa-check"></i> Mark Paid
                                 </button>
                             ` : `
-                                <button class="btn btn-warning btn-sm btn-action" onclick="updatePaymentStatus(${payment.id}, 'pending')">
-                                    <i class="fas fa-undo"></i> Mark Pending
-                                </button>
+                                <span class="text-muted">
+                                    <i class="fas fa-check-circle me-1"></i>Completed
+                                </span>
                             `}
                         </td>
                     </tr>
@@ -268,9 +262,9 @@
         }
 
         function updatePaymentStatus(paymentId, newStatus) {
-            const action = newStatus === 'paid' ? 'mark as paid' : 'mark as pending';
+            const action = 'mark as paid';
             
-            if (!confirm(`Are you sure you want to ${action} this payment?`)) {
+            if (!confirm('Are you sure you want to mark this payment as paid?')) {
                 return;
             }
 
@@ -296,7 +290,7 @@
             .then(res => {
                 if (res.success) {
                     loadPayments(); // Reload the table
-                    showAlert('success', `Payment ${action} successfully!`);
+                    showAlert('success', 'Payment marked as paid successfully!');
                 } else {
                     showAlert('danger', res.message || 'Failed to update payment status');
                 }

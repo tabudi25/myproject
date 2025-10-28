@@ -366,6 +366,38 @@
             object-fit:cover; 
             border-radius:8px; 
         }
+
+        /* Tab Styling */
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: transparent;
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-color: transparent;
+            border-bottom-color: var(--primary-color);
+            background-color: transparent;
+        }
+
+        .nav-tabs .nav-link .badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+        }
     </style>
 </head>
 <body>
@@ -405,15 +437,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/pending-animals">
-                        <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Pets</span>
-                    </a>
-                </li>
-                <li>
                     <a href="/fluffy-admin/orders">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="menu-text">Orders</span>
+                        <span class="menu-text">Adoptions</span>
                     </a>
                 </li>
                 <li>
@@ -505,25 +531,73 @@
                         <i class="fas fa-plus me-2"></i>Add Pet
                     </button>
                 </div>
-                <div class="page-card">
-                    <div class="table-responsive">
-                        <table class="table align-middle" id="animalsTable">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>Category</th>
-                                    <th>Gender</th>
-                                    <th>Age</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th style="width:130px">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
-                            </tbody>
-                        </table>
+                
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-4" id="petsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
+                            <i class="fas fa-check-circle me-2"></i>Approved Pets
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                            <i class="fas fa-clock me-2"></i>Pending Pets
+                            <span class="badge bg-warning ms-2" id="pendingCount">0</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="petsTabContent">
+                    <!-- Approved Pets Tab -->
+                    <div class="tab-pane fade show active" id="approved" role="tabpanel">
+                        <div class="page-card">
+                            <div class="table-responsive">
+                                <table class="table align-middle" id="animalsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th>Gender</th>
+                                            <th>Age</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                            <th style="width:130px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Pets Tab -->
+                    <div class="tab-pane fade" id="pending" role="tabpanel">
+                        <div class="page-card">
+                            <div class="table-responsive">
+                                <table class="table align-middle" id="pendingAnimalsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th>Gender</th>
+                                            <th>Age</th>
+                                            <th>Price</th>
+                                            <th>Submitted By</th>
+                                            <th>Submitted Date</th>
+                                            <th style="width:100px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="9" class="text-center py-4">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -822,6 +896,7 @@
 
         loadAnimals();
         loadCategories();
+        loadPendingAnimals();
 
         function loadAnimals() {
             fetch('/fluffy-admin/api/animals')
@@ -840,7 +915,9 @@
                             <td>₱${parseFloat(animal.price).toLocaleString()}</td>
                             <td><span class="badge bg-${animal.status==='available'?'success':'secondary'}">${animal.status}</span></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1" onclick="openEdit(${animal.id})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="openEdit(${animal.id})" title="Edit Pet">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </td>
                         </tr>
                     `).join('');
@@ -923,6 +1000,129 @@
                     console.error('Error:', err);
                     alert('Network error. Please try again.');
                 });
+        });
+
+        // Load pending animals
+        function loadPendingAnimals() {
+            fetch('/fluffy-admin/api/pending-animals')
+                .then(r => r.json())
+                .then(({success, data}) => {
+                    const tbody = document.querySelector('#pendingAnimalsTable tbody');
+                    const pendingCount = document.getElementById('pendingCount');
+                    
+                    if (!success) { 
+                        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load pending pets</td></tr>'; 
+                        return; 
+                    }
+                    
+                    // Update pending count badge
+                    pendingCount.textContent = data.length;
+                    
+                    if (!data.length) { 
+                        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No pending pets found</td></tr>'; 
+                        return; 
+                    }
+                    
+                    tbody.innerHTML = data.map(animal => {
+                        // Check if animal is already approved
+                        const isApproved = animal.status === 'approved' || animal.is_approved === 1;
+                        
+                        if (isApproved) {
+                            // Show "Done" state for already approved pets
+                            return `
+                                <tr>
+                                    <td><img src="/uploads/${animal.image}" onerror="this.src='/web/default-pet.jpg'" alt="${animal.name}"></td>
+                                    <td>${animal.name}</td>
+                                    <td>${animal.category_name || 'N/A'}</td>
+                                    <td>${animal.gender || ''}</td>
+                                    <td>${animal.age} mo</td>
+                                    <td>₱${parseFloat(animal.price).toLocaleString()}</td>
+                                    <td>${animal.submitted_by || 'Staff'}</td>
+                                    <td>${new Date(animal.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" disabled title="Already Approved">
+                                            <i class="fas fa-check-circle"></i> Done
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        } else {
+                            // Show "Approve" button for pending pets
+                            return `
+                                <tr>
+                                    <td><img src="/uploads/${animal.image}" onerror="this.src='/web/default-pet.jpg'" alt="${animal.name}"></td>
+                                    <td>${animal.name}</td>
+                                    <td>${animal.category_name || 'N/A'}</td>
+                                    <td>${animal.gender || ''}</td>
+                                    <td>${animal.age} mo</td>
+                                    <td>₱${parseFloat(animal.price).toLocaleString()}</td>
+                                    <td>${animal.submitted_by || 'Staff'}</td>
+                                    <td>${new Date(animal.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success" onclick="approveAnimal(${animal.id})" title="Approve Pet">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    }).join('');
+                })
+                .catch(() => {
+                    document.querySelector('#pendingAnimalsTable tbody').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Network error</td></tr>';
+                });
+        }
+
+        // Approve animal
+        function approveAnimal(id) {
+            if (!confirm('Are you sure you want to approve this pet? This will make it available for adoption.')) {
+                return;
+            }
+
+            // Find the button and update it immediately
+            const button = event.target.closest('button');
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+
+            fetch(`/fluffy-admin/api/pending-animals/${id}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    // Show success message
+                    alert('Pet approved successfully!');
+                    
+                    // Refresh both tables immediately to show persistent "Done" state
+                    loadPendingAnimals();
+                    loadAnimals();
+                } else {
+                    // Restore original button state on error
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                    alert(res.message || 'Failed to approve pet');
+                }
+            })
+            .catch(() => {
+                // Restore original button state on error
+                button.innerHTML = originalContent;
+                button.disabled = false;
+                alert('Network error. Please try again.');
+            });
+        }
+
+        // Tab change event to load pending animals when tab is clicked
+        document.getElementById('pending-tab').addEventListener('shown.bs.tab', function () {
+            loadPendingAnimals();
+        });
+
+        // Tab change event to load approved animals when tab is clicked
+        document.getElementById('approved-tab').addEventListener('shown.bs.tab', function () {
+            loadAnimals();
         });
 
     </script>

@@ -440,7 +440,7 @@
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
+                    <span>Adoptions</span>
                 </a>
                 <a href="/staff/delivery-confirmations" class="sidebar-item">
                     <i class="fas fa-truck"></i>
@@ -492,7 +492,7 @@
                             <div class="stat-value">
                                 <span class="pending-orders-count"><?= $stats['pending_orders'] ?></span>
                             </div>
-                            <div class="stat-label">Pending Orders</div>
+                            <div class="stat-label">Pending Adoptions</div>
                             <small class="text-info d-block mt-1">
                                 <i class="fas fa-calendar-day me-1"></i>
                                 <span class="today-orders-count"><?= $stats['today_orders'] ?></span> Today
@@ -535,7 +535,7 @@
                                 <i class="fas fa-truck"></i>
                             </div>
                             <div class="stat-value"><?= $stats['shipped_orders'] ?></div>
-                            <div class="stat-label">Shipped Orders</div>
+                            <div class="stat-label">Shipped Adoptions</div>
                             <small class="text-info d-block mt-1">
                                 <i class="fas fa-shipping-fast me-1"></i>
                                 In Transit
@@ -556,7 +556,7 @@
                                     <i class="fas fa-plus"></i> Add New Animal
                                 </a>
                                 <a href="/staff/orders" class="btn btn-success">
-                                    <i class="fas fa-check"></i> Confirm Orders
+                                    <i class="fas fa-check"></i> Confirm Adoptions
                                 </a>
                                 <a href="/staff/sales-report" class="btn btn-warning">
                                     <i class="fas fa-file-download"></i> Generate Report
@@ -722,12 +722,12 @@
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
 
-        // Auto-refresh order updates every 10 seconds
+        // Auto-refresh adoption updates every 10 seconds
         setInterval(() => {
             refreshOrderUpdates();
         }, 10000);
 
-        // Function to refresh order updates
+        // Function to refresh adoption updates
         function refreshOrderUpdates() {
             fetch('/staff/api/order-updates')
                 .then(response => response.json())
@@ -742,16 +742,16 @@
                 });
         }
 
-        // Update order statistics
+        // Update adoption statistics
         function updateOrderStats(data) {
-            // Update pending orders count with animation
+            // Update pending adoptions count with animation
             const pendingElements = document.querySelectorAll('.pending-orders-count');
             pendingElements.forEach(el => {
                 const oldValue = parseInt(el.textContent) || 0;
                 const newValue = data.pendingCount;
                 
                 if (newValue > oldValue) {
-                    // Add pulsing animation for new orders
+                    // Add pulsing animation for new adoptions
                     el.style.animation = 'pulse 1s ease-in-out';
                     setTimeout(() => {
                         el.style.animation = '';
@@ -768,7 +768,7 @@
                 const newValue = data.todayCount;
                 
                 if (newValue > oldValue) {
-                    // Add pulsing animation for new orders
+                    // Add pulsing animation for new adoptions
                     el.style.animation = 'pulse 1s ease-in-out';
                     setTimeout(() => {
                         el.style.animation = '';
@@ -779,7 +779,7 @@
             });
         }
 
-        // Update recent orders section
+        // Update recent adoptions section
         function updateRecentOrders(orders) {
             const recentOrdersSection = document.querySelector('.recent-orders-section');
             if (recentOrdersSection && orders.length > 0) {

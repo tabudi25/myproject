@@ -555,16 +555,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/fluffy-admin/pending-animals">
-                        <i class="fas fa-clock"></i>
-                        <span class="menu-text">Pending Pets</span>
-                        <span class="badge bg-warning pending-count" id="sidebarPendingCount">0</span>
-                    </a>
-                </li>
-                <li>
                     <a href="/fluffy-admin/orders">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="menu-text">Orders</span>
+                        <span class="menu-text">Adoptions</span>
                     </a>
                 </li>
                 <li>
@@ -687,7 +680,7 @@
                             <i class="fas fa-shopping-cart"></i>
                         </div>
                         <div class="stat-number" data-stat="total-orders"><?= $stats['total_orders'] ?></div>
-                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-label">Total Adoptions</div>
                         <small class="text-warning">
                             <i class="fas fa-clock me-1"></i>
                             <span class="pending-orders-count" data-stat="pending-orders"><?= $stats['pending_orders'] ?></span> Pending
@@ -774,7 +767,7 @@
                         <div class="dashboard-section">
                             <h4 class="section-title">
                                 <i class="fas fa-shopping-cart"></i>
-                                Recent Orders
+                                Recent Adoptions
                             </h4>
                             
                             <?php if (!empty($recentOrders)): ?>

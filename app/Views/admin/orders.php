@@ -399,15 +399,9 @@
                     </a>
             </li>
             <li>
-                <a href="/fluffy-admin/pending-animals">
-                    <i class="fas fa-clock"></i>
-                    <span class="menu-text">Pending Pets</span>
-                </a>
-            </li>
-            <li>
                 <a href="/fluffy-admin/orders" class="active">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="menu-text">Orders</span>
+                    <span class="menu-text">Adoptions</span>
                 </a>
             </li>
             <li>
@@ -502,7 +496,7 @@
                     <table class="table align-middle" id="ordersTable">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>Adoptions #</th>
                                 <th>Customer</th>
                                 <th>Total</th>
                                 <th>Status</th>
@@ -535,7 +529,7 @@
                     <table class="table table-striped" id="deliveryConfirmationsTable">
                         <thead>
                             <tr>
-                                <th>Order #</th>
+                                <th>Adoptions #</th>
                                 <th>Customer</th>
                                 <th>Pet</th>
                                 <th>Staff</th>
@@ -812,9 +806,9 @@ function loadOrders(){
           <td>${o.delivery_type||''}</td>
           <td>${formatDate(o.created_at)}</td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-1" onclick="editOrder(${o.id})"><i class="fas fa-edit"></i></button>
-            <a class="btn btn-sm btn-outline-info me-1" href="/order/${o.id}" target="_blank"><i class="fas fa-eye"></i></a>
-            <a class="btn btn-sm btn-outline-success" href="/fluffy-admin/orders/tracking/${o.id}" target="_blank"><i class="fas fa-truck"></i></a>
+            <button class="btn btn-sm btn-outline-primary" onclick="editOrder(${o.id})" title="Edit Order">
+              <i class="fas fa-edit"></i>
+            </button>
           </td>
         </tr>
       `).join('');

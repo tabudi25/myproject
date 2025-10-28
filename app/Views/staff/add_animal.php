@@ -168,7 +168,7 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Age (years) <span class="text-danger">*</span></label>
+                                <label class="form-label">Age (months) <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" name="age" min="1" required>
                             </div>
                             
