@@ -535,11 +535,11 @@
         <div class="modal-body">
             <div class="mb-3">
                 <label class="form-label">Name *</label>
-                <input type="text" class="form-control" name="name" required>
+                <input type="text" class="form-control" name="name" required placeholder="Enter category name">
             </div>
             <div class="mb-3">
                 <label class="form-label">Description</label>
-                <textarea class="form-control" name="description" rows="3"></textarea>
+                <textarea class="form-control" name="description" rows="3" placeholder="Describe the category (optional)"></textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Image</label>
@@ -548,8 +548,9 @@
             <div class="mb-3">
                 <label class="form-label">Status</label>
                 <select class="form-control" name="status">
+                    <!-- <option value="">Select Status</option> -->
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <!-- <option value="inactive">Inactive</option> -->
                 </select>
             </div>
         </div>

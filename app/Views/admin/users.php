@@ -524,10 +524,10 @@
       </div>
       <form id="addUserForm">
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Name *</label><input class="form-control" name="name" required></div>
-          <div class="mb-3"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" required></div>
-          <div class="mb-3"><label class="form-label">Password *</label><input type="password" class="form-control" name="password" required minlength="6"></div>
-          <div class="mb-3"><label class="form-label">Role *</label><select class="form-control" name="role" required><option value="customer">Customer</option><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
+          <div class="mb-3"><label class="form-label">Name *</label><input class="form-control" name="name" required placeholder="Enter full name"></div>
+          <div class="mb-3"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" required placeholder="name@example.com"></div>
+          <div class="mb-3"><label class="form-label">Password *</label><input type="password" class="form-control" name="password" required minlength="6" placeholder="Minimum 6 characters"></div>
+          <div class="mb-3"><label class="form-label">Role *</label><select class="form-control" name="role" required><option value="">Select Role</option><option value="customer">Customer</option><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Create</button></div>
       </form>

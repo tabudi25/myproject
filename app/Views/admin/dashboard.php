@@ -663,7 +663,7 @@
 
                 <!-- Statistics Grid -->
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="window.location.href='/fluffy-admin/animals'" style="cursor: pointer;">
                         <div class="stat-icon">
                             <i class="fas fa-paw"></i>
                         </div>
@@ -675,7 +675,7 @@
                         </small>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="window.location.href='/fluffy-admin/orders'" style="cursor: pointer;">
                         <div class="stat-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
@@ -691,7 +691,7 @@
                         </small>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="window.location.href='/fluffy-admin/users'" style="cursor: pointer;">
                         <div class="stat-icon">
                             <i class="fas fa-users"></i>
                         </div>
@@ -703,7 +703,7 @@
                         </small>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="window.location.href='/fluffy-admin/payments'" style="cursor: pointer;">
                         <div class="stat-icon">
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
@@ -727,7 +727,7 @@
                         </small>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="window.location.href='/fluffy-admin/orders'" style="cursor: pointer;">
                         <div class="stat-icon">
                             <i class="fas fa-truck"></i>
                         </div>
@@ -743,9 +743,9 @@
                 <!-- Sales Graph -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="dashboard-section">
+                        <div class="dashboard-section" onclick="window.location.href='/fluffy-admin/sales-report'" style="cursor: pointer;"></div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h4 class="section-title mb-0">
+                                <h4 class="section-title mb-0" >
                                     <i class="fas fa-chart-line"></i>
                                     Sales Overview
                                 </h4>
@@ -764,7 +764,7 @@
                 <div class="row">
                     <!-- Recent Orders -->
                     <div class="col-lg-8">
-                        <div class="dashboard-section">
+                        <div class="dashboard-section" onclick="window.location.href='/fluffy-admin/orders'" style="cursor: pointer;">
                             <h4 class="section-title">
                                 <i class="fas fa-shopping-cart"></i>
                                 Recent Adoptions
@@ -811,7 +811,7 @@
                     
                     <!-- Recent Pets -->
                     <div class="col-lg-4">
-                        <div class="dashboard-section">
+                        <div class="dashboard-section" onclick="window.location.href='/fluffy-admin/animals'" style="cursor: pointer;">
                             <h4 class="section-title">
                                 <i class="fas fa-paw"></i>
                                 Recent Pets
@@ -974,7 +974,7 @@
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="form-label">Name</label>
-                                        <input type="text" class="form-control" name="name" required>
+                                        <input type="text" class="form-control" name="name" required placeholder="Enter pet name">
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Category</label>
@@ -986,7 +986,7 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label class="form-label">Age (months)</label>
-                                                <input type="number" class="form-control" name="age" required>
+                                                <input type="number" class="form-control" name="age" required placeholder="Enter age in months">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -1002,11 +1002,11 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Price</label>
-                                        <input type="number" step="0.01" class="form-control" name="price" required>
+                                        <input type="number" step="0.01" class="form-control" name="price" required placeholder="0.00">
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Description</label>
-                                        <textarea class="form-control" name="description" rows="3"></textarea>
+                                        <textarea class="form-control" name="description" rows="3" placeholder="Describe the pet (optional)"></textarea>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Image</label>

@@ -797,7 +797,7 @@ function loadOrders(){
       if(!success){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; return; }
       if(!data.length){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No orders</td></tr>'; return; }
       tbody.innerHTML = data.map(o=>`
-        <tr>
+        <tr data-order-id="${o.id}">
           <td>${o.order_number||o.id}</td>
           <td>${o.customer_name||o.user_id}</td>
           <td>₱${parseFloat(o.total_amount).toLocaleString()}</td>
@@ -870,7 +870,24 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
     .then(res=>{
       if(res.success){
         bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
-        loadOrders();
+        // If delivered and paid, create a delivery confirmation server-side, then refresh confirmations
+        if (status === 'delivered' && paymentStatus === 'paid') {
+          fetch(`/fluffy-admin/api/orders/${id}/delivery-confirmation`, { method: 'POST' })
+            .then(r => r.json())
+            .then(dcRes => {
+              // Remove from list if present and refresh confirmations
+              const row = document.querySelector(`#ordersTable tbody tr[data-order-id="${id}"]`);
+              if (row) row.remove();
+              loadDeliveryConfirmations();
+            })
+            .catch(() => {
+              // Fallback: refresh both lists
+              loadOrders();
+              loadDeliveryConfirmations();
+            });
+        } else {
+          loadOrders();
+        }
         alert('Order updated successfully!');
       } else { 
         alert(res.message || 'Failed to update order'); 

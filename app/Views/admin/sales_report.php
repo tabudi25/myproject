@@ -139,28 +139,16 @@
 
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="stat-card">
                             <h3 id="totalAdoptions">0</h3>
                             <p><i class="fas fa-paw me-2"></i>Total Adoptions</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="stat-card">
                             <h3 id="totalSales">₱0</h3>
                             <p><i class="fas fa-dollar-sign me-2"></i>Total Sales</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h3 id="averageSales">₱0</h3>
-                            <p><i class="fas fa-chart-bar me-2"></i>Average Sale</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h3 id="totalPayments">₱0</h3>
-                            <p><i class="fas fa-credit-card me-2"></i>Total Payments</p>
                         </div>
                     </div>
                 </div>

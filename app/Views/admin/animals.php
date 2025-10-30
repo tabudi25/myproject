@@ -535,14 +535,14 @@
                 <!-- Tabs Navigation -->
                 <ul class="nav nav-tabs mb-4" id="petsTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
-                            <i class="fas fa-check-circle me-2"></i>Approved Pets
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
                         <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
                             <i class="fas fa-clock me-2"></i>Pending Pets
                             <span class="badge bg-warning ms-2" id="pendingCount">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
+                            <i class="fas fa-check-circle me-2"></i>Approved Pets
                         </button>
                     </li>
                 </ul>
@@ -617,33 +617,33 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Name *</label>
-                                <input type="text" class="form-control" name="name" required>
+                                <input type="text" class="form-control" name="name" required placeholder="Enter pet name">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Category *</label>
                                 <select class="form-control" name="category_id" required id="categorySelect">
-                                    <option value="">Loading...</option>
+                                    <option value="">Select Category</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Age (months) *</label>
-                                <input type="number" class="form-control" name="age" required min="1">
+                                <label class="form-label">Birthdate *</label>
+                                <input type="date" class="form-control" name="birthdate" required max="<?= date('Y-m-d') ?>" placeholder="YYYY-MM-DD">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Gender *</label>
                                 <select class="form-control" name="gender" required>
-                                    <option value="">Select</option>
+                                    <option value="">Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱) *</label>
-                                <input type="number" step="0.01" class="form-control" name="price" required min="0">
+                                <input type="number" step="0.01" class="form-control" name="price" required min="0" placeholder="0.00">
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" rows="3"></textarea>
+                                <textarea class="form-control" name="description" rows="3" placeholder="Describe the pet (optional)"></textarea>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Image *</label>
@@ -665,7 +665,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Animal</h5>
+                    <h5 class="modal-title">Update Animal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editAnimalForm" enctype="multipart/form-data">
@@ -674,41 +674,41 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Name *</label>
-                                <input type="text" class="form-control" name="name" id="edit_name" required>
+                                <input type="text" class="form-control" name="name" id="edit_name" required placeholder="Enter pet name">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Category *</label>
                                 <select class="form-control" name="category_id" id="edit_category_id" required>
-                                    <option value="">Loading...</option>
+                                    <option value="">Select Category</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Age (months) *</label>
-                                <input type="number" class="form-control" name="age" id="edit_age" required min="1">
+                                <input type="number" class="form-control" name="age" id="edit_age" required min="1" placeholder="Enter age in months">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Gender *</label>
                                 <select class="form-control" name="gender" id="edit_gender" required>
-                                    <option value="">Select</option>
+                                    <option value="">Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱) *</label>
-                                <input type="number" step="0.01" class="form-control" name="price" id="edit_price" required min="0">
+                                <input type="number" step="0.01" class="form-control" name="price" id="edit_price" required min="0" placeholder="0.00">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status *</label>
                                 <select class="form-control" name="status" id="edit_status" required>
                                     <option value="available">Available</option>
                                     <option value="sold">Sold</option>
-                                    <option value="reserved">Reserved</option>
+                                    <!-- <option value="reserved">Reserved</option> -->
                                 </select>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" id="edit_description" rows="3"></textarea>
+                                <textarea class="form-control" name="description" id="edit_description" rows="3" placeholder="Describe the pet (optional)"></textarea>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Image (leave empty to keep current)</label>
@@ -943,6 +943,28 @@
         document.getElementById('addAnimalForm').addEventListener('submit', function(e){
             e.preventDefault();
             const formData = new FormData(this);
+
+            // Convert birthdate to age in months for API compatibility
+            const birthdate = formData.get('birthdate');
+            if (!birthdate) {
+                alert('Please select the pet\'s birthdate.');
+                return;
+            }
+            const b = new Date(birthdate);
+            const now = new Date();
+            if (b > now) {
+                alert('Birthdate cannot be in the future.');
+                return;
+            }
+            const years = now.getFullYear() - b.getFullYear();
+            const months = now.getMonth() - b.getMonth();
+            const days = now.getDate() - b.getDate();
+            let ageMonths = years * 12 + months - (days < 0 ? 1 : 0);
+            if (ageMonths < 0) ageMonths = 0;
+
+            formData.delete('birthdate');
+            formData.set('age', String(ageMonths));
+
             fetch('/fluffy-admin/api/animals', { method:'POST', body:formData })
                 .then(r=>r.json())
                 .then(res=>{

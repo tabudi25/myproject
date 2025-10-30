@@ -71,10 +71,11 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->get('/fluffy-admin/delivery-confirmations', 'DeliveryController::adminIndex');
     $routes->post('/fluffy-admin/delivery-confirmations/update-status', 'DeliveryController::updateStatus');
     $routes->get('/fluffy-admin/api/delivery-confirmations', 'AdminController::getDeliveryConfirmations');
-$routes->get('/fluffy-admin/api/pending-delivery-confirmations', 'AdminController::getPendingDeliveryConfirmations');
+    $routes->get('/fluffy-admin/api/pending-delivery-confirmations', 'AdminController::getPendingDeliveryConfirmations');
     $routes->get('/fluffy-admin/api/delivery-confirmations/(:num)', 'AdminController::getDeliveryConfirmation/$1');
     $routes->put('/fluffy-admin/api/delivery-confirmations/(:num)/approve', 'AdminController::approveDeliveryConfirmation/$1');
     $routes->put('/fluffy-admin/api/delivery-confirmations/(:num)/reject', 'AdminController::rejectDeliveryConfirmation/$1');
+    $routes->post('/fluffy-admin/api/orders/(:num)/delivery-confirmation', 'AdminController::createDeliveryConfirmationFromOrder/$1');
     
     // API routes for admin
     $routes->get('/fluffy-admin/api/animals', 'AdminController::getAnimals');
