@@ -6,6 +6,7 @@
     <title>Manage Inquiries - Staff Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -300,14 +301,14 @@
                     bootstrap.Modal.getInstance(document.getElementById('respondModal')).hide();
                     this.reset();
                     loadInquiries();
-                    alert('Response sent successfully!');
+                    Swal.fire({icon: 'success', title: 'Success!', text: 'Response sent successfully!'});
                 } else {
-                    alert(res.message || 'Failed to send response');
+                    Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to send response'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             });
         });
     </script>

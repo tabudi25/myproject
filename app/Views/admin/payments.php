@@ -6,6 +6,11 @@
     <title>Payment Management - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -185,6 +190,8 @@
             });
         });
 
+        let paymentsTable = null;
+
         function loadPayments() {
             fetch('/fluffy-admin/api/payments')
                 .then(response => response.json())
@@ -207,6 +214,7 @@
             
             if (payments.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No payments found</td></tr>';
+                if (paymentsTable) { paymentsTable.destroy(); paymentsTable = null; }
                 return;
             }
 
@@ -248,6 +256,25 @@
                     </tr>
                 `;
             }).join('');
+            
+            // Destroy existing DataTable if it exists
+            if (paymentsTable) {
+                paymentsTable.destroy();
+            }
+            
+            // Initialize DataTables
+            paymentsTable = $('#paymentsTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                order: [[5, 'desc']],
+                language: {
+                    search: "Search:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)"
+                }
+            });
         }
 
         function filterPayments() {
@@ -264,9 +291,16 @@
         function updatePaymentStatus(paymentId, newStatus) {
             const action = 'mark as paid';
             
-            if (!confirm('Are you sure you want to mark this payment as paid?')) {
-                return;
-            }
+            Swal.fire({
+                title: 'Confirm Payment',
+                text: 'Are you sure you want to mark this payment as paid?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, mark as paid!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
 
             // Show loading state
             const button = event.target;
@@ -290,19 +324,20 @@
             .then(res => {
                 if (res.success) {
                     loadPayments(); // Reload the table
-                    showAlert('success', 'Payment marked as paid successfully!');
+                        Swal.fire({icon: 'success', title: 'Success!', text: 'Payment marked as paid successfully!'});
                 } else {
-                    showAlert('danger', res.message || 'Failed to update payment status');
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update payment status'});
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'Network error: ' + error.message);
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
             })
             .finally(() => {
                 // Restore button state
                 button.innerHTML = originalText;
                 button.disabled = false;
+                });
             });
         }
 

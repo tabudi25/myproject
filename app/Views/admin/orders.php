@@ -6,6 +6,11 @@
   <title>Manage Orders - Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <style>
     :root {
         --primary-color: #ff6b35;
@@ -360,6 +365,57 @@
         padding:20px; 
         box-shadow:0 2px 10px rgba(0,0,0,.05); 
     }
+
+    /* Tab Styling */
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 12px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        background: transparent;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: var(--primary-color);
+        border-bottom-color: rgba(255, 107, 53, 0.3);
+        background: rgba(255, 107, 53, 0.05);
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+        background: transparent;
+        font-weight: 600;
+    }
+
+    .nav-tabs .nav-link i {
+        margin-right: 8px;
+    }
+
+    .tab-content {
+        padding-top: 0;
+    }
+
+    .tab-pane {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
   </style>
 </head>
 <body>
@@ -488,9 +544,24 @@
 
         <!-- Content Area -->
         <div class="content-area">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="mb-0">List of Adoption</h4>
-            </div>
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-3" id="ordersTab" role="tablist" style="border-bottom: 2px solid #dee2e6;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="adoptions-tab" data-bs-toggle="tab" data-bs-target="#adoptions" type="button" role="tab" aria-controls="adoptions" aria-selected="true">
+                        <i class="fas fa-shopping-cart me-2"></i>List of Adoption
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="deliveries-tab" data-bs-toggle="tab" data-bs-target="#deliveries" type="button" role="tab" aria-controls="deliveries" aria-selected="false">
+                        <i class="fas fa-truck me-2"></i>Delivery Confirmations
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="ordersTabContent">
+                <!-- List of Adoption Tab -->
+                <div class="tab-pane fade show active" id="adoptions" role="tabpanel" aria-labelledby="adoptions-tab">
             <div class="page-card">
                 <div class="table-responsive">
                     <table class="table align-middle" id="ordersTable">
@@ -510,10 +581,12 @@
                             <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
                         </tbody>
                     </table>
+                        </div>
                 </div>
             </div>
             
-            <!-- Delivery Confirmations -->
+                <!-- Delivery Confirmations Tab -->
+                <div class="tab-pane fade" id="deliveries" role="tabpanel" aria-labelledby="deliveries-tab">
             <div class="page-card mb-4" id="deliveryConfirmationsSection">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
@@ -545,6 +618,8 @@
                             </tr>
                         </tbody>
                     </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -794,8 +869,14 @@ function loadOrders(){
     .then(r=>r.json())
     .then(({success, data})=>{
       const tbody = document.querySelector('#ordersTable tbody');
-      if(!success){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; return; }
-      if(!data.length){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No orders</td></tr>'; return; }
+      if(!success){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; 
+        if (ordersTable) { ordersTable.destroy(); ordersTable = null; }
+        return; 
+      }
+      if(!data.length){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No orders</td></tr>'; 
+        if (ordersTable) { ordersTable.destroy(); ordersTable = null; }
+        return; 
+      }
       tbody.innerHTML = data.map(o=>`
         <tr data-order-id="${o.id}">
           <td>${o.order_number||o.id}</td>
@@ -812,6 +893,25 @@ function loadOrders(){
           </td>
         </tr>
       `).join('');
+      
+      // Destroy existing DataTable if it exists
+      if (ordersTable) {
+        ordersTable.destroy();
+      }
+      
+      // Initialize DataTables
+      ordersTable = $('#ordersTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[6, 'desc']],
+        language: {
+          search: "Search:",
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ entries",
+          infoEmpty: "Showing 0 to 0 of 0 entries",
+          infoFiltered: "(filtered from _MAX_ total entries)"
+        }
+      });
     });
 }
 
@@ -820,7 +920,7 @@ function editOrder(id){
     .then(r=>r.json())
     .then(({success, data})=>{
       const order = data.find(o => o.id == id);
-      if(!order) return alert('Order not found');
+      if(!order) return Swal.fire({icon: 'error', title: 'Error', text: 'Order not found'});
       
       document.getElementById('edit_id').value = order.id;
       document.getElementById('edit_order_number').value = order.order_number || order.id;
@@ -841,19 +941,26 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
   const paymentStatus = document.getElementById('edit_payment_status').value;
   
   if (!status) {
-    alert('Please select a status');
+    Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select a status'});
     return;
   }
   
   if (!paymentStatus) {
-    alert('Please select a payment status');
+    Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select a payment status'});
     return;
   }
   
   // Add confirmation dialog
-  if (!confirm(`Are you sure you want to update this order?\n\nOrder Status: ${status}\nPayment Status: ${paymentStatus}`)) {
-    return;
-  }
+  Swal.fire({
+    title: 'Confirm Update',
+    html: `Are you sure you want to update this order?<br><br><strong>Order Status:</strong> ${status}<br><strong>Payment Status:</strong> ${paymentStatus}`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#ff6b35',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, update it!'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
   
   // Use POST with _method override for better compatibility
   const formData = new URLSearchParams();
@@ -870,37 +977,40 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
     .then(res=>{
       if(res.success){
         bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
-        // If delivered and paid, create a delivery confirmation server-side, then refresh confirmations
-        if (status === 'delivered' && paymentStatus === 'paid') {
-          fetch(`/fluffy-admin/api/orders/${id}/delivery-confirmation`, { method: 'POST' })
-            .then(r => r.json())
-            .then(dcRes => {
-              // Remove from list if present and refresh confirmations
-              const row = document.querySelector(`#ordersTable tbody tr[data-order-id="${id}"]`);
-              if (row) row.remove();
-              loadDeliveryConfirmations();
-            })
-            .catch(() => {
-              // Fallback: refresh both lists
-              loadOrders();
-              loadDeliveryConfirmations();
-            });
-        } else {
-          loadOrders();
-        }
-        alert('Order updated successfully!');
+          // If delivered and paid, create a delivery confirmation server-side, then refresh confirmations
+          if (status === 'delivered' && paymentStatus === 'paid') {
+            fetch(`/fluffy-admin/api/orders/${id}/delivery-confirmation`, { method: 'POST' })
+              .then(r => r.json())
+              .then(dcRes => {
+                // Remove from list if present and refresh confirmations
+                const row = document.querySelector(`#ordersTable tbody tr[data-order-id="${id}"]`);
+                if (row) row.remove();
+                loadDeliveryConfirmations();
+              })
+              .catch(() => {
+                // Fallback: refresh both lists
+        loadOrders();
+                loadDeliveryConfirmations();
+              });
       } else { 
-        alert(res.message || 'Failed to update order'); 
+            loadOrders();
+          }
+          Swal.fire({icon: 'success', title: 'Success!', text: 'Order updated successfully!'});
+        } else { 
+          Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update order'}); 
       }
     })
     .catch(err=>{
       console.error('Error:', err);
-      alert('Network error. Please try again.');
+        Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
+      });
     });
 });
 
 // Delivery Confirmation Functions
 let currentFilter = 'all';
+let ordersTable = null;
+let deliveryConfirmationsTable = null;
 
 function loadDeliveryConfirmations() {
     const tbody = document.querySelector('#deliveryConfirmationsTable tbody');
@@ -942,6 +1052,25 @@ function loadDeliveryConfirmations() {
                         </td>
                     </tr>
                 `).join('');
+                
+                // Destroy existing DataTable if it exists
+                if (deliveryConfirmationsTable) {
+                    deliveryConfirmationsTable.destroy();
+                }
+                
+                // Initialize DataTables
+                deliveryConfirmationsTable = $('#deliveryConfirmationsTable').DataTable({
+                    pageLength: 10,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    order: [[6, 'desc']],
+                    language: {
+                        search: "Search:",
+                        lengthMenu: "Show _MENU_ entries",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                        infoEmpty: "Showing 0 to 0 of 0 entries",
+                        infoFiltered: "(filtered from _MAX_ total entries)"
+                    }
+                });
             } else {
                 tbody.innerHTML = `
                     <tr>
@@ -952,11 +1081,13 @@ function loadDeliveryConfirmations() {
                         </td>
                     </tr>
                 `;
+                if (deliveryConfirmationsTable) { deliveryConfirmationsTable.destroy(); deliveryConfirmationsTable = null; }
             }
         })
         .catch(error => {
             console.error('Error loading delivery confirmations:', error);
             tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading data</td></tr>';
+            if (deliveryConfirmationsTable) { deliveryConfirmationsTable.destroy(); deliveryConfirmationsTable = null; }
         });
 }
 
@@ -980,12 +1111,12 @@ function viewConfirmation(confirmationId) {
             if (data.success) {
                 showConfirmationModal(data.data);
             } else {
-                alert('Failed to load confirmation details: ' + data.message);
+                Swal.fire({icon: 'error', title: 'Error', text: 'Failed to load confirmation details: ' + data.message});
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Network error. Please try again.');
+            Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
         });
 }
 
@@ -1075,9 +1206,23 @@ function showConfirmationModal(confirmation) {
 function approveConfirmation(confirmationId) {
     console.log('Approving confirmation ID:', confirmationId);
     
-    if (confirm('Are you sure you want to approve this delivery confirmation?')) {
-        const notes = prompt('Add admin notes (optional):') || '';
+    Swal.fire({
+        title: 'Approve Delivery Confirmation?',
+        text: 'Are you sure you want to approve this delivery confirmation?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, approve it!',
+        input: 'textarea',
+        inputPlaceholder: 'Add admin notes (optional)',
+        inputAttributes: {
+            'aria-label': 'Type your notes here'
+        }
+    }).then((result) => {
+        if (!result.isConfirmed) return;
         
+        const notes = result.value || '';
         const formData = new URLSearchParams();
         formData.append('admin_notes', notes);
         
@@ -1098,21 +1243,21 @@ function approveConfirmation(confirmationId) {
         .then(data => {
             console.log('Response data:', data);
             if (data.success) {
-                alert('Delivery confirmation approved successfully!');
+                Swal.fire({icon: 'success', title: 'Success!', text: 'Delivery confirmation approved successfully!'});
                 loadDeliveryConfirmations();
                 loadOrders(); // Refresh orders
                 // Close modal if open
                 const modal = bootstrap.Modal.getInstance(document.getElementById('confirmationViewModal'));
                 if (modal) modal.hide();
             } else {
-                alert('Failed to approve delivery confirmation: ' + data.message);
+                Swal.fire({icon: 'error', title: 'Error', text: 'Failed to approve delivery confirmation: ' + data.message});
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Network error. Please try again.');
+            Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
         });
-    }
+        });
 }
 
 // Load data on page load

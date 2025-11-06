@@ -6,6 +6,7 @@
     <title>Confirm Animal Delivery - All Orders - Staff</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -329,13 +330,13 @@
                     displayOrderDetails(data.order, data.items);
                 } else {
                     console.error('Error loading order details:', data.message);
-                    alert(data.message || 'Failed to load order details.');
+                    Swal.fire({icon: 'error', title: 'Error', text: data.message || 'Failed to load order details.'});
                     document.getElementById('orderDetails').style.display = 'none';
                 }
             })
             .catch(error => {
                 console.error('Error loading order details:', error);
-                alert('Error loading order details. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'Error loading order details. Please try again.'});
             });
         }
 

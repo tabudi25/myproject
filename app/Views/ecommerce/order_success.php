@@ -6,6 +6,7 @@
     <title><?= $title ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -474,9 +475,19 @@
 
         // Auto-redirect to orders page after 30 seconds
         setTimeout(() => {
-            if (confirm('Would you like to view your orders page?')) {
-                window.location.href = '/my-orders';
-            }
+            Swal.fire({
+                title: 'View Orders?',
+                text: 'Would you like to view your orders page?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ff6b35',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, view orders!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/my-orders';
+                }
+            });
         }, 30000);
     </script>
 </body>

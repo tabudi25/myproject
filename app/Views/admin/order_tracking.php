@@ -6,6 +6,7 @@
     <title>Order Tracking - Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .tracking-container {
             max-width: 1000px;
@@ -382,15 +383,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Order status updated successfully!');
+                    Swal.fire({icon: 'success', title: 'Success!', text: 'Order status updated successfully!'});
                     location.reload();
                 } else {
-                    alert('Error: ' + data.message);
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Error: ' + data.message});
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while updating the order status');
+                Swal.fire({icon: 'error', title: 'Error', text: 'An error occurred while updating the order status'});
             });
         });
     </script>

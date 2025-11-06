@@ -6,6 +6,11 @@
     <title>Manage Categories - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -734,6 +739,8 @@
 
 loadCategories();
 
+let categoriesTable = null;
+
 function loadCategories(){
   console.log('Loading categories...');
   fetch('/fluffy-admin/api/categories')
@@ -741,8 +748,14 @@ function loadCategories(){
     .then(({success, data})=>{
       console.log('Categories API response:', {success, data});
       const tbody = document.querySelector('#categoriesTable tbody');
-      if(!success){ tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load</td></tr>'; return; }
-      if(!data.length){ tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No categories</td></tr>'; return; }
+      if(!success){ tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load</td></tr>'; 
+        if (categoriesTable) { categoriesTable.destroy(); categoriesTable = null; }
+        return; 
+      }
+      if(!data.length){ tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No categories</td></tr>'; 
+        if (categoriesTable) { categoriesTable.destroy(); categoriesTable = null; }
+        return; 
+      }
       tbody.innerHTML = data.map(c=>{
         console.log('Category data:', c);
         const isActive = c.status === 'active';
@@ -761,11 +774,31 @@ function loadCategories(){
         </tr>
         `;
       }).join('');
+      
+      // Destroy existing DataTable if it exists
+      if (categoriesTable) {
+        categoriesTable.destroy();
+      }
+      
+      // Initialize DataTables
+      categoriesTable = $('#categoriesTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[0, 'asc']],
+        language: {
+          search: "Search:",
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ entries",
+          infoEmpty: "Showing 0 to 0 of 0 entries",
+          infoFiltered: "(filtered from _MAX_ total entries)"
+        }
+      });
     })
     .catch(error => {
       console.error('Error loading categories:', error);
       const tbody = document.querySelector('#categoriesTable tbody');
       tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading categories</td></tr>';
+      if (categoriesTable) { categoriesTable.destroy(); categoriesTable = null; }
     });
 }
 
@@ -774,16 +807,23 @@ document.getElementById('addCategoryForm').addEventListener('submit', function(e
   const fd = new FormData(this);
   fetch('/fluffy-admin/api/categories', { method:'POST', body:fd })
     .then(r=>r.json())
-    .then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide(); this.reset(); loadCategories(); } else { alert(res.message||'Failed'); } });
+    .then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide(); this.reset(); loadCategories(); Swal.fire({icon: 'success', title: 'Success!', text: 'Category added successfully!'}); } else { Swal.fire({icon: 'error', title: 'Error', text: res.message||'Failed'}); } });
 });
 
 function toggleCategoryStatus(categoryId, currentStatus) {
   const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
   const action = newStatus === 'active' ? 'activate' : 'deactivate';
   
-  if (!confirm(`Are you sure you want to ${action} this category?`)) {
-    return;
-  }
+  Swal.fire({
+    title: 'Confirm Action',
+    text: `Are you sure you want to ${action} this category?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#ff6b35',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: `Yes, ${action} it!`
+  }).then((result) => {
+    if (!result.isConfirmed) return;
   
   // Show loading state
   const button = event.target;
@@ -809,19 +849,20 @@ function toggleCategoryStatus(categoryId, currentStatus) {
   .then(res => {
     if (res.success) {
       loadCategories();
-      alert(`Category ${action}d successfully!`);
+        Swal.fire({icon: 'success', title: 'Success!', text: `Category ${action}d successfully!`});
     } else {
-      alert(res.message || 'Failed to update category status');
+        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update category status'});
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    alert('Network error: ' + error.message);
+      Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
   })
   .finally(() => {
     // Restore button state
     button.innerHTML = originalText;
     button.disabled = false;
+    });
   });
 }
 

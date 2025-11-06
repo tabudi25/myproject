@@ -6,6 +6,7 @@
     <title><?= $title ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -772,7 +773,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function cancelOrder(orderId) {
-            if (confirm('Are you sure you want to cancel this order?')) {
+            Swal.fire({
+                title: 'Cancel Order?',
+                text: 'Are you sure you want to cancel this order?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
                 fetch(`/order/${orderId}/cancel`, {
                     method: 'POST',
                     headers: {
@@ -794,7 +804,8 @@
                     console.error('Error:', error);
                     showAlert('danger', 'An error occurred. Please try again.');
                 });
-            }
+                }
+            });
         }
 
         function showAlert(type, message) {

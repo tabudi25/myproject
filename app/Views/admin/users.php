@@ -6,6 +6,11 @@
   <title>Manage Users - Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <style>
     :root {
         --primary-color: #ff6b35;
@@ -706,13 +711,21 @@
 
 loadUsers();
 
+let usersTable = null;
+
 function loadUsers(){
   fetch('/fluffy-admin/api/users')
     .then(r=>r.json())
     .then(({success, data})=>{
       const tbody = document.querySelector('#usersTable tbody');
-      if(!success){ tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load</td></tr>'; return; }
-      if(!data.length){ tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No users</td></tr>'; return; }
+      if(!success){ tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load</td></tr>'; 
+        if (usersTable) { usersTable.destroy(); usersTable = null; }
+        return; 
+      }
+      if(!data.length){ tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No users</td></tr>'; 
+        if (usersTable) { usersTable.destroy(); usersTable = null; }
+        return; 
+      }
       tbody.innerHTML = data.map(u=>{
         // Ensure status is properly set
         const status = u.status || 'active';
@@ -732,6 +745,29 @@ function loadUsers(){
         </tr>
         `;
       }).join('');
+      
+      // Destroy existing DataTable if it exists
+      if (usersTable) {
+        usersTable.destroy();
+      }
+      
+      // Initialize DataTables
+      usersTable = $('#usersTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[0, 'asc']],
+        language: {
+          search: "Search:",
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ entries",
+          infoEmpty: "Showing 0 to 0 of 0 entries",
+          infoFiltered: "(filtered from _MAX_ total entries)"
+        }
+      });
+    })
+    .catch(() => {
+      document.querySelector('#usersTable tbody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Network error</td></tr>';
+      if (usersTable) { usersTable.destroy(); usersTable = null; }
     });
 }
 
@@ -739,16 +775,23 @@ document.getElementById('addUserForm').addEventListener('submit', function(e){
   e.preventDefault();
   const fd = new URLSearchParams(new FormData(this));
   fetch('/fluffy-admin/api/users', { method:'POST', body:fd })
-    .then(r=>r.json()).then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide(); this.reset(); loadUsers(); } else { alert(res.message||'Failed'); } });
+    .then(r=>r.json()).then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide(); this.reset(); loadUsers(); Swal.fire({icon: 'success', title: 'Success!', text: 'User created successfully!'}); } else { Swal.fire({icon: 'error', title: 'Error', text: res.message||'Failed'}); } });
 });
 
 function toggleUserStatus(userId, currentStatus) {
   const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
   const action = newStatus === 'active' ? 'activate' : 'deactivate';
   
-  if (!confirm(`Are you sure you want to ${action} this user?`)) {
-    return;
-  }
+  Swal.fire({
+    title: 'Confirm Action',
+    text: `Are you sure you want to ${action} this user?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#ff6b35',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: `Yes, ${action} it!`
+  }).then((result) => {
+    if (!result.isConfirmed) return;
   
   // Show loading state
   const button = event.target;
@@ -774,19 +817,20 @@ function toggleUserStatus(userId, currentStatus) {
   .then(res => {
     if (res.success) {
       loadUsers();
-      alert(`User ${action}d successfully!`);
+        Swal.fire({icon: 'success', title: 'Success!', text: `User ${action}d successfully!`});
     } else {
-      alert(res.message || 'Failed to update user status');
+        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update user status'});
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    alert('Network error: ' + error.message);
+      Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
   })
   .finally(() => {
     // Restore button state
     button.innerHTML = originalText;
     button.disabled = false;
+    });
   });
 }
 

@@ -6,6 +6,11 @@
     <title>Manage Animals - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -898,13 +903,22 @@
         loadCategories();
         loadPendingAnimals();
 
+        let animalsTable = null;
+        let pendingAnimalsTable = null;
+
         function loadAnimals() {
             fetch('/fluffy-admin/api/animals')
                 .then(r => r.json())
                 .then(({success, data}) => {
                     const tbody = document.querySelector('#animalsTable tbody');
-                    if (!success) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; return; }
-                    if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No animals found</td></tr>'; return; }
+                    if (!success) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; 
+                        if (animalsTable) { animalsTable.destroy(); animalsTable = null; }
+                        return; 
+                    }
+                    if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No animals found</td></tr>'; 
+                        if (animalsTable) { animalsTable.destroy(); animalsTable = null; }
+                        return; 
+                    }
                     tbody.innerHTML = data.map(animal => `
                         <tr>
                             <td><img src="/uploads/${animal.image}" onerror="this.src='/web/default-pet.jpg'" alt="${animal.name}"></td>
@@ -921,9 +935,29 @@
                             </td>
                         </tr>
                     `).join('');
+                    
+                    // Destroy existing DataTable if it exists
+                    if (animalsTable) {
+                        animalsTable.destroy();
+                    }
+                    
+                    // Initialize DataTables
+                    animalsTable = $('#animalsTable').DataTable({
+                        pageLength: 10,
+                        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                        order: [[1, 'asc']],
+                        language: {
+                            search: "Search:",
+                            lengthMenu: "Show _MENU_ entries",
+                            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                            infoEmpty: "Showing 0 to 0 of 0 entries",
+                            infoFiltered: "(filtered from _MAX_ total entries)"
+                        }
+                    });
                 })
                 .catch(() => {
                     document.querySelector('#animalsTable tbody').innerHTML = '<tr><td colspan="8" class="text-center text-danger">Network error</td></tr>';
+                    if (animalsTable) { animalsTable.destroy(); animalsTable = null; }
                 });
         }
 
@@ -947,13 +981,13 @@
             // Convert birthdate to age in months for API compatibility
             const birthdate = formData.get('birthdate');
             if (!birthdate) {
-                alert('Please select the pet\'s birthdate.');
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select the pet\'s birthdate.'});
                 return;
             }
             const b = new Date(birthdate);
             const now = new Date();
             if (b > now) {
-                alert('Birthdate cannot be in the future.');
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Birthdate cannot be in the future.'});
                 return;
             }
             const years = now.getFullYear() - b.getFullYear();
@@ -972,9 +1006,10 @@
                         bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide();
                         this.reset();
                         loadAnimals();
-                    } else { alert(res.message || 'Failed'); }
+                        Swal.fire({icon: 'success', title: 'Success!', text: 'Pet added successfully!'});
+                    } else { Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed'}); }
                 })
-                .catch(()=>alert('Network error'));
+                .catch(()=>Swal.fire({icon: 'error', title: 'Error', text: 'Network error'}));
         });
 
         // Edit
@@ -983,7 +1018,7 @@
                 .then(r => r.json())
                 .then(({success, data}) => {
                     const animal = data.find(a => a.id == id);
-                    if (!animal) return alert('Animal not found');
+                    if (!animal) return Swal.fire({icon: 'error', title: 'Error', text: 'Animal not found'});
                     
                     document.getElementById('edit_id').value = animal.id;
                     document.getElementById('edit_name').value = animal.name;
@@ -1014,13 +1049,14 @@
                         bootstrap.Modal.getInstance(document.getElementById('editAnimalModal')).hide();
                         this.reset();
                         loadAnimals();
+                        Swal.fire({icon: 'success', title: 'Success!', text: 'Pet updated successfully!'});
                     } else { 
-                        alert(res.message || 'Failed to update animal'); 
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update animal'}); 
                     }
                 })
                 .catch(err=>{
                     console.error('Error:', err);
-                    alert('Network error. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
                 });
         });
 
@@ -1034,6 +1070,7 @@
                     
                     if (!success) { 
                         tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load pending pets</td></tr>'; 
+                        if (pendingAnimalsTable) { pendingAnimalsTable.destroy(); pendingAnimalsTable = null; }
                         return; 
                     }
                     
@@ -1042,6 +1079,7 @@
                     
                     if (!data.length) { 
                         tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No pending pets found</td></tr>'; 
+                        if (pendingAnimalsTable) { pendingAnimalsTable.destroy(); pendingAnimalsTable = null; }
                         return; 
                     }
                     
@@ -1089,17 +1127,44 @@
                             `;
                         }
                     }).join('');
+                    
+                    // Destroy existing DataTable if it exists
+                    if (pendingAnimalsTable) {
+                        pendingAnimalsTable.destroy();
+                    }
+                    
+                    // Initialize DataTables
+                    pendingAnimalsTable = $('#pendingAnimalsTable').DataTable({
+                        pageLength: 10,
+                        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                        order: [[7, 'desc']],
+                        language: {
+                            search: "Search:",
+                            lengthMenu: "Show _MENU_ entries",
+                            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                            infoEmpty: "Showing 0 to 0 of 0 entries",
+                            infoFiltered: "(filtered from _MAX_ total entries)"
+                        }
+                    });
                 })
                 .catch(() => {
                     document.querySelector('#pendingAnimalsTable tbody').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Network error</td></tr>';
+                    if (pendingAnimalsTable) { pendingAnimalsTable.destroy(); pendingAnimalsTable = null; }
                 });
         }
 
         // Approve animal
         function approveAnimal(id) {
-            if (!confirm('Are you sure you want to approve this pet? This will make it available for adoption.')) {
-                return;
-            }
+            Swal.fire({
+                title: 'Approve Pet?',
+                text: 'Are you sure you want to approve this pet? This will make it available for adoption.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, approve it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
 
             // Find the button and update it immediately
             const button = event.target.closest('button');
@@ -1117,7 +1182,7 @@
             .then(res => {
                 if (res.success) {
                     // Show success message
-                    alert('Pet approved successfully!');
+                        Swal.fire({icon: 'success', title: 'Success!', text: 'Pet approved successfully!'});
                     
                     // Refresh both tables immediately to show persistent "Done" state
                     loadPendingAnimals();
@@ -1126,14 +1191,15 @@
                     // Restore original button state on error
                     button.innerHTML = originalContent;
                     button.disabled = false;
-                    alert(res.message || 'Failed to approve pet');
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to approve pet'});
                 }
             })
             .catch(() => {
                 // Restore original button state on error
                 button.innerHTML = originalContent;
                 button.disabled = false;
-                alert('Network error. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
+                });
             });
         }
 

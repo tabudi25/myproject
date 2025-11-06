@@ -6,6 +6,7 @@
     <title><?= $title ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -353,7 +354,7 @@
                                     <!-- Price and Actions -->
                                     <div class="col-md-3 text-end">
                                         <div class="item-price">₱<?= number_format($item['price'] * $item['quantity'], 2) ?></div>
-                                        <a href="/remove-from-cart/<?= $item['id'] ?>" class="remove-btn" onclick="return confirm('Remove this item from cart?')">
+                                        <a href="/remove-from-cart/<?= $item['id'] ?>" class="remove-btn" onclick="return removeFromCart(event, <?= $item['id'] ?>)">
                                             <i class="fas fa-trash me-1"></i>Remove
                                         </a>
                                     </div>
@@ -444,14 +445,32 @@
                         // Reload the page to show updated cart
                         window.location.reload();
                     } else {
-                        alert('Failed to update cart. Please try again.');
+                        Swal.fire({icon: 'error', title: 'Error', text: 'Failed to update cart. Please try again.'});
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'An error occurred. Please try again.'});
                 });
             }
+        }
+
+        function removeFromCart(event, cartId) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Remove Item?',
+                text: 'Remove this item from cart?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/remove-from-cart/' + cartId;
+                }
+            });
+            return false;
         }
 
         // Auto-update cart when quantity changes

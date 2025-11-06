@@ -6,7 +6,11 @@
     <title>Sales Report - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -202,6 +206,7 @@
     <script>
         let salesChart, categoryChart;
         let currentPeriod = 'month';
+        let deliveriesTable = null;
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -348,6 +353,7 @@
             if (!deliveries || deliveries.length === 0) {
                 console.log('No deliveries to display');
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No completed deliveries found</td></tr>';
+                if (deliveriesTable) { deliveriesTable.destroy(); deliveriesTable = null; }
                 return;
             }
 
@@ -362,6 +368,25 @@
                     <td><span class="badge bg-success">Completed</span></td>
                 </tr>
             `).join('');
+            
+            // Destroy existing DataTable if it exists
+            if (deliveriesTable) {
+                deliveriesTable.destroy();
+            }
+            
+            // Initialize DataTables
+            deliveriesTable = $('#deliveriesTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                order: [[4, 'desc']],
+                language: {
+                    search: "Search:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)"
+                }
+            });
         }
 
         // Load initial data

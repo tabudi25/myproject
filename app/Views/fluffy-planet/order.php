@@ -74,6 +74,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const today = new Date().toISOString().split("T")[0];
@@ -132,7 +133,16 @@
         });
 
         function confirmOrder() {
-            if (!confirm("Are you sure you want to proceed with this order?")) return;
+            Swal.fire({
+                title: 'Confirm Order?',
+                text: 'Are you sure you want to proceed with this order?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, proceed!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
 
             const firstName = document.querySelector('input[name="first_name"]').value.trim();
             const lastName = document.querySelector('input[name="last_name"]').value.trim();
@@ -143,7 +153,7 @@
             const date = document.getElementById("orderDate").value;
 
             if (!firstName || !lastName || !phone || !email || !address || !date) {
-                alert('Please fill in all required fields.');
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please fill in all required fields.'});
                 return;
             }
 
@@ -152,7 +162,7 @@
             const total = parseFloat(totalText);
 
             if (pets.length === 0) {
-                alert('Please add some pets to your order first.');
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please add some pets to your order first.'});
                 return;
             }
 
@@ -181,6 +191,7 @@
             localStorage.setItem("orderData", JSON.stringify(orderData));
             localStorage.removeItem("orderList");
             document.getElementById('orderForm').submit();
+            });
         }
         function continueShopping() {
     window.location.href = "<?= base_url('categories') ?>"; 

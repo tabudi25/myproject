@@ -6,6 +6,7 @@
     <title>Manage Reservations - Staff Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -235,7 +236,16 @@
         }
 
         function confirmReservation(id) {
-            if (!confirm('Confirm this reservation?')) return;
+            Swal.fire({
+                title: 'Confirm Reservation?',
+                text: 'Are you sure you want to confirm this reservation?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, confirm it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
             
             const formData = new URLSearchParams();
             formData.append('_method', 'PUT');
@@ -249,19 +259,29 @@
             .then(res => {
                 if (res.success) {
                     loadReservations();
-                    alert('Reservation confirmed!');
+                    Swal.fire({icon: 'success', title: 'Success!', text: 'Reservation confirmed!'});
                 } else {
-                    alert(res.message || 'Failed to confirm reservation');
+                    Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to confirm reservation'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             });
+        });
         }
 
         function cancelReservation(id) {
-            if (!confirm('Cancel this reservation?')) return;
+            Swal.fire({
+                title: 'Cancel Reservation?',
+                text: 'Are you sure you want to cancel this reservation?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
             
             const formData = new URLSearchParams();
             formData.append('_method', 'PUT');
@@ -275,15 +295,16 @@
             .then(res => {
                 if (res.success) {
                     loadReservations();
-                    alert('Reservation cancelled!');
+                    Swal.fire({icon: 'success', title: 'Success!', text: 'Reservation cancelled!'});
                 } else {
-                    alert(res.message || 'Failed to cancel reservation');
+                    Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to cancel reservation'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             });
+        });
         }
     </script>
 </body>

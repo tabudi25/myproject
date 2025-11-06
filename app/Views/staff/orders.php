@@ -6,6 +6,7 @@
     <title>Manage Adoptions - Staff Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -260,7 +261,16 @@
         }
 
         function confirmAdoption(id) {
-            if (!confirm('Confirm this adoption?')) return;
+            Swal.fire({
+                title: 'Confirm Adoption?',
+                text: 'Are you sure you want to confirm this adoption?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, confirm it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
             
             const formData = new URLSearchParams();
             formData.append('_method', 'PUT');
@@ -274,19 +284,29 @@
             .then(res => {
                 if (res.success) {
                     loadAdoptions();
-                    alert('Adoption confirmed successfully!');
+                        Swal.fire({icon: 'success', title: 'Success!', text: 'Adoption confirmed successfully!'});
                 } else {
-                    alert(res.message || 'Failed to confirm adoption');
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to confirm adoption'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
+                });
             });
         }
 
         function startPreparation(id) {
-            if (!confirm('Start preparing this pet for delivery?')) return;
+            Swal.fire({
+                title: 'Start Preparation?',
+                text: 'Start preparing this pet for delivery?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#17a2b8',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, start it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
             
             const formData = new URLSearchParams();
             formData.append('status', 'processing');
@@ -308,21 +328,31 @@
                     loadAdoptions();
                     showSuccessNotification('Pet preparation started! Customer has been notified and their adoption tracking page will update automatically.');
                 } else {
-                    alert(res.message || 'Failed to start preparation');
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to start preparation'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             })
             .finally(() => {
                 button.innerHTML = originalText;
                 button.disabled = false;
+                });
             });
         }
 
         function markReadyForDelivery(id) {
-            if (!confirm('Mark this adoption as ready for delivery?')) return;
+            Swal.fire({
+                title: 'Mark as Ready?',
+                text: 'Mark this adoption as ready for delivery?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, mark it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
             
             const formData = new URLSearchParams();
             formData.append('status', 'shipped');
@@ -344,21 +374,31 @@
                     loadAdoptions();
                     showSuccessNotification('Adoption marked as ready for delivery! Customer has been notified and their adoption tracking page will update automatically.');
                 } else {
-                    alert(res.message || 'Failed to mark as ready');
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to mark as ready'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             })
             .finally(() => {
                 button.innerHTML = originalText;
                 button.disabled = false;
+                });
             });
         }
 
         function markDelivered(id) {
-            if (!confirm('Mark this adoption as delivered?')) return;
+            Swal.fire({
+                title: 'Mark as Delivered?',
+                text: 'Mark this adoption as delivered?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, mark it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
             
             const formData = new URLSearchParams();
             formData.append('status', 'delivered');
@@ -380,16 +420,17 @@
                     loadAdoptions();
                     showSuccessNotification('Adoption marked as delivered! Customer has been notified and their adoption tracking page will update automatically.');
                 } else {
-                    alert(res.message || 'Failed to mark as delivered');
+                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to mark as delivered'});
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Network error. Please try again.');
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             })
             .finally(() => {
                 button.innerHTML = originalText;
                 button.disabled = false;
+                });
             });
         }
 
@@ -549,12 +590,12 @@
                 if (data.success) {
                     displayConfirmationOrderDetails(data.order, data.items);
                 } else {
-                    alert('Failed to load adoption details: ' + data.message);
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Failed to load adoption details: ' + data.message});
                 }
             })
             .catch(error => {
                 console.error('Error loading adoption details:', error);
-                alert('Error loading adoption details. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'Error loading adoption details. Please try again.'});
             });
         }
         
@@ -643,12 +684,12 @@
                     form.reset();
                     loadAdoptions(); // Refresh adoptions
                 } else {
-                    alert('Failed to submit adoption confirmation: ' + (data.message || 'Unknown error'));
+                    Swal.fire({icon: 'error', title: 'Error', text: 'Failed to submit adoption confirmation: ' + (data.message || 'Unknown error')});
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Network error. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
             })
             .finally(() => {
                 submitBtn.innerHTML = originalText;

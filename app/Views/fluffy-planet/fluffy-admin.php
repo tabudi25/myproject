@@ -635,6 +635,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Global variables
         let animals = [];
@@ -803,7 +804,16 @@
 
         // Delete animal
         async function deleteAnimal(id) {
-            if (!confirm('Are you sure you want to delete this animal?')) return;
+            Swal.fire({
+                title: 'Delete Animal?',
+                text: 'Are you sure you want to delete this animal?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch(`<?= base_url('admin/animals/') ?>${id}`, {
@@ -822,6 +832,7 @@
             } catch (error) {
                 showAlert('Error deleting animal: ' + error.message, 'error');
             }
+            });
         }
 
         // Handle animal form submission
@@ -985,7 +996,16 @@
                 return;
             }
 
-            if (!confirm('Are you sure you want to delete this user?')) return;
+            Swal.fire({
+                title: 'Delete User?',
+                text: 'Are you sure you want to delete this user?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch(`<?= base_url('admin/users/') ?>${id}`, {
@@ -1004,6 +1024,7 @@
             } catch (error) {
                 showAlert('Error deleting user: ' + error.message, 'error');
             }
+            });
         }
 
         // Handle user form submission

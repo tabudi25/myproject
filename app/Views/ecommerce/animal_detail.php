@@ -6,6 +6,7 @@
     <title><?= $title ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #ff6b35;
@@ -523,24 +524,24 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('✅ ' + data.message);
+                    Swal.fire({icon: 'success', title: 'Success!', text: data.message});
                     window.location.href = '/cart';
                 } else {
-                    alert('❌ ' + data.message);
+                    Swal.fire({icon: 'error', title: 'Error', text: data.message});
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('❌ An error occurred. Please try again.');
+                Swal.fire({icon: 'error', title: 'Error', text: 'An error occurred. Please try again.'});
             });
         }
 
         function showAlert(type, message) {
             // Create a simple alert using browser's alert for now
             if (type === 'success') {
-                alert('✅ ' + message);
+                Swal.fire({icon: 'success', title: 'Success!', text: message});
             } else {
-                alert('❌ ' + message);
+                Swal.fire({icon: 'error', title: 'Error', text: message});
             }
         }
     </script>

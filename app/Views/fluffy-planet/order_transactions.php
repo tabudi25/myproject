@@ -90,7 +90,7 @@
                         
                         <?php if ($order['order_status'] === 'Processing'): ?>
                             <form method="POST" action="<?= base_url('confirm_order/' . $order['id']) ?>" style="margin-top: 15px;">
-                                <button type="submit" class="download-btn" onclick="return confirm('Are you sure you want to mark this order as completed?')">
+                                <button type="submit" class="download-btn" onclick="return confirmCompleteOrder(event, <?= $order['id'] ?>)">
                                     Confirm Order
                                 </button>
                             </form>
@@ -106,14 +106,33 @@
         
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function confirmCompleteOrder(event, orderId) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Confirm Order?',
+                text: 'Are you sure you want to mark this order as completed?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, mark as completed!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.closest('form').submit();
+                }
+            });
+            return false;
+        }
+
         // Show success/error messages if any
         <?php if (session()->getFlashdata('success')): ?>
-            alert("<?= session()->getFlashdata('success') ?>");
+            Swal.fire({icon: 'success', title: 'Success!', text: "<?= session()->getFlashdata('success') ?>"});
         <?php endif; ?>
         
         <?php if (session()->getFlashdata('error')): ?>
-            alert("<?= session()->getFlashdata('error') ?>");
+            Swal.fire({icon: 'error', title: 'Error', text: "<?= session()->getFlashdata('error') ?>"});
         <?php endif; ?>
     </script>
 </body>
