@@ -101,12 +101,6 @@
                         <span class="menu-text">Sales Report</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/">
-                        <i class="fas fa-globe"></i>
-                        <span class="menu-text">Visit Site</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
@@ -146,11 +140,11 @@
                         <table class="table align-middle" id="paymentsTable">
                             <thead>
                                 <tr>
-                                    <th>Adoptions #</th>
+                                    <th>Adoptions ID</th>
                                     <th>Customer</th>
                                     <th>Amount</th>
                                     <th>Payment Method</th>
-                                    <th>Status</th>
+                                    <th>Payment Status</th>
                                     <th>Date</th>
                                     <th style="width:160px">Actions</th>
                                 </tr>

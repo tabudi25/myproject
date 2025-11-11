@@ -105,7 +105,8 @@ class NotificationController extends BaseController
         }
 
         $userId = session()->get('user_id');
-        $notifications = $this->notificationModel->getUserNotifications($userId, 5);
+        $limit = $this->request->getGet('limit') ? (int)$this->request->getGet('limit') : 10;
+        $notifications = $this->notificationModel->getUserNotifications($userId, $limit);
 
         return $this->response->setJSON([
             'success' => true,

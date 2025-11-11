@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Animals - Staff Dashboard</title>
+    <title>Manage Pets - Staff Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -109,21 +109,13 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/staff/add-animal" class="sidebar-item">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animals</span>
-                </a>
                 <a href="/staff/animals" class="sidebar-item active">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Animals</span>
+                    <span>Manage Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
-                </a>
-                <a href="/staff/delivery-confirmations" class="sidebar-item">
-                    <i class="fas fa-truck"></i>
-                    <span>Deliveries</span>
+                    <span>Adoptions</span>
                 </a>
                 <a href="/staff/payments" class="sidebar-item">
                     <i class="fas fa-credit-card"></i>
@@ -138,9 +130,14 @@
             <!-- Main Content -->
             <div class="col-md-10 main-content">
                 <div class="content-card">
-                    <h3 class="mb-4">
-                        <i class="fas fa-paw"></i> Manage Available Animals
-                    </h3>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">
+                            <i class="fas fa-paw"></i> List of Pets
+                        </h3>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnimalModal">
+                            <i class="fas fa-plus me-2"></i>Add New Animal
+                        </button>
+                    </div>
 
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -172,12 +169,90 @@
         </div>
     </div>
 
+    <!-- Add Animal Modal -->
+    <div class="modal fade" id="addAnimalModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Animal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addAnimalForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> Animals added by staff require admin approval before they become visible to customers.
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Animal Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" name="category_id" required>
+                                    <option value="">Select Category</option>
+                                    <?php foreach ($categories as $cat): ?>
+                                        <option value="<?= $cat['id'] ?>"><?= esc($cat['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Age (months) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="age" min="1" required>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                <select class="form-select" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Price (₱) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" name="price" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="4" placeholder="Describe the animal's characteristics, temperament, etc."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Image <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" name="image" accept="image/*" required id="addImageInput">
+                            <small class="text-muted">Upload an image of the animal</small>
+                            <div class="mt-2">
+                                <img id="addImagePreview" class="img-thumbnail" style="display: none; max-width: 200px; max-height: 200px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Submit for Approval
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Animal Modal -->
     <div class="modal fade" id="editAnimalModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Animal Details</h5>
+                    <h5 class="modal-title">Update Animal Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editAnimalForm" enctype="multipart/form-data">
@@ -186,16 +261,17 @@
                         
                         <div class="mb-3">
                             <label class="form-label">Name</label>
-                            <input type="text" class="form-control" id="edit_name" name="name" required>
+                            <input type="text" class="form-control" id="edit_name" name="name" required readonly style="background-color: #e9ecef; cursor: not-allowed;">
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select class="form-select" id="edit_category_id" name="category_id" required>
+                            <select class="form-select" id="edit_category_id" name="category_id" required disabled style="background-color: #e9ecef; cursor: not-allowed;">
                                 <?php foreach ($categories as $cat): ?>
                                     <option value="<?= $cat['id'] ?>"><?= esc($cat['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <input type="hidden" id="edit_category_id_hidden" name="category_id">
                         </div>
                         
                         <div class="row">
@@ -205,10 +281,11 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Gender</label>
-                                <select class="form-select" id="edit_gender" name="gender" required>
+                                <select class="form-select" id="edit_gender" name="gender" required disabled style="background-color: #e9ecef; cursor: not-allowed;">
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
+                                <input type="hidden" id="edit_gender_hidden" name="gender">
                             </div>
                         </div>
                         
@@ -241,6 +318,72 @@
     <script>
         // Load animals on page load
         loadAnimals();
+
+        // Image preview for add animal form
+        document.getElementById('addImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('addImagePreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Add Animal Form submission
+        document.getElementById('addAnimalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+            
+            fetch('/staff/api/animals/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Animal submitted for admin approval successfully!'
+                    });
+                    this.reset();
+                    document.getElementById('addImagePreview').style.display = 'none';
+                    bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide();
+                    // Optionally reload animals to show the new pending animal
+                    // loadAnimals();
+                } else {
+                    const errors = typeof res.message === 'object' 
+                        ? Object.values(res.message).join('\n') 
+                        : res.message;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        html: 'Error: ' + errors
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Network error. Please try again.'
+                });
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        });
 
         function loadAnimals() {
             fetch('/staff/api/animals')
@@ -299,8 +442,10 @@
                         document.getElementById('edit_id').value = animal.id;
                         document.getElementById('edit_name').value = animal.name;
                         document.getElementById('edit_category_id').value = animal.category_id;
+                        document.getElementById('edit_category_id_hidden').value = animal.category_id;
                         document.getElementById('edit_age').value = animal.age;
                         document.getElementById('edit_gender').value = animal.gender;
+                        document.getElementById('edit_gender_hidden').value = animal.gender;
                         document.getElementById('edit_price').value = animal.price;
                         document.getElementById('edit_description').value = animal.description || '';
                         

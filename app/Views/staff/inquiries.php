@@ -105,11 +105,7 @@
                 </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Animals</span>
-                </a>
-                <a href="/staff/add-animal" class="sidebar-item">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animal</span>
+                    <span>Manage Pets</span>
                 </a>
                 <a href="/staff/inquiries" class="sidebar-item active">
                     <i class="fas fa-envelope"></i>
@@ -117,7 +113,7 @@
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
+                    <span>Adoptions</span>
                 </a>
                 <a href="/staff/sales-report" class="sidebar-item">
                     <i class="fas fa-file-invoice-dollar"></i>

@@ -186,6 +186,18 @@
             margin-right: 15px;
         }
 
+        .gcash-payment-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 10px;
+            border: 2px solid #0070ba;
+        }
+
+        .gcash-payment-section .alert {
+            border-radius: 8px;
+        }
+
         .breadcrumb {
             background: none;
             padding: 20px 0;
@@ -403,7 +415,7 @@
                             </h4>
                             
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="payment-method" onclick="selectPaymentMethod('cod')">
                                         <input type="radio" name="payment_method" value="cod" id="cod" checked>
                                         <label for="cod" class="mb-0">
@@ -412,22 +424,39 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="payment-method" onclick="selectPaymentMethod('gcash')">
                                         <input type="radio" name="payment_method" value="gcash" id="gcash">
                                         <label for="gcash" class="mb-0">
                                             <strong><i class="fas fa-mobile-alt me-2"></i>GCash</strong><br>
-                                            <small class="text-muted">Mobile payment</small>
+                                            <small class="text-muted">Mobile payment (Demo Mode)</small>
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="payment-method" onclick="selectPaymentMethod('bank_transfer')">
-                                        <input type="radio" name="payment_method" value="bank_transfer" id="bank_transfer">
-                                        <label for="bank_transfer" class="mb-0">
-                                            <strong><i class="fas fa-university me-2"></i>Bank Transfer</strong><br>
-                                            <small class="text-muted">Direct bank payment</small>
+                            </div>
+
+                            <!-- GCash Payment Form (Demo Mode) -->
+                            <div id="gcashPaymentForm" class="gcash-payment-section" style="display: none;">
+                                <div class="alert alert-info mt-3 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Demo Mode:</strong> This is a demonstration payment. No actual payment will be processed.
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gcash_number" class="form-label">
+                                            <i class="fas fa-mobile-alt me-2"></i>GCash Mobile Number
                                         </label>
+                                        <input type="tel" class="form-control" id="gcash_number" name="gcash_number" 
+                                               placeholder="09XX XXX XXXX" pattern="[0-9]{11}" maxlength="11">
+                                        <small class="text-muted">Enter your 11-digit GCash mobile number</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gcash_mpin" class="form-label">
+                                            <i class="fas fa-lock me-2"></i>MPIN (Demo)
+                                        </label>
+                                        <input type="password" class="form-control" id="gcash_mpin" name="gcash_mpin" 
+                                               placeholder="Enter MPIN" pattern="[0-9]{4}" maxlength="4">
+                                        <small class="text-muted">Enter any 4-digit number (demo mode)</small>
                                     </div>
                                 </div>
                             </div>
@@ -468,7 +497,6 @@
                             <img src="/uploads/<?= $item['image'] ?>" alt="<?= esc($item['name']) ?>" class="item-image" onerror="this.src='/web/default-pet.jpg'">
                             <div class="item-details">
                                 <div class="item-name"><?= esc($item['name']) ?></div>
-                                <div class="item-meta">Qty: <?= $item['quantity'] ?></div>
                             </div>
                             <div class="text-end">
                                 <strong>₱<?= number_format($item['price'] * $item['quantity'], 2) ?></strong>
@@ -544,6 +572,20 @@
                 option.classList.remove('selected');
             });
             document.querySelector(`#${method}`).closest('.payment-method').classList.add('selected');
+            
+            // Show/hide GCash payment form
+            const gcashForm = document.getElementById('gcashPaymentForm');
+            if (method === 'gcash') {
+                gcashForm.style.display = 'block';
+                // Make GCash fields required
+                document.getElementById('gcash_number').required = true;
+                document.getElementById('gcash_mpin').required = true;
+            } else {
+                gcashForm.style.display = 'none';
+                // Remove required attribute
+                document.getElementById('gcash_number').required = false;
+                document.getElementById('gcash_mpin').required = false;
+            }
         }
 
         function updateTotals() {
@@ -561,6 +603,7 @@
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
             const deliveryAddress = document.getElementById('delivery_address').value.trim();
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
             
             if (deliveryType === 'delivery' && !deliveryAddress) {
                 e.preventDefault();
@@ -569,17 +612,57 @@
                 return false;
             }
             
+            // Validate GCash payment fields if GCash is selected
+            if (paymentMethod === 'gcash') {
+                const gcashNumber = document.getElementById('gcash_number').value.trim();
+                const gcashMpin = document.getElementById('gcash_mpin').value.trim();
+                
+                if (!gcashNumber || gcashNumber.length !== 11) {
+                    e.preventDefault();
+                    Swal.fire({icon: 'warning', title: 'Warning', text: 'Please enter a valid 11-digit GCash mobile number.'});
+                    document.getElementById('gcash_number').focus();
+                    return false;
+                }
+                
+                if (!gcashMpin || gcashMpin.length !== 4) {
+                    e.preventDefault();
+                    Swal.fire({icon: 'warning', title: 'Warning', text: 'Please enter a valid 4-digit MPIN.'});
+                    document.getElementById('gcash_mpin').focus();
+                    return false;
+                }
+            }
+            
             // Disable submit button to prevent double submission
             const submitBtn = document.getElementById('placeOrderBtn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            if (paymentMethod === 'gcash') {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Payment...';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            }
         });
 
-        // Initialize
+        // Format mobile number input
         document.addEventListener('DOMContentLoaded', function() {
             // Set initial selection styles
             selectDeliveryType('pickup');
             selectPaymentMethod('cod');
+            
+            // Format GCash mobile number input
+            const gcashNumberInput = document.getElementById('gcash_number');
+            if (gcashNumberInput) {
+                gcashNumberInput.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/\D/g, '');
+                });
+            }
+            
+            // Format GCash MPIN input
+            const gcashMpinInput = document.getElementById('gcash_mpin');
+            if (gcashMpinInput) {
+                gcashMpinInput.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/\D/g, '');
+                });
+            }
         });
     </script>
 </body>

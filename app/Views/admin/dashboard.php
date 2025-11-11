@@ -572,12 +572,6 @@
                         <span class="menu-text">Sales Report</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/">
-                        <i class="fas fa-globe"></i>
-                        <span class="menu-text">Visit Site</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 

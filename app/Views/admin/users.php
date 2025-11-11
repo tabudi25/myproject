@@ -421,12 +421,6 @@
                         <span class="menu-text">Sales Report</span>
                     </a>
             </li>
-                <li>
-                    <a href="/">
-                    <i class="fas fa-globe"></i>
-                    <span class="menu-text">Visit Site</span>
-                </a>
-            </li>
         </ul>
     </nav>
 
@@ -738,7 +732,7 @@ function loadUsers(){
           <td><span class="badge bg-${u.role==='admin'?'dark':u.role==='staff'?'info':'secondary'}">${u.role}</span></td>
           <td><span class="badge bg-${isActive ? 'success' : 'danger'}">${status}</span></td>
           <td>
-            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleUserStatus(${u.id}, '${status}')">
+            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleUserStatus(${u.id}, '${status}', event)">
               <i class="fas fa-${isActive ? 'user-times' : 'user-check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
             </button>
           </td>
@@ -778,7 +772,7 @@ document.getElementById('addUserForm').addEventListener('submit', function(e){
     .then(r=>r.json()).then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide(); this.reset(); loadUsers(); Swal.fire({icon: 'success', title: 'Success!', text: 'User created successfully!'}); } else { Swal.fire({icon: 'error', title: 'Error', text: res.message||'Failed'}); } });
 });
 
-function toggleUserStatus(userId, currentStatus) {
+function toggleUserStatus(userId, currentStatus, event) {
   const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
   const action = newStatus === 'active' ? 'activate' : 'deactivate';
   
@@ -793,8 +787,62 @@ function toggleUserStatus(userId, currentStatus) {
   }).then((result) => {
     if (!result.isConfirmed) return;
   
-  // Show loading state
-  const button = event.target;
+  // Show loading state - try multiple ways to find the button and row
+  let button = null;
+  let row = null;
+  
+  // Try to get button from event if provided
+  if (event && event.target) {
+    button = event.target.closest ? event.target.closest('button') : null;
+    if (!button && event.target.tagName === 'BUTTON') {
+      button = event.target;
+    }
+    if (!button && event.target.parentElement && event.target.parentElement.tagName === 'BUTTON') {
+      button = event.target.parentElement;
+    }
+  }
+  
+  // If still no button, try to find it by userId in the table
+  if (!button && usersTable) {
+    const tableRows = document.querySelectorAll('#usersTable tbody tr');
+    for (let tr of tableRows) {
+      const btn = tr.querySelector(`button[onclick*="toggleUserStatus(${userId}"]`);
+      if (btn) {
+        button = btn;
+        row = tr;
+        break;
+      }
+    }
+  }
+  
+  // Fallback: find by userId in any button
+  if (!button) {
+    const allButtons = document.querySelectorAll(`button[onclick*="toggleUserStatus(${userId}"]`);
+    if (allButtons.length > 0) {
+      button = allButtons[0];
+      row = button.closest('tr');
+    }
+  }
+  
+  // If we have button but no row, try to find row
+  if (button && !row) {
+    row = button.closest('tr');
+  }
+  
+  if (!button) {
+    console.error('Button not found for userId:', userId);
+    Swal.fire({icon: 'error', title: 'Error', text: 'Button not found. Please refresh the page.'});
+    return;
+  }
+  
+  if (!row) {
+    console.error('Row not found for userId:', userId);
+    // Try to reload the table as fallback
+    loadUsers();
+    Swal.fire({icon: 'error', title: 'Error', text: 'Row not found. Table will be refreshed.'});
+    return;
+  }
+  
   const originalText = button.innerHTML;
   button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
   button.disabled = true;
@@ -816,21 +864,78 @@ function toggleUserStatus(userId, currentStatus) {
   })
   .then(res => {
     if (res.success) {
+      const isActive = newStatus === 'active';
+      
+      // Update the row cells directly - check if row still exists
+      if (row && row.parentNode) {
+        const statusCell = row.querySelector('td:nth-child(4)');
+        const actionCell = row.querySelector('td:nth-child(5)');
+        
+        if (statusCell) {
+          statusCell.innerHTML = `<span class="badge bg-${isActive ? 'success' : 'danger'}">${newStatus}</span>`;
+        }
+        
+        if (actionCell) {
+          actionCell.innerHTML = `
+            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleUserStatus(${userId}, '${newStatus}', event)">
+              <i class="fas fa-${isActive ? 'user-times' : 'user-check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          `;
+        }
+      }
+      
+      // Update DataTables row data if available
+      if (usersTable && row) {
+        try {
+          const dtRow = usersTable.row(row);
+          if (dtRow && dtRow.node()) {
+            const rowData = dtRow.data();
+            if (rowData && Array.isArray(rowData) && rowData.length >= 5) {
+              // Update the status in the row data
+              rowData[3] = `<span class="badge bg-${isActive ? 'success' : 'danger'}">${newStatus}</span>`;
+              rowData[4] = `
+                <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleUserStatus(${userId}, '${newStatus}', event)">
+                  <i class="fas fa-${isActive ? 'user-times' : 'user-check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
+                </button>
+              `;
+              dtRow.data(rowData).draw(false);
+            } else {
+              // Fallback: just redraw
+              usersTable.draw(false);
+            }
+          } else {
+            // Fallback: redraw the table
+            usersTable.draw(false);
+          }
+        } catch (e) {
+          console.error('DataTables update error:', e);
+          // Fallback: reload the table
       loadUsers();
-        Swal.fire({icon: 'success', title: 'Success!', text: `User ${action}d successfully!`});
+        }
     } else {
-        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update user status'});
+        // If no DataTables, just reload
+        loadUsers();
+      }
+      
+      Swal.fire({icon: 'success', title: 'Success!', text: `User ${action}d successfully!`, timer: 2000, timerProgressBar: true});
+    } else {
+      // Restore button on error
+      if (button) {
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+      Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update user status'});
     }
   })
   .catch(error => {
     console.error('Error:', error);
-      Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
-  })
-  .finally(() => {
-    // Restore button state
+    // Restore button on error
+    if (button) {
     button.innerHTML = originalText;
     button.disabled = false;
-    });
+    }
+    Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
+  });
   });
 }
 

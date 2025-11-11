@@ -427,12 +427,6 @@
                         <span class="menu-text">Sales Report</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/">
-                        <i class="fas fa-globe"></i>
-                        <span class="menu-text">Visit Site</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
@@ -767,7 +761,7 @@ function loadCategories(){
           <td><span class="badge bg-${isActive ? 'success' : 'secondary'}">${c.status}</span></td>
           <td>${c.animal_count||0}</td>
           <td>
-            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleCategoryStatus(${c.id}, '${c.status}')">
+            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleCategoryStatus(${c.id}, '${c.status}', event)">
               <i class="fas fa-${isActive ? 'times' : 'check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
             </button>
           </td>
@@ -810,7 +804,7 @@ document.getElementById('addCategoryForm').addEventListener('submit', function(e
     .then(res=>{ if(res.success){ bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide(); this.reset(); loadCategories(); Swal.fire({icon: 'success', title: 'Success!', text: 'Category added successfully!'}); } else { Swal.fire({icon: 'error', title: 'Error', text: res.message||'Failed'}); } });
 });
 
-function toggleCategoryStatus(categoryId, currentStatus) {
+function toggleCategoryStatus(categoryId, currentStatus, event) {
   const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
   const action = newStatus === 'active' ? 'activate' : 'deactivate';
   
@@ -825,8 +819,62 @@ function toggleCategoryStatus(categoryId, currentStatus) {
   }).then((result) => {
     if (!result.isConfirmed) return;
   
-  // Show loading state
-  const button = event.target;
+  // Show loading state - try multiple ways to find the button and row
+  let button = null;
+  let row = null;
+  
+  // Try to get button from event if provided
+  if (event && event.target) {
+    button = event.target.closest ? event.target.closest('button') : null;
+    if (!button && event.target.tagName === 'BUTTON') {
+      button = event.target;
+    }
+    if (!button && event.target.parentElement && event.target.parentElement.tagName === 'BUTTON') {
+      button = event.target.parentElement;
+    }
+  }
+  
+  // If still no button, try to find it by categoryId in the table
+  if (!button && categoriesTable) {
+    const tableRows = document.querySelectorAll('#categoriesTable tbody tr');
+    for (let tr of tableRows) {
+      const btn = tr.querySelector(`button[onclick*="toggleCategoryStatus(${categoryId}"]`);
+      if (btn) {
+        button = btn;
+        row = tr;
+        break;
+      }
+    }
+  }
+  
+  // Fallback: find by categoryId in any button
+  if (!button) {
+    const allButtons = document.querySelectorAll(`button[onclick*="toggleCategoryStatus(${categoryId}"]`);
+    if (allButtons.length > 0) {
+      button = allButtons[0];
+      row = button.closest('tr');
+    }
+  }
+  
+  // If we have button but no row, try to find row
+  if (button && !row) {
+    row = button.closest('tr');
+  }
+  
+  if (!button) {
+    console.error('Button not found for categoryId:', categoryId);
+    Swal.fire({icon: 'error', title: 'Error', text: 'Button not found. Please refresh the page.'});
+    return;
+  }
+  
+  if (!row) {
+    console.error('Row not found for categoryId:', categoryId);
+    // Try to reload the table as fallback
+    loadCategories();
+    Swal.fire({icon: 'error', title: 'Error', text: 'Row not found. Table will be refreshed.'});
+    return;
+  }
+  
   const originalText = button.innerHTML;
   button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
   button.disabled = true;
@@ -848,21 +896,78 @@ function toggleCategoryStatus(categoryId, currentStatus) {
   })
   .then(res => {
     if (res.success) {
-      loadCategories();
-        Swal.fire({icon: 'success', title: 'Success!', text: `Category ${action}d successfully!`});
+      const isActive = newStatus === 'active';
+      
+      // Update the row cells directly - check if row still exists
+      if (row && row.parentNode) {
+        const statusCell = row.querySelector('td:nth-child(4)');
+        const actionCell = row.querySelector('td:nth-child(6)');
+        
+        if (statusCell) {
+          statusCell.innerHTML = `<span class="badge bg-${isActive ? 'success' : 'secondary'}">${newStatus}</span>`;
+        }
+        
+        if (actionCell) {
+          actionCell.innerHTML = `
+            <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleCategoryStatus(${categoryId}, '${newStatus}', event)">
+              <i class="fas fa-${isActive ? 'times' : 'check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          `;
+        }
+      }
+      
+      // Update DataTables row data if available
+      if (categoriesTable && row) {
+        try {
+          const dtRow = categoriesTable.row(row);
+          if (dtRow && dtRow.node()) {
+            const rowData = dtRow.data();
+            if (rowData && Array.isArray(rowData) && rowData.length >= 6) {
+              // Update the status in the row data
+              rowData[3] = `<span class="badge bg-${isActive ? 'success' : 'secondary'}">${newStatus}</span>`;
+              rowData[5] = `
+                <button class="btn btn-sm ${isActive ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleCategoryStatus(${categoryId}, '${newStatus}', event)">
+                  <i class="fas fa-${isActive ? 'times' : 'check'}"></i> ${isActive ? 'Deactivate' : 'Activate'}
+                </button>
+              `;
+              dtRow.data(rowData).draw(false);
+            } else {
+              // Fallback: just redraw
+              categoriesTable.draw(false);
+            }
+          } else {
+            // Fallback: redraw the table
+            categoriesTable.draw(false);
+          }
+        } catch (e) {
+          console.error('DataTables update error:', e);
+          // Fallback: reload the table
+          loadCategories();
+        }
+      } else {
+        // If no DataTables, just reload
+        loadCategories();
+      }
+      
+      Swal.fire({icon: 'success', title: 'Success!', text: `Category ${action}d successfully!`, timer: 2000, timerProgressBar: true});
     } else {
-        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update category status'});
+      // Restore button on error
+      if (button) {
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+      Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update category status'});
     }
   })
   .catch(error => {
     console.error('Error:', error);
-      Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
-  })
-  .finally(() => {
-    // Restore button state
-    button.innerHTML = originalText;
-    button.disabled = false;
-    });
+    // Restore button on error
+    if (button) {
+      button.innerHTML = originalText;
+      button.disabled = false;
+    }
+    Swal.fire({icon: 'error', title: 'Error', text: 'Network error: ' + error.message});
+  });
   });
 }
 

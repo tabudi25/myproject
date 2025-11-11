@@ -6,6 +6,7 @@
     <title>Staff Dashboard - Fluffy Planet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="/js/realtime.js"></script>
     <style>
         :root {
@@ -351,6 +352,33 @@
         .badge-confirmed { background: #d4edda; color: #155724; }
         .badge-completed { background: #d1ecf1; color: #0c5460; }
         .badge-cancelled { background: #f8d7da; color: #721c24; }
+
+        .dashboard-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -430,21 +458,13 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/staff/add-animal" class="sidebar-item">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animals</span>
-                </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Animals</span>
+                    <span>Manage Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Adoptions</span>
-                </a>
-                <a href="/staff/delivery-confirmations" class="sidebar-item">
-                    <i class="fas fa-truck"></i>
-                    <span>Deliveries</span>
                 </a>
                 <a href="/staff/payments" class="sidebar-item">
                     <i class="fas fa-credit-card"></i>
@@ -477,7 +497,7 @@
                                 <i class="fas fa-paw"></i>
                             </div>
                             <div class="stat-value"><?= $stats['available_animals'] ?></div>
-                            <div class="stat-label">Available Animals</div>
+                            <div class="stat-label">Available Pets</div>
                             <small class="text-success d-block mt-1">
                                 <i class="fas fa-check-circle me-1"></i>
                                 <?= $stats['total_animals'] ?> Total
@@ -522,7 +542,7 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-value"><?= $stats['pending_animals'] ?></div>
-                            <div class="stat-label">Awaiting Admin Approval</div>
+                            <div class="stat-label">Proposed Pets</div>
                             <small class="text-warning d-block mt-1">
                                 <i class="fas fa-exclamation-triangle me-1"></i>
                                 Needs Review
@@ -540,6 +560,27 @@
                                 <i class="fas fa-shipping-fast me-1"></i>
                                 In Transit
                             </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Overview -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="dashboard-section" onclick="window.location.href='/staff/sales-report'" style="cursor: pointer;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="section-title mb-0">
+                                    <i class="fas fa-chart-line"></i>
+                                    Sales Overview
+                                </h4>
+                                <select id="salesPeriod" class="form-select" style="width: 150px;">
+                                    <option value="day">Today</option>
+                                    <option value="week" selected>This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
+                            <canvas id="salesChart" style="max-height: 300px;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -721,6 +762,179 @@
 
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
+
+        // ==================== SALES CHART ====================
+        let currentChart = null;
+        
+        function initSalesChart(period = 'week') {
+            fetch('/staff/api/sales-data?period=' + period)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        createSalesChart(data.labels, data.sales, data.orders);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading sales data:', error);
+                    // Use sample data if API fails
+                    const labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'];
+                    const sales = [0, 0, 0, 0, 0, 0, 0];
+                    const orders = [0, 0, 0, 0, 0, 0, 0];
+                    createSalesChart(labels, sales, orders);
+                });
+        }
+        
+        // Handle period change
+        const salesPeriodSelect = document.getElementById('salesPeriod');
+        if (salesPeriodSelect) {
+            salesPeriodSelect.addEventListener('change', function() {
+                initSalesChart(this.value);
+            });
+        }
+
+        function createSalesChart(labels, salesData, ordersData) {
+            // Destroy previous chart if it exists
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const ctx = document.getElementById('salesChart');
+            if (!ctx) return;
+            
+            currentChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales (₱)',
+                            data: salesData,
+                            borderColor: '#ff6b35',
+                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#ff6b35',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Orders',
+                            data: ordersData,
+                            borderColor: '#f7931e',
+                            backgroundColor: 'rgba(247, 147, 30, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#f7931e',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        if (context.datasetIndex === 0) {
+                                            label += '₱' + context.parsed.y.toLocaleString();
+                                        } else {
+                                            label += context.parsed.y + ' orders';
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + value.toLocaleString();
+                                },
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value;
+                                },
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize sales chart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initSalesChart('week');
+        });
 
         // Auto-refresh adoption updates every 10 seconds
         setInterval(() => {

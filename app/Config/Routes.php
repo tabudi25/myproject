@@ -151,6 +151,12 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     $routes->post('/staff/api/orders/(:num)/update-status', 'StaffController::updateOrderStatus/$1');
     
     $routes->get('/staff/api/sales-report', 'StaffController::getSalesReport');
+    $routes->get('/staff/api/sales-stats', 'StaffController::getSalesStats');
+    $routes->get('/staff/api/sales-data', 'StaffController::getSalesData');
+    $routes->get('/staff/api/completed-deliveries', 'StaffController::getCompletedDeliveries');
+    $routes->get('/staff/api/my-deliveries', 'StaffController::getMyDeliveries');
+    $routes->get('/staff/api/available-orders', 'StaffController::getAvailableOrders');
+    $routes->post('/staff/api/order-details-delivery', 'StaffController::getOrderDetailsForDelivery');
     $routes->get('/staff/api/payments', 'StaffController::getPayments');
     $routes->put('/staff/api/payments/(:num)/update', 'StaffController::updatePaymentStatus/$1');
     

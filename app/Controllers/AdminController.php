@@ -617,7 +617,34 @@ class AdminController extends BaseController
             ->select('orders.*, users.name as customer_name, users.email as customer_email')
             ->join('users', 'users.id = orders.user_id')
             ->orderBy('orders.created_at', 'DESC')
+            ->asArray()
             ->findAll();
+
+        // Get order items (pets) for each order
+        $orderItemModel = new \App\Models\OrderItemModel();
+        foreach ($orders as &$order) {
+            $orderId = $order['id'];
+            $items = $orderItemModel->select('order_items.*, animals.name, animals.image, animals.gender, categories.name as category_name')
+                                    ->join('animals', 'animals.id = order_items.animal_id')
+                                    ->join('categories', 'categories.id = animals.category_id', 'left')
+                                    ->where('order_items.order_id', $orderId)
+                                    ->asArray()
+                                    ->findAll();
+            $order['items'] = $items;
+            // Create a formatted pet order string
+            if (!empty($items)) {
+                $petNames = array_map(function($item) {
+                    $name = $item['name'] ?? 'Unknown Pet';
+                    $qty = $item['quantity'] ?? 1;
+                    return $qty > 1 ? $name . ' (x' . $qty . ')' : $name;
+                }, $items);
+                $order['pet_order'] = implode(', ', $petNames);
+            } else {
+                $order['pet_order'] = 'N/A';
+            }
+            // Reset the query builder for next iteration
+            $orderItemModel->resetQuery();
+        }
 
         return $this->response->setJSON(['success' => true, 'data' => $orders]);
     }
@@ -667,6 +694,35 @@ class AdminController extends BaseController
         $updated = $db->table('orders')->where('id', $id)->update($updateData);
 
         if ($updated) {
+            // Get the previous order status to check if this is a status change
+            $previousStatus = is_array($order) ? ($order['status'] ?? 'pending') : $order->status;
+            
+            // Update animal status based on order status
+            $orderItems = $db->table('order_items')->where('order_id', $id)->get()->getResultArray();
+            $animalModel = new \App\Models\AnimalModel();
+            
+            // Mark as 'sold' when order is delivered (pets are actually delivered to customer)
+            if ($status === 'delivered' && $previousStatus !== 'delivered') {
+                foreach ($orderItems as $item) {
+                    // Update from 'reserved' to 'sold' when delivered
+                    $updateResult = $animalModel->update($item['animal_id'], ['status' => 'sold']);
+                    log_message('info', 'Updating animal ID ' . $item['animal_id'] . ' to sold status. Result: ' . ($updateResult ? 'success' : 'failed'));
+                }
+            }
+            // Mark as 'sold' when staff confirms the order (status changes to 'confirmed')
+            // This ensures pets are marked as sold when confirmed
+            elseif ($status === 'confirmed' && $previousStatus !== 'confirmed') {
+                foreach ($orderItems as $item) {
+                    $animalModel->update($item['animal_id'], ['status' => 'sold']);
+                }
+            }
+            // If order is cancelled, make animals available again
+            elseif ($status === 'cancelled') {
+                foreach ($orderItems as $item) {
+                    $animalModel->update($item['animal_id'], ['status' => 'available']);
+                }
+            }
+            
             // Send notification to customer about status update
             $this->sendOrderStatusNotification($id, $status);
             return $this->response->setJSON(['success' => true, 'message' => 'Order status updated successfully']);
@@ -743,9 +799,33 @@ class AdminController extends BaseController
         }
 
         $period = $this->request->getGet('period') ?: 'week';
+        // Map 'today' to 'day' for consistency
+        if ($period === 'today') {
+            $period = 'day';
+        }
+        
         $labels = [];
         $sales = [];
         $orders = [];
+
+        // Calculate date range for category sales
+        $endDate = date('Y-m-d');
+        switch ($period) {
+            case 'day':
+                $startDate = date('Y-m-d');
+                break;
+            case 'week':
+                $startDate = date('Y-m-d', strtotime('-7 days'));
+                break;
+            case 'month':
+                $startDate = date('Y-m-01');
+                break;
+            case 'year':
+                $startDate = date('Y-01-01');
+                break;
+            default:
+                $startDate = date('Y-m-01');
+        }
 
         switch ($period) {
             case 'day':
@@ -810,7 +890,7 @@ class AdminController extends BaseController
                         ->selectSum('total_amount')
                         ->where('DATE(created_at) >=', $weekStart)
                         ->where('DATE(created_at) <=', $weekEnd)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->first();
                     
                     $sales[] = (float)($weekSales['total_amount'] ?? 0);
@@ -818,7 +898,7 @@ class AdminController extends BaseController
                     $weekOrders = $this->orderModel
                         ->where('DATE(created_at) >=', $weekStart)
                         ->where('DATE(created_at) <=', $weekEnd)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->countAllResults();
                     
                     $orders[] = $weekOrders;
@@ -834,14 +914,14 @@ class AdminController extends BaseController
                     $monthSales = $this->orderModel
                         ->selectSum('total_amount')
                         ->where('DATE_FORMAT(created_at, "%Y-%m")', $month)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->first();
                     
                     $sales[] = (float)($monthSales['total_amount'] ?? 0);
                     
                     $monthOrders = $this->orderModel
                         ->where('DATE_FORMAT(created_at, "%Y-%m")', $month)
-                        ->where('status !=', 'cancelled')
+                        ->where('status', 'delivered')
                         ->countAllResults();
                     
                     $orders[] = $monthOrders;
@@ -849,12 +929,49 @@ class AdminController extends BaseController
                 break;
         }
 
+        // Get sales by category for the selected period
+        // Use a fresh query builder instance
+        $db = \Config\Database::connect();
+        $builder = $db->table('orders');
+        $categorySales = $builder
+            ->select('categories.name as category_name, SUM(order_items.price * order_items.quantity) as total_sales')
+            ->join('order_items', 'order_items.order_id = orders.id', 'inner')
+            ->join('animals', 'animals.id = order_items.animal_id', 'inner')
+            ->join('categories', 'categories.id = animals.category_id', 'left')
+            ->where('orders.status', 'delivered')
+            ->where('orders.created_at >=', $startDate)
+            ->where('orders.created_at <=', $endDate . ' 23:59:59')
+            ->groupBy('categories.id', 'categories.name')
+            ->orderBy('total_sales', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $categoryLabels = [];
+        $categoryData = [];
+        $categoryColors = ['#ff6b35', '#f7931e', '#2c3e50', '#28a745', '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14'];
+        
+        if ($categorySales && is_array($categorySales)) {
+            foreach ($categorySales as $index => $catSale) {
+                $catName = $catSale['category_name'] ?? 'Uncategorized';
+                $catSales = (float)($catSale['total_sales'] ?? 0);
+                // Only add if there's actual sales data
+                if ($catSales > 0) {
+                    $categoryLabels[] = $catName;
+                    $categoryData[] = $catSales;
+                }
+            }
+        }
+
+        // Ensure we always return arrays, even if empty
         return $this->response->setJSON([
             'success' => true,
-            'labels' => $labels,
-            'sales' => $sales,
-            'orders' => $orders,
-            'period' => $period
+            'labels' => $labels ?? [],
+            'sales' => $sales ?? [],
+            'orders' => $orders ?? [],
+            'period' => $period,
+            'categoryLabels' => $categoryLabels,
+            'categoryData' => $categoryData,
+            'categoryColors' => count($categoryLabels) > 0 ? array_slice($categoryColors, 0, count($categoryLabels)) : $categoryColors
         ]);
     }
 
@@ -1279,7 +1396,21 @@ class AdminController extends BaseController
             ])) {
                 // Update order status to delivered
                 $orderModel = new \App\Models\OrderModel();
+                $order = $orderModel->find($confirmation['order_id']);
+                $previousStatus = is_array($order) ? ($order['status'] ?? 'pending') : $order->status;
+                
                 $orderModel->update($confirmation['order_id'], ['status' => 'delivered']);
+                
+                // Update animal status from 'reserved' to 'sold' when order is delivered
+                if ($previousStatus !== 'delivered') {
+                    $db = \Config\Database::connect();
+                    $orderItems = $db->table('order_items')->where('order_id', $confirmation['order_id'])->get()->getResultArray();
+                    $animalModel = new \App\Models\AnimalModel();
+                    foreach ($orderItems as $item) {
+                        $updateResult = $animalModel->update($item['animal_id'], ['status' => 'sold']);
+                        log_message('info', 'Updating animal ID ' . $item['animal_id'] . ' to sold status from delivery confirmation approval. Result: ' . ($updateResult ? 'success' : 'failed'));
+                    }
+                }
                 
                 return $this->response->setJSON(['success' => true, 'message' => 'Delivery confirmation approved successfully']);
             } else {

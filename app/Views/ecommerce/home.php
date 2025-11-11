@@ -274,6 +274,115 @@
             100% { transform: scale(1); }
         }
 
+        /* Notification Dropdown Styles */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 400px;
+            max-height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-dropdown-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-dropdown-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-dropdown-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .notification-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-dropdown-item.unread {
+            background: #e3f2fd;
+        }
+
+        .notification-dropdown-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .notification-dropdown-title {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .notification-dropdown-message {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .notification-dropdown-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+        }
+
+        .notification-dropdown-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .notification-dropdown-footer {
+            padding: 10px 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .notification-icon-wrapper {
+            position: relative;
+        }
+
         .alert {
             border-radius: 10px;
             border: none;
@@ -334,11 +443,29 @@
                                 <i class="fas fa-box me-1"></i>Orders
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="/notifications">
-                                <i class="fas fa-bell me-1"></i>Notifications
+                        <li class="nav-item notification-icon-wrapper">
+                            <a class="nav-link position-relative" href="#" onclick="toggleNotificationDropdown(event)" title="Notifications">
+                                <i class="fas fa-bell"></i>
                                 <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                             </a>
+                            <!-- Notification Dropdown -->
+                            <div class="notification-dropdown" id="notificationDropdown">
+                                <div class="notification-dropdown-header">
+                                    <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                                    <button class="btn btn-sm btn-light" onclick="markAllNotificationsAsRead()">Mark all as read</button>
+                                </div>
+                                <div class="notification-dropdown-body" id="notificationDropdownBody">
+                                    <div class="notification-dropdown-empty">
+                                        <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                                        <p>No notifications yet</p>
+                                    </div>
+                                </div>
+                                <div class="notification-dropdown-footer">
+                                    <a href="/notifications" class="text-primary text-decoration-none">
+                                        <small>View All Notifications</small>
+                                    </a>
+                                </div>
+                            </div>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -448,7 +575,18 @@
                                         <i class="fas fa-eye me-1"></i>View
                                     </a>
                                 </div>
-                                <?php if ($animal['status'] === 'sold'): ?>
+                                <?php if ($animal['status'] === 'reserved'): ?>
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <?php if (isset($userReservedAnimals) && in_array($animal['id'], $userReservedAnimals)): ?>
+                                                Reserved - Awaiting Confirmation
+                                            <?php else: ?>
+                                                Reserved
+                                            <?php endif; ?>
+                                        </span>
+                                    </div>
+                                <?php elseif ($animal['status'] === 'sold'): ?>
                                     <div class="mt-2">
                                         <span class="badge bg-danger">
                                             <i class="fas fa-times-circle me-1"></i>Sold
@@ -495,7 +633,18 @@
                                         <i class="fas fa-eye me-1"></i>View
                                     </a>
                                 </div>
-                                <?php if ($animal['status'] === 'sold'): ?>
+                                <?php if ($animal['status'] === 'reserved'): ?>
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <?php if (isset($userReservedAnimals) && in_array($animal['id'], $userReservedAnimals)): ?>
+                                                Reserved - Awaiting Confirmation
+                                            <?php else: ?>
+                                                Reserved
+                                            <?php endif; ?>
+                                        </span>
+                                    </div>
+                                <?php elseif ($animal['status'] === 'sold'): ?>
                                     <div class="mt-2">
                                         <span class="badge bg-danger">
                                             <i class="fas fa-times-circle me-1"></i>Sold
@@ -581,7 +730,7 @@
         // Add to cart functionality
         function addToCart(animalId) {
             <?php if (!$isLoggedIn): ?>
-                Swal.fire({icon: 'warning', title: 'Login Required', text: 'Please login to add items to cart'});
+                Swal.fire({icon: 'warning', title: 'Login Required', text: 'Please login to add pets to cart'});
                 window.location.href = '/login';
                 return;
             <?php endif; ?>
@@ -709,6 +858,134 @@
             if (days < 7) return `${days}d ago`;
             
             return date.toLocaleDateString();
+        }
+
+        // Toggle notification dropdown
+        function toggleNotificationDropdown(event) {
+            event.preventDefault();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.classList.contains('show')) {
+                loadNotifications();
+            }
+        }
+
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const iconWrapper = document.querySelector('.notification-icon-wrapper');
+            
+            if (dropdown && iconWrapper && !iconWrapper.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Load notifications for dropdown
+        function loadNotifications() {
+            fetch('/api/notifications/recent?limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayNotifications(data.notifications || []);
+                        updateNotificationBadge();
+                    }
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+        }
+
+        // Display notifications in dropdown
+        function displayNotifications(notifications) {
+            const body = document.getElementById('notificationDropdownBody');
+            
+            if (!notifications || notifications.length === 0) {
+                body.innerHTML = `
+                    <div class="notification-dropdown-empty">
+                        <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = notifications.map(notif => `
+                <div class="notification-dropdown-item ${notif.is_read ? '' : 'unread'}" onclick="markNotificationAsRead(${notif.id})">
+                    <div class="notification-dropdown-title">${escapeHtml(notif.title)}</div>
+                    <div class="notification-dropdown-message">${escapeHtml(notif.message)}</div>
+                    <div class="notification-dropdown-time">
+                        <i class="fas fa-clock me-1"></i>${timeAgo(notif.created_at)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mark notification as read
+        function markNotificationAsRead(notificationId) {
+            fetch(`/notifications/mark-read/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    loadRecentNotifications(); // Also update homepage notifications
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead() {
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    loadRecentNotifications(); // Also update homepage notifications
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Helper: Time ago function
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (let [name, seconds_in] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / seconds_in);
+                if (interval >= 1) {
+                    return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
+                }
+            }
+            
+            return 'Just now';
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Real-time notification updates

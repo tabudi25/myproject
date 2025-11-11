@@ -37,32 +37,8 @@ class DeliveryController extends BaseController
             return redirect()->to('/login')->with('msg', 'Staff access required');
         }
 
-        try {
-            $staffId = session()->get('user_id');
-            log_message('info', 'Loading deliveries for staff ID: ' . $staffId);
-            
-            // Check if staff ID is valid
-            if (!$staffId) {
-                log_message('error', 'No staff ID found in session');
-                return redirect()->to('/staff-dashboard')
-                    ->with('msg', 'Session error. Please login again.');
-            }
-            
-            $deliveries = $this->deliveryModel->getDeliveriesByStaff($staffId);
-            log_message('info', 'Found ' . count($deliveries) . ' deliveries for staff');
-            
-            $data = [
-                'title' => 'Delivery Confirmations',
-                'deliveries' => $deliveries
-            ];
-
-            return view('staff/delivery_confirmations', $data);
-        } catch (\Exception $e) {
-            log_message('error', 'Delivery index error: ' . $e->getMessage());
-            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
-            return redirect()->to('/staff-dashboard')
-                ->with('msg', 'Error loading delivery confirmations. Please try again.');
-        }
+        // Redirect to sales report with delivery tab
+        return redirect()->to('/staff/sales-report?tab=delivery');
     }
 
     /**
@@ -84,8 +60,7 @@ class DeliveryController extends BaseController
             return view('staff/delivery_form', $data);
         } catch (\Exception $e) {
             log_message('error', 'Delivery create error: ' . $e->getMessage());
-            return redirect()->to('/staff/delivery-confirmations')
-                ->with('msg', 'Error loading delivery form. Please try again.');
+            return redirect()->to('/staff/sales-report?tab=delivery&msg=' . urlencode('Error loading delivery form. Please try again.'));
         }
     }
 
@@ -106,10 +81,8 @@ class DeliveryController extends BaseController
             
             $rules = [
                 'order_id' => 'required|integer',
-                'delivery_photo' => 'uploaded[delivery_photo]|max_size[delivery_photo,5120]|ext_in[delivery_photo,jpg,jpeg,png,gif]',
-                'payment_photo' => 'uploaded[payment_photo]|max_size[payment_photo,5120]|ext_in[payment_photo,jpg,jpeg,png,gif]',
                 'delivery_notes' => 'permit_empty|string',
-                'delivery_address' => 'required|string',
+                'delivery_address' => 'permit_empty|string',
                 'payment_amount' => 'required|decimal',
                 'payment_method' => 'required|string'
             ];
@@ -145,62 +118,118 @@ class DeliveryController extends BaseController
             
             $animalId = $orderItems[0]['animal_id']; // Get the first animal
 
-            // Upload delivery photo
-            $deliveryPhoto = $this->request->getFile('delivery_photo');
-            $deliveryPhotoName = null;
-            if ($deliveryPhoto && $deliveryPhoto->isValid() && !$deliveryPhoto->hasMoved()) {
-                $deliveryPhotoName = $deliveryPhoto->getRandomName();
-                if (!$deliveryPhoto->move(ROOTPATH . 'public/uploads/deliveries', $deliveryPhotoName)) {
-                    return redirect()->back()->with('msg', 'Failed to upload delivery photo');
-                }
+            // Get delivery address - use order's delivery address if not provided
+            $deliveryAddress = $this->request->getPost('delivery_address');
+            if (empty($deliveryAddress) && !empty($order['delivery_address'])) {
+                $deliveryAddress = $order['delivery_address'];
             }
 
-            // Upload payment photo
-            $paymentPhoto = $this->request->getFile('payment_photo');
-            $paymentPhotoName = null;
-            if ($paymentPhoto && $paymentPhoto->isValid() && !$paymentPhoto->hasMoved()) {
-                $paymentPhotoName = $paymentPhoto->getRandomName();
-                if (!$paymentPhoto->move(ROOTPATH . 'public/uploads/payments', $paymentPhotoName)) {
-                    return redirect()->back()->with('msg', 'Failed to upload payment photo');
+            // Get payment amount and method
+            $paymentAmount = $this->request->getPost('payment_amount');
+            $paymentMethod = $this->request->getPost('payment_method');
+            
+            // Validate payment amount and method
+            if (empty($paymentAmount) || empty($paymentMethod)) {
+                $isAjax = $this->request->isAJAX() || $this->request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
+                if ($isAjax) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Payment amount and payment method are required.'
+                    ]);
                 }
+                return redirect()->back()->with('msg', 'Payment amount and payment method are required.');
             }
 
             // Create delivery confirmation
             $data = [
-                'order_id' => $this->request->getPost('order_id'),
-                'staff_id' => session()->get('user_id'),
-                'customer_id' => $order['user_id'],
-                'animal_id' => $animalId, // Use the automatically retrieved animal_id
-                'delivery_photo' => $deliveryPhotoName,
-                'payment_photo' => $paymentPhotoName,
-                'delivery_notes' => $this->request->getPost('delivery_notes'),
-                'delivery_address' => $this->request->getPost('delivery_address'),
+                'order_id' => (int)$this->request->getPost('order_id'),
+                'staff_id' => (int)session()->get('user_id'),
+                'customer_id' => (int)$order['user_id'],
+                'animal_id' => (int)$animalId,
+                'delivery_photo' => '', // Empty string instead of null
+                'payment_photo' => '', // Empty string instead of null
+                'delivery_notes' => $this->request->getPost('delivery_notes') ?: '',
+                'delivery_address' => $deliveryAddress ?: '',
                 'delivery_date' => date('Y-m-d H:i:s'),
-                'payment_amount' => $this->request->getPost('payment_amount'),
-                'payment_method' => $this->request->getPost('payment_method'),
+                'payment_amount' => (float)$paymentAmount,
+                'payment_method' => $paymentMethod,
                 'status' => 'pending'
             ];
 
             log_message('info', 'Attempting to insert delivery data: ' . json_encode($data));
             
-            if ($deliveryId = $this->deliveryModel->insert($data)) {
-                log_message('info', 'Delivery confirmation inserted successfully');
+            // Check if this is an AJAX request
+            $isAjax = $this->request->isAJAX() || $this->request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
+            
+            // Use direct database insert to bypass model validation issues
+            $db = \Config\Database::connect();
+            $builder = $db->table('delivery_confirmations');
+            
+            try {
+                if ($builder->insert($data)) {
+                    $deliveryId = $db->insertID();
+                    log_message('info', 'Delivery confirmation inserted successfully with ID: ' . $deliveryId);
+                    
+                    // Update order status to 'processing' when delivery confirmation is submitted
+                    // This indicates the order is being processed/delivered
+                    $orderUpdateData = [
+                        'status' => 'processing',
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    // If payment was received, also update payment status
+                    if (!empty($paymentAmount) && (float)$paymentAmount > 0) {
+                        $orderUpdateData['payment_status'] = 'paid';
+                    }
+                    
+                    $db->table('orders')
+                        ->where('id', $this->request->getPost('order_id'))
+                        ->update($orderUpdateData);
+                    
+                    log_message('info', 'Order status updated to processing for order ID: ' . $this->request->getPost('order_id'));
+                    
+                    // Send notification to customer
+                    $this->sendDeliveryReadyNotification($order['user_id'], $this->request->getPost('order_id'), $deliveryId, $animalId);
+                    
+                    if ($isAjax) {
+                        return $this->response->setJSON([
+                            'success' => true,
+                            'message' => 'Delivery confirmation submitted successfully! Order status updated. Customer has been notified.'
+                        ]);
+                    }
+                    
+                    return redirect()->to('/staff/sales-report?tab=delivery&delivery_created=1&msg=' . urlencode('Delivery confirmation submitted successfully! Customer has been notified.'));
+                } else {
+                    throw new \Exception('Failed to insert delivery confirmation');
+                }
+            } catch (\Exception $dbError) {
+                log_message('error', 'Delivery insertion failed: ' . $dbError->getMessage());
                 
-                // Send notification to customer
-                $this->sendDeliveryReadyNotification($order['user_id'], $this->request->getPost('order_id'), $deliveryId, $animalId);
+                if ($isAjax) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Failed to submit delivery confirmation: ' . $dbError->getMessage()
+                    ]);
+                }
                 
-                return redirect()->to('/staff/delivery-confirmations')
-                    ->with('msg', 'Delivery confirmation submitted successfully! Customer has been notified.');
-            } else {
-                $errors = $this->deliveryModel->errors();
-                log_message('error', 'Delivery insertion failed: ' . json_encode($errors));
                 return redirect()->back()
                     ->withInput()
-                    ->with('msg', 'Failed to submit delivery confirmation: ' . implode(', ', $errors));
+                    ->with('msg', 'Failed to submit delivery confirmation: ' . $dbError->getMessage());
             }
             
         } catch (\Exception $e) {
             log_message('error', 'Delivery store error: ' . $e->getMessage());
+            
+            // Check if this is an AJAX request
+            $isAjax = $this->request->isAJAX() || $this->request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
+            
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error submitting delivery confirmation: ' . $e->getMessage()
+                ]);
+            }
+            
             return redirect()->back()
                 ->withInput()
                 ->with('msg', 'Error submitting delivery confirmation: ' . $e->getMessage());

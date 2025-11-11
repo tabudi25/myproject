@@ -70,38 +70,6 @@
             font-size: 1.2rem;
         }
 
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quantity-btn {
-            width: 35px;
-            height: 35px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .quantity-btn:hover {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .quantity-input {
-            width: 60px;
-            height: 35px;
-            border: 1px solid #ddd;
-            text-align: center;
-            border-radius: 8px;
-        }
 
         .remove-btn {
             color: #dc3545;
@@ -207,6 +175,115 @@
             justify-content: center;
         }
 
+        /* Notification Dropdown Styles */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 400px;
+            max-height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-dropdown-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-dropdown-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-dropdown-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .notification-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-dropdown-item.unread {
+            background: #e3f2fd;
+        }
+
+        .notification-dropdown-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .notification-dropdown-title {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .notification-dropdown-message {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .notification-dropdown-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+        }
+
+        .notification-dropdown-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .notification-dropdown-footer {
+            padding: 10px 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .notification-icon-wrapper {
+            position: relative;
+        }
+
         @media (max-width: 768px) {
             .cart-container {
                 padding: 20px;
@@ -258,11 +335,29 @@
                             <i class="fas fa-box me-1"></i>Orders
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="/notifications">
-                            <i class="fas fa-bell me-1"></i>Notifications
+                    <li class="nav-item notification-icon-wrapper">
+                        <a class="nav-link position-relative" href="#" onclick="toggleNotificationDropdown(event)" title="Notifications">
+                            <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                         </a>
+                        <!-- Notification Dropdown -->
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-dropdown-header">
+                                <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                                <button class="btn btn-sm btn-light" onclick="markAllNotificationsAsRead()">Mark all as read</button>
+                            </div>
+                            <div class="notification-dropdown-body" id="notificationDropdownBody">
+                                <div class="notification-dropdown-empty">
+                                    <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                                    <p>No notifications yet</p>
+                                </div>
+                            </div>
+                            <div class="notification-dropdown-footer">
+                                <a href="/notifications" class="text-primary text-decoration-none">
+                                    <small>View All Notifications</small>
+                                </a>
+                            </div>
+                        </div>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -314,7 +409,7 @@
                     <div class="cart-container">
                         <h2 class="mb-4">
                             <i class="fas fa-shopping-cart me-2 text-primary"></i>
-                            Your Shopping Cart (<?= count($cartItems) ?> items)
+                            Your Shopping Cart (<?= count($cartItems) ?> <?= count($cartItems) == 1 ? 'pet' : 'pets' ?>)
                         </h2>
                         
                         <?php foreach ($cartItems as $item): ?>
@@ -326,7 +421,7 @@
                                     </div>
                                     
                                     <!-- Product Info -->
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="item-name"><?= esc($item['name']) ?></div>
                                         <div class="item-details">
                                             <i class="fas fa-tag me-1"></i><?= esc($item['category_name']) ?><br>
@@ -336,23 +431,8 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Quantity Controls -->
-                                    <div class="col-md-3">
-                                        <form method="POST" action="/update-cart" class="quantity-controls">
-                                            <input type="hidden" name="cart_id" value="<?= $item['id'] ?>">
-                                            <button type="button" class="quantity-btn" onclick="updateQuantity(<?= $item['id'] ?>, -1)">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <input type="number" name="quantity" value="<?= $item['quantity'] ?>" min="1" max="1" class="quantity-input" id="qty-<?= $item['id'] ?>" readonly>
-                                            <button type="button" class="quantity-btn" onclick="updateQuantity(<?= $item['id'] ?>, 1)">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </form>
-                                        <small class="text-muted">Max: 1 per pet</small>
-                                    </div>
-                                    
                                     <!-- Price and Actions -->
-                                    <div class="col-md-3 text-end">
+                                    <div class="col-md-4 text-end">
                                         <div class="item-price">₱<?= number_format($item['price'] * $item['quantity'], 2) ?></div>
                                         <a href="/remove-from-cart/<?= $item['id'] ?>" class="remove-btn" onclick="return removeFromCart(event, <?= $item['id'] ?>)">
                                             <i class="fas fa-trash me-1"></i>Remove
@@ -372,7 +452,7 @@
                         </h4>
                         
                         <div class="summary-item">
-                            <span>Subtotal (<?= count($cartItems) ?> items)</span>
+                            <span>Subtotal (<?= count($cartItems) ?> <?= count($cartItems) == 1 ? 'pet' : 'pets' ?>)</span>
                             <span>₱<?= number_format($total, 2) ?></span>
                         </div>
                         
@@ -421,40 +501,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function updateQuantity(cartId, delta) {
-            const input = document.getElementById('qty-' + cartId);
-            let newValue = parseInt(input.value) + delta;
-            
-            // For pets, quantity is always 1 (each pet is unique)
-            if (newValue < 1) newValue = 1;
-            if (newValue > 1) newValue = 1;
-            
-            if (newValue !== parseInt(input.value)) {
-                input.value = newValue;
-                
-                // Submit the form to update quantity
-                const form = input.closest('form');
-                const formData = new FormData(form);
-                
-                fetch('/update-cart', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Reload the page to show updated cart
-                        window.location.reload();
-                    } else {
-                        Swal.fire({icon: 'error', title: 'Error', text: 'Failed to update cart. Please try again.'});
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({icon: 'error', title: 'Error', text: 'An error occurred. Please try again.'});
-                });
-            }
-        }
-
         function removeFromCart(event, cartId) {
             event.preventDefault();
             Swal.fire({
@@ -473,29 +519,11 @@
             return false;
         }
 
-        // Auto-update cart when quantity changes
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.addEventListener('change', function() {
-                const form = this.closest('form');
-                const formData = new FormData(form);
-                
-                fetch('/update-cart', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                });
-            });
-        });
-
         // Check for unavailable items
         document.addEventListener('DOMContentLoaded', function() {
             const unavailableItems = document.querySelectorAll('.badge.bg-danger');
             if (unavailableItems.length > 0) {
-                showAlert('warning', 'Some items in your cart are no longer available. Please review your cart.');
+                showAlert('warning', 'Some pets in your cart are no longer available. Please review your cart.');
             }
         });
 
@@ -517,6 +545,132 @@
                     bsAlert.close();
                 }
             }, 5000);
+        }
+
+        // Toggle notification dropdown
+        function toggleNotificationDropdown(event) {
+            event.preventDefault();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.classList.contains('show')) {
+                loadNotifications();
+            }
+        }
+
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const iconWrapper = document.querySelector('.notification-icon-wrapper');
+            
+            if (dropdown && iconWrapper && !iconWrapper.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Load notifications
+        function loadNotifications() {
+            fetch('/api/notifications/recent?limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayNotifications(data.notifications || []);
+                        updateNotificationBadge();
+                    }
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+        }
+
+        // Display notifications in dropdown
+        function displayNotifications(notifications) {
+            const body = document.getElementById('notificationDropdownBody');
+            
+            if (!notifications || notifications.length === 0) {
+                body.innerHTML = `
+                    <div class="notification-dropdown-empty">
+                        <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = notifications.map(notif => `
+                <div class="notification-dropdown-item ${notif.is_read ? '' : 'unread'}" onclick="markNotificationAsRead(${notif.id})">
+                    <div class="notification-dropdown-title">${escapeHtml(notif.title)}</div>
+                    <div class="notification-dropdown-message">${escapeHtml(notif.message)}</div>
+                    <div class="notification-dropdown-time">
+                        <i class="fas fa-clock me-1"></i>${timeAgo(notif.created_at)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mark notification as read
+        function markNotificationAsRead(notificationId) {
+            fetch(`/notifications/mark-read/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead() {
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Helper: Time ago function
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (let [name, seconds_in] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / seconds_in);
+                if (interval >= 1) {
+                    return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
+                }
+            }
+            
+            return 'Just now';
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Real-time notification updates

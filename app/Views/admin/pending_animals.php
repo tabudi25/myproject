@@ -121,12 +121,6 @@
                         <span class="menu-text">Sales Report</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/">
-                        <i class="fas fa-globe"></i>
-                        <span class="menu-text">Visit Site</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
@@ -403,6 +397,33 @@
             });
         });
 
+        // Helper function to safely format dates
+        function formatDate(dateString) {
+            if (!dateString || dateString === '0000-00-00 00:00:00' || dateString === '1970-01-01 00:00:00' || dateString === null || dateString === undefined) {
+                return 'N/A';
+            }
+            try {
+                const date = new Date(dateString);
+                // Check if date is valid
+                if (isNaN(date.getTime())) {
+                    return 'N/A';
+                }
+                // Only return N/A if date is exactly 1970-01-01 00:00:00 (Unix epoch from null/invalid dates)
+                // Allow other 1970 dates if they're valid
+                if (date.getFullYear() === 1970 && date.getMonth() === 0 && date.getDate() === 1 && 
+                    date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
+                    return 'N/A';
+                }
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            } catch (e) {
+                return 'N/A';
+            }
+        }
+
         function loadPendingAnimals() {
             fetch('/fluffy-admin/api/pending-animals')
                 .then(response => response.json())
@@ -470,7 +491,7 @@
                                     ${animal.status.charAt(0).toUpperCase() + animal.status.slice(1)}
                                 </span>
                                 <p class="small text-muted mt-2 mb-0">
-                                    ${new Date(animal.created_at).toLocaleDateString()}
+                                    ${formatDate(animal.created_at)}
                                 </p>
                             </div>
                             <div class="col-md-2 text-end">
@@ -481,7 +502,7 @@
                                 ` : `
                                     <p class="small text-muted mb-0">
                                         ${animal.approved_by_name ? `Reviewed by: ${animal.approved_by_name}` : ''}
-                                        ${animal.approved_at ? `<br>On: ${new Date(animal.approved_at).toLocaleDateString()}` : ''}
+                                        ${animal.approved_at ? `<br>On: ${formatDate(animal.approved_at)}` : ''}
                                     </p>
                                 `}
                             </div>

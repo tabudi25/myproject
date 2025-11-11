@@ -110,21 +110,13 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/staff/add-animal" class="sidebar-item">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animals</span>
-                </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Animals</span>
+                    <span>Manage Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item active">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Adoptions</span>
-                </a>
-                <a href="/staff/delivery-confirmations" class="sidebar-item">
-                    <i class="fas fa-truck"></i>
-                    <span>Deliveries</span>
                 </a>
                 <a href="/staff/payments" class="sidebar-item">
                     <i class="fas fa-credit-card"></i>
@@ -147,7 +139,9 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Adoption #</th>
+                                    <th>Adoption ID</th>
+                                    <th>Pet Name</th>
+                                    <th>Category</th>
                                     <th>Customer</th>
                                     <th>Total</th>
                                     <th>Delivery Type</th>
@@ -160,7 +154,7 @@
                             </thead>
                             <tbody id="ordersTableBody">
                                 <tr>
-                                    <td colspan="9" class="text-center">
+                                    <td colspan="11" class="text-center">
                                         <div class="spinner-border text-primary" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
@@ -198,13 +192,13 @@
                         renderAdoptions(data.data);
                     } else {
                         document.getElementById('ordersTableBody').innerHTML = 
-                            '<tr><td colspan="9" class="text-center text-danger">Failed to load adoptions</td></tr>';
+                            '<tr><td colspan="11" class="text-center text-danger">Failed to load adoptions</td></tr>';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('ordersTableBody').innerHTML = 
-                        '<tr><td colspan="9" class="text-center text-danger">Network error</td></tr>';
+                        '<tr><td colspan="11" class="text-center text-danger">Network error</td></tr>';
                 });
         }
 
@@ -212,13 +206,19 @@
             const tbody = document.getElementById('ordersTableBody');
             
             if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No adoptions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center">No adoptions found</td></tr>';
                 return;
             }
 
             tbody.innerHTML = orders.map(order => `
                 <tr>
                     <td><strong>#${order.order_number}</strong></td>
+                    <td>
+                        <strong>${order.pet_name || 'N/A'}</strong>
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-white">${order.pet_category || 'N/A'}</span>
+                    </td>
                     <td>
                         ${order.customer_name}<br>
                         <small class="text-muted">${order.customer_email}</small>
@@ -247,11 +247,8 @@
                                 </button>
                             ` : ''}
                             ${order.status === 'shipped' ? `
-                                <button class="btn btn-sm btn-primary" onclick="markDelivered(${order.id})">
-                                    <i class="fas fa-truck"></i> Delivered
-                                </button>
-                                <button class="btn btn-sm btn-success" onclick="confirmAdoption(${order.id})">
-                                    <i class="fas fa-check-circle"></i> Confirm Delivery
+                                <button class="btn btn-sm btn-success" onclick="markDelivered(${order.id})">
+                                    <i class="fas fa-check-circle"></i> Mark as Delivered
                                 </button>
                             ` : ''}
                         </div>
@@ -498,7 +495,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="deliveryConfirmationForm" enctype="multipart/form-data">
+                    <form id="deliveryConfirmationForm">
                         <input type="hidden" id="confirmationOrderId" name="order_id">
                         
                         <!-- Adoption Details Section -->
@@ -533,21 +530,6 @@
                                     <option value="paypal">PayPal</option>
                                     <option value="other">Other</option>
                                 </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="confirmationDeliveryPhoto" class="form-label">Delivery Photo <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" id="confirmationDeliveryPhoto" name="delivery_photo" accept="image/*" required>
-                                <div class="form-text">Take a photo of the animal being delivered to the customer</div>
-                                <div id="confirmationDeliveryPhotoPreview"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="confirmationPaymentPhoto" class="form-label">Payment Proof Photo <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" id="confirmationPaymentPhoto" name="payment_photo" accept="image/*" required>
-                                <div class="form-text">Photo of payment receipt or transaction proof</div>
-                                <div id="confirmationPaymentPhotoPreview"></div>
                             </div>
                         </div>
                         
@@ -616,7 +598,7 @@
                 deliveryNotes.placeholder = 'Any additional notes about the pickup';
             } else {
                 deliveryAddressField.style.display = 'block';
-                deliveryAddress.required = true;
+                deliveryAddress.required = false; // Not required anymore
                 notesLabel.textContent = 'Delivery Notes';
                 deliveryNotes.placeholder = 'Any additional notes about the delivery';
                 if (order.delivery_address) {
@@ -626,15 +608,43 @@
                 }
             }
             
+            // Format delivery type
+            const deliveryTypeText = order.delivery_type === 'pickup' ? 'Store Pickup' : 'Home Delivery';
+            
+            // Format payment method
+            const paymentMethodMap = {
+                'cod': 'Cash on Delivery',
+                'gcash': 'GCash',
+                'bank_transfer': 'Bank Transfer',
+                'paypal': 'PayPal',
+                'other': 'Other'
+            };
+            const paymentMethodText = paymentMethodMap[order.payment_method] || order.payment_method || 'N/A';
+            
+            // Pre-populate payment method field if available
+            const paymentMethodSelect = document.getElementById('confirmationPaymentMethod');
+            if (paymentMethodSelect && order.payment_method) {
+                paymentMethodSelect.value = order.payment_method;
+            }
+            
+            // Pre-populate payment amount with order total
+            const paymentAmountInput = document.getElementById('confirmationPaymentAmount');
+            if (paymentAmountInput && order.total_amount) {
+                paymentAmountInput.value = parseFloat(order.total_amount).toFixed(2);
+            }
+            
             let html = `
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>Adoption Number:</strong> #${order.order_number || 'N/A'}</p>
                         <p><strong>Customer:</strong> ${order.customer_name || 'Customer Name Not Available'}</p>
+                        <p><strong>Customer Email:</strong> ${order.customer_email || 'N/A'}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Total Amount:</strong> ₱${parseFloat(order.total_amount || 0).toLocaleString()}</p>
-                        <p><strong>Delivery Type:</strong> ${order.delivery_type}</p>
+                        <p><strong>Total Amount:</strong> ₱${parseFloat(order.total_amount || 0).toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                        <p><strong>Delivery Type:</strong> <span class="badge bg-primary">${deliveryTypeText}</span></p>
+                        <p><strong>Customer's Payment Method:</strong> <span class="badge bg-info">${paymentMethodText}</span></p>
+                        ${order.delivery_address ? `<p><strong>Delivery Address:</strong> ${order.delivery_address}</p>` : ''}
                     </div>
                 </div>
                 <div class="mt-3">
@@ -644,7 +654,7 @@
                             <img src="/uploads/${items[0].animal_image}" class="me-3" alt="${items[0].animal_name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                             <div>
                                 <h6 class="mb-1">${items[0].animal_name}</h6>
-                                <p class="mb-0 text-muted">₱${parseFloat(items[0].price).toLocaleString()}</p>
+                                <p class="mb-0 text-muted">₱${parseFloat(items[0].price).toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
                                 <small class="text-success"><i class="fas fa-check-circle me-1"></i>Selected for delivery</small>
                             </div>
                         </div>
@@ -658,7 +668,6 @@
         
         function submitDeliveryConfirmation() {
             const form = document.getElementById('deliveryConfirmationForm');
-            const formData = new FormData(form);
             
             // Validate form
             if (!form.checkValidity()) {
@@ -672,24 +681,64 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             submitBtn.disabled = true;
             
+            // Convert form to URLSearchParams for regular form submission
+            const formData = new URLSearchParams();
+            for (const pair of new FormData(form)) {
+                formData.append(pair[0], pair[1]);
+            }
+            
             fetch('/staff/delivery-confirmations/store', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // If not JSON, read as text to see what we got
+                    return response.text().then(text => {
+                        console.error('Non-JSON response:', text);
+                        throw new Error('Server returned non-JSON response: ' + text.substring(0, 100));
+                    });
+                }
+            })
             .then(data => {
                 if (data.success) {
-                    showSuccessNotification('Adoption confirmation submitted successfully! Admin will review it.');
-                    bootstrap.Modal.getInstance(document.getElementById('deliveryConfirmationModal')).hide();
-                    form.reset();
-                    loadAdoptions(); // Refresh adoptions
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message || 'Adoption confirmation submitted successfully! Admin will review it.'
+                    }).then(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('deliveryConfirmationModal')).hide();
+                        form.reset();
+                        // Refresh adoptions list to show updated status
+                        loadAdoptions();
+                        // Also reload the page after a short delay to ensure all data is fresh
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    });
                 } else {
-                    Swal.fire({icon: 'error', title: 'Error', text: 'Failed to submit adoption confirmation: ' + (data.message || 'Unknown error')});
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to submit adoption confirmation. Please try again.'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Network error. Please try again.'
+                });
             })
             .finally(() => {
                 submitBtn.innerHTML = originalText;
@@ -697,30 +746,6 @@
             });
         }
         
-        // Preview uploaded images for delivery confirmation
-        document.getElementById('confirmationDeliveryPhoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('confirmationDeliveryPhotoPreview').innerHTML = 
-                        `<img src="${e.target.result}" class="img-thumbnail mt-2" style="max-width: 200px; max-height: 200px;" alt="Delivery photo preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('confirmationPaymentPhoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('confirmationPaymentPhotoPreview').innerHTML = 
-                        `<img src="${e.target.result}" class="img-thumbnail mt-2" style="max-width: 200px; max-height: 200px;" alt="Payment photo preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
     </script>
 </body>
 </html>

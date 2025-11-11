@@ -365,6 +365,17 @@
         padding:20px; 
         box-shadow:0 2px 10px rgba(0,0,0,.05); 
     }
+    
+    #ordersTable {
+        width: 100%;
+    }
+    
+    #ordersTable th:last-child,
+    #ordersTable td:last-child {
+        width: 80px;
+        text-align: center;
+        padding: 8px !important;
+    }
 
     /* Tab Styling */
     .nav-tabs {
@@ -472,12 +483,6 @@
                     <span class="menu-text">Sales Report</span>
                 </a>
             </li>
-                <li>
-                    <a href="/">
-                    <i class="fas fa-globe"></i>
-                    <span class="menu-text">Visit Site</span>
-                </a>
-            </li>
         </ul>
     </nav>
 
@@ -562,62 +567,63 @@
             <div class="tab-content" id="ordersTabContent">
                 <!-- List of Adoption Tab -->
                 <div class="tab-pane fade show active" id="adoptions" role="tabpanel" aria-labelledby="adoptions-tab">
-            <div class="page-card">
-                <div class="table-responsive">
-                    <table class="table align-middle" id="ordersTable">
-                        <thead>
-                            <tr>
-                                <th>Adoptions #</th>
-                                <th>Customer</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th>Delivery</th>
-                                <th>Created</th>
-                                <th style="width:160px">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="page-card">
+                        <div class="table-responsive">
+                            <table class="table align-middle" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Adoption ID</th>
+                                        <th>Customer</th>
+                                        <th>Pet Order</th>
+                                        <th>Order Date</th>
+                                        <th>Delivery Info</th>
+                                        <th>Total Payment</th>
+                                        <th>Payment Status</th>
+                                        <th>Order Status</th>
+                                        <th style="width: 80px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="9" class="text-center py-4">Loading...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
+                    </div>
                 </div>
-            </div>
             
                 <!-- Delivery Confirmations Tab -->
                 <div class="tab-pane fade" id="deliveries" role="tabpanel" aria-labelledby="deliveries-tab">
-            <div class="page-card mb-4" id="deliveryConfirmationsSection">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-truck"></i> Delivery Confirmations
-                    </h5>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary" onclick="filterConfirmations('all')">All</button>
-                        <button type="button" class="btn btn-outline-warning" onclick="filterConfirmations('pending')">Pending</button>
-                        <button type="button" class="btn btn-outline-success" onclick="filterConfirmations('confirmed')">Confirmed</button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped" id="deliveryConfirmationsTable">
-                        <thead>
-                            <tr>
-                                <th>Adoptions #</th>
-                                <th>Customer</th>
-                                <th>Pet</th>
-                                <th>Staff</th>
-                                <th>Payment Amount</th>
-                                <th>Status</th>
-                                <th>Submitted</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="8" class="text-center text-muted">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="page-card mb-4" id="deliveryConfirmationsSection">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-truck"></i> Delivery Confirmations
+                            </h5>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary" onclick="filterConfirmations('all')">All</button>
+                                <button type="button" class="btn btn-outline-warning" onclick="filterConfirmations('pending')">Pending</button>
+                                <button type="button" class="btn btn-outline-success" onclick="filterConfirmations('confirmed')">Confirmed</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="deliveryConfirmationsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Adoptions ID</th>
+                                        <th>Customer</th>
+                                        <th>Pet Order</th>
+                                        <th>Staff</th>
+                                        <th>Payment Amount</th>
+                                        <th>Order Status</th>
+                                        <th>Order Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -869,30 +875,45 @@ function loadOrders(){
     .then(r=>r.json())
     .then(({success, data})=>{
       const tbody = document.querySelector('#ordersTable tbody');
-      if(!success){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; 
+      if(!success){ tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load</td></tr>'; 
         if (ordersTable) { ordersTable.destroy(); ordersTable = null; }
         return; 
       }
-      if(!data.length){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No orders</td></tr>'; 
+      if(!data.length){ tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No orders</td></tr>'; 
         if (ordersTable) { ordersTable.destroy(); ordersTable = null; }
         return; 
       }
-      tbody.innerHTML = data.map(o=>`
+      tbody.innerHTML = data.map(o=>{
+        // Format delivery info
+        const deliveryType = o.delivery_type || 'N/A';
+        const deliveryAddress = o.delivery_address ? `<br><small class="text-muted">${o.delivery_address}</small>` : '';
+        const deliveryInfo = deliveryType.charAt(0).toUpperCase() + deliveryType.slice(1) + deliveryAddress;
+        
+        // Get pet order (from API or format from items)
+        const petOrder = o.pet_order || (o.items && o.items.length > 0 ? o.items.map(item => {
+          const name = item.name || 'Unknown Pet';
+          const qty = item.quantity || 1;
+          return qty > 1 ? name + ' (x' + qty + ')' : name;
+        }).join(', ') : 'N/A');
+        
+        return `
         <tr data-order-id="${o.id}">
-          <td>${o.order_number||o.id}</td>
+          <td><strong>${o.order_number||o.id}</strong></td>
           <td>${o.customer_name||o.user_id}</td>
-          <td>₱${parseFloat(o.total_amount).toLocaleString()}</td>
-          <td><span class="badge bg-${o.status==='pending'?'warning':o.status==='delivered'?'success':'secondary'}">${o.status}</span></td>
-          <td>${o.payment_method||''} / <span class="badge bg-${o.payment_status==='pending'?'warning':o.payment_status==='paid'?'success':o.payment_status==='failed'?'danger':'secondary'} text-white">${o.payment_status||''}</span></td>
-          <td>${o.delivery_type||''}</td>
+          <td>${petOrder}</td>
           <td>${formatDate(o.created_at)}</td>
-          <td>
+          <td>${deliveryInfo}</td>
+          <td><strong>₱${parseFloat(o.total_amount).toLocaleString()}</strong></td>
+          <td><span class="badge bg-${o.payment_status==='pending'?'warning':o.payment_status==='paid'?'success':o.payment_status==='failed'?'danger':'secondary'} text-white">${(o.payment_status||'pending').charAt(0).toUpperCase() + (o.payment_status||'pending').slice(1)}</span></td>
+          <td><span class="badge bg-${o.status==='pending'?'warning':o.status==='delivered'?'success':o.status==='confirmed'?'info':o.status==='processing'?'primary':o.status==='shipped'?'info':'secondary'}">${(o.status||'pending').charAt(0).toUpperCase() + (o.status||'pending').slice(1)}</span></td>
+          <td class="text-center">
             <button class="btn btn-sm btn-outline-primary" onclick="editOrder(${o.id})" title="Edit Order">
               <i class="fas fa-edit"></i>
             </button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
       
       // Destroy existing DataTable if it exists
       if (ordersTable) {
@@ -903,7 +924,8 @@ function loadOrders(){
       ordersTable = $('#ordersTable').DataTable({
         pageLength: 10,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        order: [[6, 'desc']],
+        order: [[3, 'desc']], // Order by Order Date (column index 3)
+        autoWidth: true,
         language: {
           search: "Search:",
           lengthMenu: "Show _MENU_ entries",

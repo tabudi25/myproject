@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirm Animal Delivery - All Orders - Staff</title>
+    <title>Confirm Animal Delivery - All Adoptions - Staff</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -155,21 +155,13 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/staff/add-animal" class="sidebar-item">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animals</span>
-                </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Animals</span>
+                    <span>Manage Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
-                </a>
-                <a href="/staff/delivery-confirmations" class="sidebar-item active">
-                    <i class="fas fa-truck"></i>
-                    <span>Deliveries</span>
+                    <span>Adoptions</span>
                 </a>
                 <a href="/staff/payments" class="sidebar-item">
                     <i class="fas fa-credit-card"></i>
@@ -185,12 +177,12 @@
             <div class="col-md-10 main-content">
                 <div class="content-card">
                     <h3 class="mb-4">
-                        <i class="fas fa-truck"></i> Confirm Animal Delivery - All Customer Orders
+                        <i class="fas fa-truck"></i> Confirm Animal Delivery - All Customer Adoptions
                     </h3>
                     
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> This includes all customer orders (both pickup and delivery) that need delivery confirmation.
+                        <strong>Note:</strong> This includes all customer adoptions (both pickup and delivery) that need delivery confirmation.
                     </div>
 
                     <?php if (session()->getFlashdata('msg')): ?>

@@ -30,28 +30,41 @@ class EcommerceController extends BaseController
         // Get categories with animal counts
         $categories = $this->categoryModel->where('status', 'active')->findAll();
         
-        // Get featured animals (both available and sold)
+        // Get featured animals (show all statuses including sold)
         $featuredAnimals = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->whereIn('animals.status', ['available', 'sold'])
+            ->whereIn('animals.status', ['available', 'reserved', 'sold'])
             ->orderBy('animals.created_at', 'DESC')
             ->limit(8)
             ->findAll();
 
-        // Get new arrivals (both available and sold)
+        // Get new arrivals (show all statuses including sold)
         $newArrivals = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->whereIn('animals.status', ['available', 'sold'])
+            ->whereIn('animals.status', ['available', 'reserved', 'sold'])
             ->orderBy('animals.created_at', 'DESC')
             ->limit(4)
             ->findAll();
 
         // Get cart count for logged in users
         $cartCount = 0;
+        $userReservedAnimals = [];
         if (session()->get('isLoggedIn')) {
-            $cartCount = $this->cartModel->where('user_id', session()->get('user_id'))->countAllResults();
+            $userId = session()->get('user_id');
+            $cartCount = $this->cartModel->where('user_id', $userId)->countAllResults();
+            
+            // Get animal IDs that the current user has reserved (pending orders)
+            $db = \Config\Database::connect();
+            $userReservedAnimals = $db->table('order_items')
+                ->select('order_items.animal_id')
+                ->join('orders', 'orders.id = order_items.order_id')
+                ->where('orders.user_id', $userId)
+                ->whereIn('orders.status', ['pending', 'confirmed', 'processing'])
+                ->get()
+                ->getResultArray();
+            $userReservedAnimals = array_column($userReservedAnimals, 'animal_id');
         }
 
         $data = [
@@ -62,7 +75,8 @@ class EcommerceController extends BaseController
             'cartCount' => $cartCount,
             'isLoggedIn' => session()->get('isLoggedIn') ?? false,
             'userName' => session()->get('user_name') ?? '',
-            'userRole' => session()->get('role') ?? ''
+            'userRole' => session()->get('role') ?? '',
+            'userReservedAnimals' => $userReservedAnimals
         ];
 
         return view('ecommerce/home', $data);
@@ -73,7 +87,7 @@ class EcommerceController extends BaseController
         $builder = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->whereIn('animals.status', ['available', 'sold']);
+            ->whereIn('animals.status', ['available', 'reserved', 'sold']);
 
         // Filter by category if provided
         if ($categoryId) {
@@ -158,10 +172,23 @@ class EcommerceController extends BaseController
             $currentCategory = $this->categoryModel->find($categoryId);
         }
 
-        // Get cart count for logged in users
+        // Get cart count and user reserved animals
         $cartCount = 0;
+        $userReservedAnimals = [];
         if (session()->get('isLoggedIn')) {
-            $cartCount = $this->cartModel->where('user_id', session()->get('user_id'))->countAllResults();
+            $userId = session()->get('user_id');
+            $cartCount = $this->cartModel->where('user_id', $userId)->countAllResults();
+            
+            // Get animal IDs that the current user has reserved (pending orders)
+            $db = \Config\Database::connect();
+            $userReservedAnimals = $db->table('order_items')
+                ->select('order_items.animal_id')
+                ->join('orders', 'orders.id = order_items.order_id')
+                ->where('orders.user_id', $userId)
+                ->whereIn('orders.status', ['pending', 'confirmed', 'processing'])
+                ->get()
+                ->getResultArray();
+            $userReservedAnimals = array_column($userReservedAnimals, 'animal_id');
         }
 
         $data = [
@@ -175,7 +202,8 @@ class EcommerceController extends BaseController
             'cartCount' => $cartCount,
             'isLoggedIn' => session()->get('isLoggedIn') ?? false,
             'userName' => session()->get('user_name') ?? '',
-            'userRole' => session()->get('role') ?? ''
+            'userRole' => session()->get('role') ?? '',
+            'userReservedAnimals' => $userReservedAnimals
         ];
 
         return view('ecommerce/shop', $data);
@@ -457,7 +485,7 @@ class EcommerceController extends BaseController
             'delivery_address' => $deliveryAddress,
             'delivery_fee' => $deliveryFee,
             'payment_method' => $paymentMethod,
-            'payment_status' => 'pending',
+            'payment_status' => ($paymentMethod === 'gcash') ? 'paid' : 'pending', // GCash demo mode - mark as paid
             'notes' => $this->request->getPost('notes') ?: null,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
@@ -487,9 +515,10 @@ class EcommerceController extends BaseController
                         'price' => $item['price']
                     ]);
 
-                    // Update animal status to sold if quantity is 1 (assuming each animal is unique)
+                    // Don't mark as sold yet - wait until staff confirms the order
+                    // Update animal status to reserved to prevent double booking
                     if ($item['quantity'] == 1) {
-                        $this->animalModel->update($item['animal_id'], ['status' => 'sold']);
+                        $this->animalModel->update($item['animal_id'], ['status' => 'reserved']);
                     }
                 }
             } catch (\Exception $e) {
@@ -549,15 +578,128 @@ class EcommerceController extends BaseController
             return redirect()->to('/login');
         }
 
-        $orders = $this->orderModel
-            ->where('user_id', session()->get('user_id'))
-            ->orderBy('created_at', 'DESC')
-            ->findAll();
+        $userId = session()->get('user_id');
+        
+        // Get filter, search, and pagination parameters
+        $status = $this->request->getGet('status') ?: 'all';
+        $search = $this->request->getGet('search') ? trim($this->request->getGet('search')) : '';
+        $page = $this->request->getGet('page') ? (int)$this->request->getGet('page') : 1;
+        $perPage = $this->request->getGet('per_page') ? (int)$this->request->getGet('per_page') : 10; // Items per page
+        $offset = ($page - 1) * $perPage;
+
+        // Build query with filter and search
+        $builder = $this->orderModel->where('orders.user_id', $userId);
+        
+        if ($status !== 'all') {
+            $builder->where('orders.status', $status);
+        }
+
+        // Add search functionality - including pet names and categories
+        if (!empty($search)) {
+            // Search in orders table
+            $builder->groupStart()
+                ->like('orders.order_number', $search)
+                ->orLike('orders.total_amount', $search)
+                ->orLike('orders.payment_method', $search)
+                ->orLike('orders.delivery_type', $search);
+            
+            // Search in pets (animals) via order_items
+            $builder->orGroupStart()
+                ->join('order_items', 'order_items.order_id = orders.id', 'left')
+                ->join('animals', 'animals.id = order_items.animal_id', 'left')
+                ->join('categories', 'categories.id = animals.category_id', 'left')
+                ->like('animals.name', $search)
+                ->orLike('categories.name', $search)
+                ->groupEnd();
+            
+            $builder->groupEnd();
+        }
+
+        // Get total count for pagination (need distinct to avoid duplicates from joins)
+        if (!empty($search)) {
+            $totalOrders = $builder->select('DISTINCT orders.id')->countAllResults(false);
+        } else {
+            $totalOrders = $builder->countAllResults(false);
+        }
+
+        // Get orders with pagination, filter, and search
+        $builder = $this->orderModel->where('orders.user_id', $userId);
+        
+        if ($status !== 'all') {
+            $builder->where('orders.status', $status);
+        }
+
+        // Add search functionality - including pet names and categories
+        if (!empty($search)) {
+            // Search in orders table
+            $builder->groupStart()
+                ->like('orders.order_number', $search)
+                ->orLike('orders.total_amount', $search)
+                ->orLike('orders.payment_method', $search)
+                ->orLike('orders.delivery_type', $search);
+            
+            // Search in pets (animals) via order_items
+            $builder->orGroupStart()
+                ->join('order_items', 'order_items.order_id = orders.id', 'left')
+                ->join('animals', 'animals.id = order_items.animal_id', 'left')
+                ->join('categories', 'categories.id = animals.category_id', 'left')
+                ->like('animals.name', $search)
+                ->orLike('categories.name', $search)
+                ->groupEnd();
+            
+            $builder->groupEnd();
+            
+            // Use distinct to avoid duplicate orders when multiple pets match
+            $builder->select('DISTINCT orders.*');
+        }
+        
+        $orders = $builder
+            ->orderBy('orders.created_at', 'DESC')
+            ->findAll($perPage, $offset);
+
+        // Get order items (pets) for each order
+        foreach ($orders as &$order) {
+            $orderId = $order['id'];
+            $items = $this->orderItemModel
+                ->select('order_items.*, animals.name as animal_name, animals.image, categories.name as category_name')
+                ->join('animals', 'animals.id = order_items.animal_id')
+                ->join('categories', 'categories.id = animals.category_id', 'left')
+                ->where('order_items.order_id', $orderId)
+                ->findAll();
+            
+            $order['items'] = $items;
+            
+            // Create formatted pet information for display
+            if (!empty($items)) {
+                $petInfo = [];
+                foreach ($items as $item) {
+                    $petName = $item['animal_name'] ?? 'Unknown Pet';
+                    $category = $item['category_name'] ?? 'Unknown Category';
+                    $qty = $item['quantity'] ?? 1;
+                    $petInfo[] = $petName . ' (' . $category . ')' . ($qty > 1 ? ' x' . $qty : '');
+                }
+                $order['pets_display'] = implode(', ', $petInfo);
+            } else {
+                $order['pets_display'] = 'N/A';
+            }
+            
+            // Reset query builder for next iteration
+            $this->orderItemModel->resetQuery();
+        }
+
+        // Calculate pagination
+        $totalPages = ceil($totalOrders / $perPage);
 
         $data = [
             'title' => 'My Orders',
             'orders' => $orders,
-            'cartCount' => $this->cartModel->where('user_id', session()->get('user_id'))->countAllResults(),
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalOrders' => $totalOrders,
+            'perPage' => $perPage,
+            'currentStatus' => $status,
+            'currentSearch' => $search,
+            'cartCount' => $this->cartModel->where('user_id', $userId)->countAllResults(),
             'isLoggedIn' => true,
             'userName' => session()->get('user_name'),
             'userRole' => session()->get('role')

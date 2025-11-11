@@ -111,21 +111,13 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/staff/add-animal" class="sidebar-item active">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add New Animals</span>
-                </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Animals</span>
+                    <span>Manage Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
-                </a>
-                <a href="/staff/delivery-confirmations" class="sidebar-item">
-                    <i class="fas fa-truck"></i>
-                    <span>Deliveries</span>
+                    <span>Adoptions</span>
                 </a>
                 <a href="/staff/payments" class="sidebar-item">
                     <i class="fas fa-credit-card"></i>

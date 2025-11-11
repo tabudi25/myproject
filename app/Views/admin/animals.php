@@ -459,12 +459,6 @@
                         <span class="menu-text">Sales Report</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/">
-                        <i class="fas fa-globe"></i>
-                        <span class="menu-text">Visit Site</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
@@ -541,7 +535,7 @@
                 <ul class="nav nav-tabs mb-4" id="petsTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                            <i class="fas fa-clock me-2"></i>Pending Pets
+                            <i class="fas fa-clock me-2"></i>Proposed Pets
                             <span class="badge bg-warning ms-2" id="pendingCount">0</span>
                         </button>
                     </li>
@@ -706,8 +700,8 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status *</label>
                                 <select class="form-control" name="status" id="edit_status" required>
-                                    <option value="available">Available</option>
-                                    <option value="sold">Sold</option>
+                                    <option value="available">Active</option>
+                                    <option value="sold">Inactive</option>
                                     <!-- <option value="reserved">Reserved</option> -->
                                 </select>
                             </div>
@@ -862,7 +856,33 @@
             .catch(error => console.error('Error marking all as read:', error));
         }
 
-        // Helper: Time ago function
+        // Helper function to safely format dates
+        function formatDate(dateString) {
+            if (!dateString || dateString === '0000-00-00 00:00:00' || dateString === '1970-01-01 00:00:00' || dateString === null || dateString === undefined) {
+                return 'N/A';
+            }
+            try {
+                const date = new Date(dateString);
+                // Check if date is valid
+                if (isNaN(date.getTime())) {
+                    return 'N/A';
+                }
+                // Only return N/A if date is exactly 1970-01-01 00:00:00 (Unix epoch from null/invalid dates)
+                // Allow other 1970 dates if they're valid
+                if (date.getFullYear() === 1970 && date.getMonth() === 0 && date.getDate() === 1 && 
+                    date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
+                    return 'N/A';
+                }
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            } catch (e) {
+                return 'N/A';
+            }
+        }
+
         function timeAgo(dateString) {
             const date = new Date(dateString);
             const seconds = Math.floor((new Date() - date) / 1000);
@@ -927,7 +947,7 @@
                             <td>${animal.gender || ''}</td>
                             <td>${animal.age} mo</td>
                             <td>₱${parseFloat(animal.price).toLocaleString()}</td>
-                            <td><span class="badge bg-${animal.status==='available'?'success':'secondary'}">${animal.status}</span></td>
+                            <td><span class="badge bg-${animal.status==='available'?'success':animal.status==='sold'?'danger':'secondary'}">${animal.status==='available'?'Active':animal.status==='sold'?'Inactive':animal.status}</span></td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary" onclick="openEdit(${animal.id})" title="Edit Pet">
                                     <i class="fas fa-edit"></i>
@@ -1038,6 +1058,7 @@
             e.preventDefault();
             const formData = new FormData(this);
             const id = document.getElementById('edit_id').value;
+            const newStatus = formData.get('status');
             
             // Use POST with _method override for file uploads
             formData.append('_method', 'PUT');
@@ -1048,7 +1069,59 @@
                     if(res.success){
                         bootstrap.Modal.getInstance(document.getElementById('editAnimalModal')).hide();
                         this.reset();
-                        loadAnimals();
+                        
+                        // Update the table row immediately without reloading
+                        if (animalsTable) {
+                            // Find the row in DataTables
+                            const tableRows = document.querySelectorAll('#animalsTable tbody tr');
+                            let targetRow = null;
+                            
+                            for (let tr of tableRows) {
+                                const editBtn = tr.querySelector(`button[onclick*="openEdit(${id})"]`);
+                                if (editBtn) {
+                                    targetRow = tr;
+                                    break;
+                                }
+                            }
+                            
+                            if (targetRow) {
+                                // Get DataTables row
+                                const dtRow = animalsTable.row(targetRow);
+                                
+                                // Update status cell
+                                const statusCell = targetRow.querySelector('td:nth-child(7)');
+                                if (statusCell) {
+                                    const isActive = newStatus === 'available';
+                                    statusCell.innerHTML = `<span class="badge bg-${isActive?'success':newStatus==='sold'?'danger':'secondary'}">${isActive?'Active':newStatus==='sold'?'Inactive':newStatus}</span>`;
+                                }
+                                
+                                // Update DataTables row data if available
+                                if (dtRow && dtRow.node()) {
+                                    try {
+                                        const rowData = dtRow.data();
+                                        if (rowData && Array.isArray(rowData) && rowData.length >= 7) {
+                                            const isActive = newStatus === 'available';
+                                            rowData[6] = `<span class="badge bg-${isActive?'success':newStatus==='sold'?'danger':'secondary'}">${isActive?'Active':newStatus==='sold'?'Inactive':newStatus}</span>`;
+                                            dtRow.data(rowData).draw(false);
+                                        } else {
+                                            animalsTable.draw(false);
+                                        }
+                                    } catch (e) {
+                                        console.error('DataTables update error:', e);
+                                        animalsTable.draw(false);
+                                    }
+                                } else {
+                                    animalsTable.draw(false);
+                                }
+                            } else {
+                                // If row not found, reload the table
+                                loadAnimals();
+                            }
+                        } else {
+                            // If DataTables not initialized, reload
+                            loadAnimals();
+                        }
+                        
                         Swal.fire({icon: 'success', title: 'Success!', text: 'Pet updated successfully!'});
                     } else { 
                         Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update animal'}); 
@@ -1098,7 +1171,7 @@
                                     <td>${animal.age} mo</td>
                                     <td>₱${parseFloat(animal.price).toLocaleString()}</td>
                                     <td>${animal.submitted_by || 'Staff'}</td>
-                                    <td>${new Date(animal.created_at).toLocaleDateString()}</td>
+                                    <td>${formatDate(animal.created_at)}</td>
                                     <td>
                                         <button class="btn btn-sm btn-secondary" disabled title="Already Approved">
                                             <i class="fas fa-check-circle"></i> Done
@@ -1117,7 +1190,7 @@
                                     <td>${animal.age} mo</td>
                                     <td>₱${parseFloat(animal.price).toLocaleString()}</td>
                                     <td>${animal.submitted_by || 'Staff'}</td>
-                                    <td>${new Date(animal.created_at).toLocaleDateString()}</td>
+                                    <td>${formatDate(animal.created_at)}</td>
                                     <td>
                                         <button class="btn btn-sm btn-success" onclick="approveAnimal(${animal.id})" title="Approve Pet">
                                             <i class="fas fa-check"></i>
