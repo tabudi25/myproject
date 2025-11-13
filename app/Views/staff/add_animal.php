@@ -9,16 +9,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -134,7 +134,7 @@
             padding: 12px 20px;
             margin: 5px;
             background: white;
-            border: 2px solid #17a2b8;
+            border: 2px solid #4DD0E1;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -143,16 +143,16 @@
         }
 
         .price-option-btn:hover {
-            background: #17a2b8;
+            background: #4DD0E1;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .price-option-btn.selected {
-            background: #17a2b8;
+            background: #4DD0E1;
             color: white;
-            border-color: #138496;
+            border-color: #26C6DA;
             font-weight: bold;
         }
 
@@ -283,8 +283,8 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Age (months) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="age" min="1" required>
+                                <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="birthdate" required>
                             </div>
                             
                             <div class="col-md-4 mb-3">

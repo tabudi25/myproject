@@ -13,16 +13,16 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -425,7 +425,7 @@
             <div class="sidebar-header">
                 <a href="/fluffy-admin" class="sidebar-brand">
                     <i class="fas fa-paw me-2"></i>
-                    <span class="brand-text">Fluffy Admin</span>
+                    <span class="brand-text">Fluffy Planet Admin</span>
                 </a>
             </div>
             
@@ -492,7 +492,7 @@
                     
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown" style="display: inline-block;">
-                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #4DD0E1; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                             <i class="fas fa-user-shield me-2"></i>
                             <span>Admin</span>
                             <i class="fas fa-chevron-down ms-2"></i>
@@ -544,72 +544,27 @@
                     </button>
                 </div>
                 
-                <!-- Tabs Navigation -->
-                <ul class="nav nav-tabs mb-4" id="petsTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                            <i class="fas fa-clock me-2"></i>Proposed Pets
-                            <span class="badge bg-warning ms-2" id="pendingCount">0</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
-                            <i class="fas fa-check-circle me-2"></i>Approved Pets
-                        </button>
-                    </li>
-                </ul>
-
-                <!-- Tab Content -->
-                <div class="tab-content" id="petsTabContent">
-                    <!-- Approved Pets Tab -->
-                    <div class="tab-pane fade show active" id="approved" role="tabpanel">
-                        <div class="page-card">
-                            <div class="table-responsive">
-                                <table class="table align-middle" id="animalsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Gender</th>
-                                            <th>Age</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
-                                            <th style="width:130px">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pending Pets Tab -->
-                    <div class="tab-pane fade" id="pending" role="tabpanel">
-                        <div class="page-card">
-                            <div class="table-responsive">
-                                <table class="table align-middle" id="pendingAnimalsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Gender</th>
-                                            <th>Age</th>
-                                            <th>Price</th>
-                                            <th>Submitted By</th>
-                                            <th>Submitted Date</th>
-                                            <th style="width:100px">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><td colspan="9" class="text-center py-4">Loading...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                <!-- Approved Pets Table -->
+                <div class="page-card">
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="animalsTable">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Gender</th>
+                                    <th>Birthdate</th>
+                                    <th>Age</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th style="width:130px">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="9" class="text-center py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -641,10 +596,11 @@
 
                         <!-- Category Prices Display -->
                         <div class="mb-3" id="categoryPricesContainer" style="display: none;">
-                            <label class="form-label">Fixed Prices for this Category (Set by Admin)</label>
-                            <div class="alert alert-info" id="categoryPricesDisplay">
-                                <i class="fas fa-info-circle"></i> Select a category to view fixed prices
-                            </div>
+                            <label class="form-label fw-bold">Fixed Prices for this Category (Set by Admin)</label>
+                            <select class="form-control" id="categoryPriceSelect">
+                                <option value="">Select a fixed price option</option>
+                            </select>
+                            <small class="text-muted">Select a price to auto-fill gender and price fields</small>
                         </div>
 
                         <div class="row">
@@ -654,7 +610,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Gender *</label>
-                                <select class="form-control" name="gender" required>
+                                <select class="form-control" name="gender" id="add_gender" required>
                                     <option value="">Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -663,7 +619,6 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱) *</label>
                                 <input type="number" step="0.01" class="form-control" name="price" id="add_price" required min="0" placeholder="0.00">
-                                <small class="text-muted">Note: Prices shown above are fixed by admin and cannot be edited</small>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Description</label>
@@ -689,7 +644,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Update Animal</h5>
+                    <h5 class="modal-title">Update Pet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editAnimalForm" enctype="multipart/form-data">
@@ -698,25 +653,27 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Name *</label>
-                                <input type="text" class="form-control" name="name" id="edit_name" required placeholder="Enter pet name">
+                                <input type="text" class="form-control" name="name" id="edit_name" required placeholder="Enter pet name" readonly style="background-color: #e9ecef; cursor: not-allowed;">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Category *</label>
-                                <select class="form-control" name="category_id" id="edit_category_id" required>
+                                <select class="form-control" id="edit_category_id" disabled style="background-color: #e9ecef; cursor: not-allowed;">
                                     <option value="">Select Category</option>
                                 </select>
+                                <input type="hidden" name="category_id" id="edit_category_id_hidden">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Age (months) *</label>
-                                <input type="number" class="form-control" name="age" id="edit_age" required min="1" placeholder="Enter age in months">
+                                <label class="form-label">Birthdate *</label>
+                                <input type="date" class="form-control" name="birthdate" id="edit_birthdate" required max="<?= date('Y-m-d') ?>" readonly style="background-color: #e9ecef; cursor: not-allowed;">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Gender *</label>
-                                <select class="form-control" name="gender" id="edit_gender" required>
+                                <select class="form-control" id="edit_gender" disabled style="background-color: #e9ecef; cursor: not-allowed;">
                                     <option value="">Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
+                                <input type="hidden" name="gender" id="edit_gender_hidden">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱) *</label>
@@ -743,7 +700,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Animal</button>
+                        <button type="submit" class="btn btn-primary">Update Pet</button>
                     </div>
                 </form>
             </div>
@@ -946,31 +903,83 @@
 
         loadAnimals();
         loadCategories();
-        loadPendingAnimals();
 
         let animalsTable = null;
-        let pendingAnimalsTable = null;
 
         function loadAnimals() {
             fetch('/fluffy-admin/api/animals')
                 .then(r => r.json())
                 .then(({success, data}) => {
                     const tbody = document.querySelector('#animalsTable tbody');
-                    if (!success) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; 
+                    if (!success) { tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load</td></tr>'; 
                         if (animalsTable) { animalsTable.destroy(); animalsTable = null; }
                         return; 
                     }
-                    if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No animals found</td></tr>'; 
+                    if (!data.length) { tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No animals found</td></tr>'; 
                         if (animalsTable) { animalsTable.destroy(); animalsTable = null; }
                         return; 
                     }
-                    tbody.innerHTML = data.map(animal => `
+                    tbody.innerHTML = data.map(animal => {
+                        // Calculate age from birthdate if available, otherwise use stored age
+                        let ageDisplay = 'N/A';
+                        let birthdate = animal.birthdate || '';
+                        
+                        if (birthdate) {
+                            // Always calculate age from birthdate for accurate display
+                            const birth = new Date(birthdate);
+                            const now = new Date();
+                            let years = now.getFullYear() - birth.getFullYear();
+                            let months = now.getMonth() - birth.getMonth();
+                            const days = now.getDate() - birth.getDate();
+                            
+                            // Adjust if the day hasn't passed yet this month
+                            if (days < 0) {
+                                months--;
+                            }
+                            
+                            // Adjust years if months is negative
+                            if (months < 0) {
+                                years--;
+                                months += 12;
+                            }
+                            
+                            // Format age display
+                            if (years > 0 && months > 0) {
+                                ageDisplay = `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}`;
+                            } else if (years > 0) {
+                                ageDisplay = `${years} ${years === 1 ? 'year' : 'years'}`;
+                            } else if (months > 0) {
+                                ageDisplay = `${months} ${months === 1 ? 'month' : 'months'}`;
+                            } else {
+                                ageDisplay = 'Less than 1 month';
+                            }
+                        } else if (animal.age) {
+                            // Fallback: calculate from stored age in months
+                            const totalMonths = parseInt(animal.age) || 0;
+                            const years = Math.floor(totalMonths / 12);
+                            const months = totalMonths % 12;
+                            
+                            if (years > 0 && months > 0) {
+                                ageDisplay = `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}`;
+                            } else if (years > 0) {
+                                ageDisplay = `${years} ${years === 1 ? 'year' : 'years'}`;
+                            } else if (months > 0) {
+                                ageDisplay = `${months} ${months === 1 ? 'month' : 'months'}`;
+                            } else {
+                                ageDisplay = 'Less than 1 month';
+                            }
+                        }
+                        
+                        const formattedBirthdate = birthdate ? new Date(birthdate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+                        
+                        return `
                         <tr>
                             <td><img src="/uploads/${animal.image}" onerror="this.src='/web/default-pet.jpg'" alt="${animal.name}"></td>
                             <td>${animal.name}</td>
                             <td>${animal.category_name || 'N/A'}</td>
                             <td>${animal.gender || ''}</td>
-                            <td>${animal.age} mo</td>
+                            <td>${formattedBirthdate}</td>
+                            <td>${ageDisplay}</td>
                             <td>₱${parseFloat(animal.price).toLocaleString()}</td>
                             <td><span class="badge bg-${animal.status==='available'?'success':animal.status==='sold'?'danger':'secondary'}">${animal.status==='available'?'Active':animal.status==='sold'?'Inactive':animal.status}</span></td>
                             <td>
@@ -979,7 +988,8 @@
                                 </button>
                             </td>
                         </tr>
-                    `).join('');
+                    `;
+                    }).join('');
                     
                     // Destroy existing DataTable if it exists
                     if (animalsTable) {
@@ -1001,7 +1011,7 @@
                     });
                 })
                 .catch(() => {
-                    document.querySelector('#animalsTable tbody').innerHTML = '<tr><td colspan="8" class="text-center text-danger">Network error</td></tr>';
+                    document.querySelector('#animalsTable tbody').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Network error</td></tr>';
                     if (animalsTable) { animalsTable.destroy(); animalsTable = null; }
                 });
         }
@@ -1032,6 +1042,18 @@
                 }
                 
                 // Fetch prices for selected category using admin API
+                const priceSelect = document.getElementById('categoryPriceSelect');
+                const genderSelect = document.getElementById('add_gender');
+                const priceInput = document.getElementById('add_price');
+                
+                // Reset price select and fields when category changes
+                if (priceSelect) {
+                    priceSelect.innerHTML = '<option value="">Loading prices...</option>';
+                    priceSelect.disabled = true;
+                }
+                if (genderSelect) genderSelect.value = '';
+                if (priceInput) priceInput.value = '';
+                
                 fetch(`/fluffy-admin/api/category-prices`)
                     .then(r => r.json())
                     .then(({success, data}) => {
@@ -1040,40 +1062,98 @@
                             const categoryPrices = data.filter(p => p.category_id == categoryId);
                             
                             if (categoryPrices.length > 0) {
-                                let pricesHtml = '<div class="row">';
-                                categoryPrices.forEach(price => {
-                                    const priceType = price.price_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                    pricesHtml += `
-                                        <div class="col-md-6 mb-2">
-                                            <strong>${priceType}:</strong> ₱${parseFloat(price.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                        </div>
-                                    `;
+                                // Store prices data for later use
+                                window.categoryPricesData = categoryPrices;
+                                
+                                // Build dropdown options
+                                let optionsHtml = '<option value="">Select a fixed price option</option>';
+                                categoryPrices.forEach((price, index) => {
+                                    // Format price type: adult_price_male -> Adult Price Male
+                                    const priceType = price.price_type
+                                        .split('_')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ');
+                                    const formattedPrice = parseFloat(price.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    optionsHtml += `<option value="${index}">${priceType}: ₱${formattedPrice}</option>`;
                                 });
-                                pricesHtml += '</div>';
-                                if (pricesDisplay) {
-                                    pricesDisplay.innerHTML = pricesHtml;
+                                
+                                if (priceSelect) {
+                                    priceSelect.innerHTML = optionsHtml;
+                                    priceSelect.disabled = false;
                                     if (pricesContainer) pricesContainer.style.display = 'block';
                                 }
                             } else {
-                                if (pricesDisplay) {
-                                    pricesDisplay.innerHTML = '<i class="fas fa-info-circle"></i> No fixed prices set for this category yet.';
+                                if (priceSelect) {
+                                    priceSelect.innerHTML = '<option value="">No fixed prices set for this category yet</option>';
+                                    priceSelect.disabled = true;
                                     if (pricesContainer) pricesContainer.style.display = 'block';
                                 }
                             }
                         } else {
-                            if (pricesDisplay) {
-                                pricesDisplay.innerHTML = '<i class="fas fa-info-circle"></i> No fixed prices set for this category yet.';
+                            if (priceSelect) {
+                                priceSelect.innerHTML = '<option value="">No fixed prices set for this category yet</option>';
+                                priceSelect.disabled = true;
                                 if (pricesContainer) pricesContainer.style.display = 'block';
                             }
                         }
                     })
                     .catch(error => {
                         console.error('Error loading category prices:', error);
-                        if (pricesDisplay) {
-                            pricesDisplay.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading prices.';
+                        if (priceSelect) {
+                            priceSelect.innerHTML = '<option value="">Error loading prices. Please try again.</option>';
+                            priceSelect.disabled = true;
                             if (pricesContainer) pricesContainer.style.display = 'block';
                         }
                     });
+            });
+        }
+
+        // Handle price dropdown selection to auto-fill gender and price
+        const categoryPriceSelect = document.getElementById('categoryPriceSelect');
+        if (categoryPriceSelect) {
+            categoryPriceSelect.addEventListener('change', function() {
+                const selectedIndex = this.value;
+                const genderSelect = document.getElementById('add_gender');
+                const priceInput = document.getElementById('add_price');
+                
+                if (selectedIndex && window.categoryPricesData && window.categoryPricesData[selectedIndex]) {
+                    const selectedPrice = window.categoryPricesData[selectedIndex];
+                    
+                    // Extract gender from price_type (e.g., "adult_price_male" -> "male")
+                    const priceTypeParts = selectedPrice.price_type.split('_');
+                    const gender = priceTypeParts[priceTypeParts.length - 1]; // Last part is usually gender
+                    
+                    // Set gender if it's valid
+                    if (genderSelect && (gender === 'male' || gender === 'female')) {
+                        genderSelect.value = gender;
+                    }
+                    
+                    // Set price
+                    if (priceInput) {
+                        priceInput.value = parseFloat(selectedPrice.price).toFixed(2);
+                    }
+                } else {
+                    // Reset fields if no option selected
+                    if (genderSelect) genderSelect.value = '';
+                    if (priceInput) priceInput.value = '';
+                }
+            });
+        }
+
+        // Reset form and price data when modal is closed
+        const addAnimalModal = document.getElementById('addAnimalModal');
+        if (addAnimalModal) {
+            addAnimalModal.addEventListener('hidden.bs.modal', function() {
+                const form = document.getElementById('addAnimalForm');
+                if (form) form.reset();
+                const priceSelect = document.getElementById('categoryPriceSelect');
+                if (priceSelect) {
+                    priceSelect.innerHTML = '<option value="">Select a fixed price option</option>';
+                    priceSelect.disabled = true;
+                }
+                window.categoryPricesData = null;
+                const pricesContainer = document.getElementById('categoryPricesContainer');
+                if (pricesContainer) pricesContainer.style.display = 'none';
             });
         }
 
@@ -1100,7 +1180,7 @@
             let ageMonths = years * 12 + months - (days < 0 ? 1 : 0);
             if (ageMonths < 0) ageMonths = 0;
 
-            formData.delete('birthdate');
+            // Keep birthdate in formData and also add age
             formData.set('age', String(ageMonths));
 
             fetch('/fluffy-admin/api/animals', { method:'POST', body:formData })
@@ -1126,9 +1206,25 @@
                     
                     document.getElementById('edit_id').value = animal.id;
                     document.getElementById('edit_name').value = animal.name;
+                    
+                    // Set category (disabled select + hidden field)
                     document.getElementById('edit_category_id').value = animal.category_id;
-                    document.getElementById('edit_age').value = animal.age;
+                    document.getElementById('edit_category_id_hidden').value = animal.category_id;
+                    
+                    // Set birthdate if available, otherwise calculate from age
+                    let birthdate = animal.birthdate || '';
+                    if (!birthdate && animal.age) {
+                        const now = new Date();
+                        const monthsAgo = parseInt(animal.age) || 0;
+                        const birthDate = new Date(now.getFullYear(), now.getMonth() - monthsAgo, now.getDate());
+                        birthdate = birthDate.toISOString().split('T')[0];
+                    }
+                    document.getElementById('edit_birthdate').value = birthdate;
+                    
+                    // Set gender (disabled select + hidden field)
                     document.getElementById('edit_gender').value = animal.gender;
+                    document.getElementById('edit_gender_hidden').value = animal.gender;
+                    
                     document.getElementById('edit_price').value = animal.price;
                     document.getElementById('edit_status').value = animal.status;
                     document.getElementById('edit_description').value = animal.description || '';
@@ -1143,6 +1239,27 @@
             const formData = new FormData(this);
             const id = document.getElementById('edit_id').value;
             const newStatus = formData.get('status');
+            
+            // Convert birthdate to age in months for API compatibility
+            const birthdate = formData.get('birthdate');
+            if (!birthdate) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select the pet\'s birthdate.'});
+                return;
+            }
+            const b = new Date(birthdate);
+            const now = new Date();
+            if (b > now) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Birthdate cannot be in the future.'});
+                return;
+            }
+            const years = now.getFullYear() - b.getFullYear();
+            const months = now.getMonth() - b.getMonth();
+            const days = now.getDate() - b.getDate();
+            let ageMonths = years * 12 + months - (days < 0 ? 1 : 0);
+            if (ageMonths < 0) ageMonths = 0;
+
+            // Keep birthdate in formData and also add age
+            formData.set('age', String(ageMonths));
             
             // Use POST with _method override for file uploads
             formData.append('_method', 'PUT');
@@ -1217,158 +1334,7 @@
                 });
         });
 
-        // Load pending animals
-        function loadPendingAnimals() {
-            fetch('/fluffy-admin/api/pending-animals')
-                .then(r => r.json())
-                .then(({success, data}) => {
-                    const tbody = document.querySelector('#pendingAnimalsTable tbody');
-                    const pendingCount = document.getElementById('pendingCount');
-                    
-                    if (!success) { 
-                        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load pending pets</td></tr>'; 
-                        if (pendingAnimalsTable) { pendingAnimalsTable.destroy(); pendingAnimalsTable = null; }
-                        return; 
-                    }
-                    
-                    // Update pending count badge
-                    pendingCount.textContent = data.length;
-                    
-                    if (!data.length) { 
-                        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No pending pets found</td></tr>'; 
-                        if (pendingAnimalsTable) { pendingAnimalsTable.destroy(); pendingAnimalsTable = null; }
-                        return; 
-                    }
-                    
-                    tbody.innerHTML = data.map(animal => {
-                        // Check if animal is already approved
-                        const isApproved = animal.status === 'approved' || animal.is_approved === 1;
-                        
-                        if (isApproved) {
-                            // Show "Done" state for already approved pets
-                            return `
-                                <tr>
-                                    <td><img src="/uploads/${animal.image}" onerror="this.src='/web/default-pet.jpg'" alt="${animal.name}"></td>
-                                    <td>${animal.name}</td>
-                                    <td>${animal.category_name || 'N/A'}</td>
-                                    <td>${animal.gender || ''}</td>
-                                    <td>${animal.age} mo</td>
-                                    <td>₱${parseFloat(animal.price).toLocaleString()}</td>
-                                    <td>${animal.submitted_by || 'Staff'}</td>
-                                    <td>${formatDate(animal.created_at)}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" disabled title="Already Approved">
-                                            <i class="fas fa-check-circle"></i> Done
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        } else {
-                            // Show "Approve" button for pending pets
-                            return `
-                                <tr>
-                                    <td><img src="/uploads/${animal.image}" onerror="this.src='/web/default-pet.jpg'" alt="${animal.name}"></td>
-                                    <td>${animal.name}</td>
-                                    <td>${animal.category_name || 'N/A'}</td>
-                                    <td>${animal.gender || ''}</td>
-                                    <td>${animal.age} mo</td>
-                                    <td>₱${parseFloat(animal.price).toLocaleString()}</td>
-                                    <td>${animal.submitted_by || 'Staff'}</td>
-                                    <td>${formatDate(animal.created_at)}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-success" onclick="approveAnimal(${animal.id})" title="Approve Pet">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    }).join('');
-                    
-                    // Destroy existing DataTable if it exists
-                    if (pendingAnimalsTable) {
-                        pendingAnimalsTable.destroy();
-                    }
-                    
-                    // Initialize DataTables
-                    pendingAnimalsTable = $('#pendingAnimalsTable').DataTable({
-                        pageLength: 10,
-                        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                        order: [[7, 'desc']],
-                        language: {
-                            search: "Search:",
-                            lengthMenu: "Show _MENU_ entries",
-                            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                            infoEmpty: "Showing 0 to 0 of 0 entries",
-                            infoFiltered: "(filtered from _MAX_ total entries)"
-                        }
-                    });
-                })
-                .catch(() => {
-                    document.querySelector('#pendingAnimalsTable tbody').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Network error</td></tr>';
-                    if (pendingAnimalsTable) { pendingAnimalsTable.destroy(); pendingAnimalsTable = null; }
-                });
-        }
 
-        // Approve animal
-        function approveAnimal(id) {
-            Swal.fire({
-                title: 'Approve Pet?',
-                text: 'Are you sure you want to approve this pet? This will make it available for adoption.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, approve it!'
-            }).then((result) => {
-                if (!result.isConfirmed) return;
-
-            // Find the button and update it immediately
-            const button = event.target.closest('button');
-            const originalContent = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            button.disabled = true;
-
-            fetch(`/fluffy-admin/api/pending-animals/${id}/approve`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    // Show success message
-                        Swal.fire({icon: 'success', title: 'Success!', text: 'Pet approved successfully!'});
-                    
-                    // Refresh both tables immediately to show persistent "Done" state
-                    loadPendingAnimals();
-                    loadAnimals();
-                } else {
-                    // Restore original button state on error
-                    button.innerHTML = originalContent;
-                    button.disabled = false;
-                        Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to approve pet'});
-                }
-            })
-            .catch(() => {
-                // Restore original button state on error
-                button.innerHTML = originalContent;
-                button.disabled = false;
-                    Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
-                });
-            });
-        }
-
-        // Tab change event to load pending animals when tab is clicked
-        document.getElementById('pending-tab').addEventListener('shown.bs.tab', function () {
-            loadPendingAnimals();
-        });
-
-        // Tab change event to load approved animals when tab is clicked
-        document.getElementById('approved-tab').addEventListener('shown.bs.tab', function () {
-            loadAnimals();
-        });
 
     </script>
 </body>

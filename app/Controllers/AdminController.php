@@ -171,15 +171,33 @@ class AdminController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Valid image is required']);
         }
 
+        // Get birthdate from request - required
+        $birthdate = $this->request->getPost('birthdate');
+        if (!$birthdate) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Birthdate is required']);
+        }
+
+        // Calculate age in months from birthdate
+        $birthDate = new \DateTime($birthdate);
+        $now = new \DateTime();
+        $diff = $now->diff($birthDate);
+        $ageMonths = ($diff->y * 12) + $diff->m;
+        // Adjust if the day of month hasn't been reached yet
+        if ($now->format('d') < $birthDate->format('d')) {
+            $ageMonths--;
+        }
+        if ($ageMonths < 0) $ageMonths = 0;
+
         $data = [
             'name' => $this->request->getPost('name'),
             'category_id' => $this->request->getPost('category_id'),
-            'age' => $this->request->getPost('age'),
+            'age' => $ageMonths, // Always calculate from birthdate
             'gender' => $this->request->getPost('gender'),
             'price' => $this->request->getPost('price'),
             'description' => $this->request->getPost('description'),
             'image' => $imageName,
-            'status' => 'available'
+            'status' => 'available',
+            'birthdate' => $birthdate
         ];
 
         if ($this->animalModel->save($data)) {
@@ -229,14 +247,32 @@ class AdminController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Valid status is required']);
         }
 
+        // Get birthdate from request - required
+        $birthdate = $this->request->getPost('birthdate') ?: $this->request->getVar('birthdate');
+        if (!$birthdate) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Birthdate is required']);
+        }
+
+        // Calculate age in months from birthdate (always recalculate)
+        $birthDate = new \DateTime($birthdate);
+        $now = new \DateTime();
+        $diff = $now->diff($birthDate);
+        $ageMonths = ($diff->y * 12) + $diff->m;
+        // Adjust if the day of month hasn't been reached yet
+        if ($now->format('d') < $birthDate->format('d')) {
+            $ageMonths--;
+        }
+        if ($ageMonths < 0) $ageMonths = 0;
+
         $data = [
             'name' => $name,
             'category_id' => $category_id,
-            'age' => $age,
+            'age' => $ageMonths, // Always calculate from birthdate
             'gender' => $gender,
             'price' => $price,
             'status' => $status,
-            'description' => $description
+            'description' => $description,
+            'birthdate' => $birthdate
         ];
 
         // Handle file upload if provided
@@ -1312,9 +1348,60 @@ class AdminController extends BaseController
             $deliveryConfirmationModel = new \App\Models\DeliveryConfirmationModel();
             $confirmations = $deliveryConfirmationModel->getDeliveriesWithDetails();
             
+            // Remove duplicates - keep only ONE delivery confirmation per order_id
+            // Use a map to track the best record for each order_id
+            $uniqueConfirmations = [];
+            $orderIdMap = [];
+            $seenIds = [];
+            
+            // First pass: collect all records and score them
+            $scoredRecords = [];
+            foreach ($confirmations as $confirmation) {
+                $id = $confirmation['id'] ?? null;
+                $orderId = $confirmation['order_id'] ?? null;
+                
+                // Skip if we've already processed this exact ID
+                if ($id && in_array($id, $seenIds)) {
+                    continue;
+                }
+                $seenIds[] = $id;
+                
+                if ($orderId) {
+                    // Score this record
+                    $score = 0;
+                    if (!empty($confirmation['delivery_photo'])) $score += 10;
+                    if (!empty($confirmation['payment_photo'])) $score += 10;
+                    if (!empty($confirmation['delivery_notes'])) $score += 5;
+                    if (!empty($confirmation['admin_notes'])) $score += 5;
+                    if (!empty($confirmation['delivery_address'])) $score += 3;
+                    if (!empty($confirmation['created_at'])) {
+                        $score += 1;
+                        // Prefer more recent records
+                        $score += (strtotime($confirmation['created_at']) / 1000000);
+                    }
+                    
+                    if (!isset($orderIdMap[$orderId]) || $score > $orderIdMap[$orderId]['score']) {
+                        // Remove old record if exists
+                        if (isset($orderIdMap[$orderId])) {
+                            $oldId = $orderIdMap[$orderId]['id'];
+                            unset($scoredRecords[$oldId]);
+                        }
+                        
+                        $scoredRecords[$id] = $confirmation;
+                        $orderIdMap[$orderId] = ['id' => $id, 'score' => $score];
+                    }
+                } else {
+                    // If no order_id, just add it (shouldn't happen but handle it)
+                    $scoredRecords[$id] = $confirmation;
+                }
+            }
+            
+            // Convert to array
+            $uniqueConfirmations = array_values($scoredRecords);
+            
             return $this->response->setJSON([
                 'success' => true,
-                'data' => $confirmations
+                'data' => $uniqueConfirmations
             ]);
         } catch (\Exception $e) {
             log_message('error', 'Error in getDeliveryConfirmations: ' . $e->getMessage());
@@ -1454,6 +1541,16 @@ class AdminController extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'No items found for order']);
             }
 
+            // Check if delivery confirmation already exists for this order
+            $existingDelivery = $db->table('delivery_confirmations')
+                ->where('order_id', $orderId)
+                ->get()
+                ->getRowArray();
+            
+            if ($existingDelivery) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Delivery confirmation already exists for this order']);
+            }
+            
             $data = [
                 'order_id' => $orderId,
                 'staff_id' => session()->get('user_id'),

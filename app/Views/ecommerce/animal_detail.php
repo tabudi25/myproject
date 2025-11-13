@@ -9,16 +9,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -29,7 +29,7 @@
         }
 
         .navbar {
-            background: var(--black);
+            background: white !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             border-bottom: 2px solid var(--primary-color);
         }
@@ -43,9 +43,12 @@
         .product-image {
             width: 100%;
             height: 500px;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: block;
+            background-color: #f8f9fa;
         }
 
         .product-info {
@@ -155,7 +158,7 @@
 
         /* Navbar Links */
         .navbar-nav .nav-link {
-            color: white !important;
+            color: var(--black) !important;
             transition: color 0.3s ease;
         }
 
@@ -176,6 +179,14 @@
 
         .related-animals {
             margin-top: 60px;
+            margin-bottom: 60px;
+            padding: 40px 15px;
+        }
+        
+        .related-animals h3 {
+            color: var(--black);
+            font-weight: bold;
+            margin-bottom: 30px;
         }
 
         .animal-card {
@@ -197,7 +208,11 @@
         .animal-image {
             width: 100%;
             height: 200px;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 15px 15px 0 0;
+            display: block;
+            background-color: #f8f9fa;
         }
 
         .animal-info {
@@ -231,34 +246,6 @@
         .status-sold {
             background: #f8d7da;
             color: #721c24;
-        }
-
-        .quantity-selector {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .quantity-btn {
-            width: 40px;
-            height: 40px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .quantity-input {
-            width: 60px;
-            height: 40px;
-            border: 1px solid #ddd;
-            border-left: none;
-            border-right: none;
-            text-align: center;
-            background: white;
         }
 
         @media (max-width: 768px) {
@@ -367,6 +354,40 @@
 
     <!-- Product Details -->
     <div class="container">
+        <?php 
+        // Helper function to calculate age from birthdate
+        function calculateAgeFromBirthdate($birthdate, $ageMonths = null) {
+            if (!empty($birthdate)) {
+                $birth = new \DateTime($birthdate);
+                $now = new \DateTime();
+                $diff = $now->diff($birth);
+                $years = $diff->y;
+                $months = $diff->m;
+                
+                if ($years > 0 && $months > 0) {
+                    return $years . ' year' . ($years > 1 ? 's' : '') . ' ' . $months . ' month' . ($months > 1 ? 's' : '');
+                } elseif ($years > 0) {
+                    return $years . ' year' . ($years > 1 ? 's' : '');
+                } elseif ($months > 0) {
+                    return $months . ' month' . ($months > 1 ? 's' : '');
+                } else {
+                    return 'Less than 1 month';
+                }
+            } elseif ($ageMonths !== null) {
+                // Fallback to age in months if birthdate not available
+                $years = floor($ageMonths / 12);
+                $months = $ageMonths % 12;
+                if ($years > 0 && $months > 0) {
+                    return $years . ' year' . ($years > 1 ? 's' : '') . ' ' . $months . ' month' . ($months > 1 ? 's' : '');
+                } elseif ($years > 0) {
+                    return $years . ' year' . ($years > 1 ? 's' : '');
+                } else {
+                    return $months . ' month' . ($months > 1 ? 's' : '');
+                }
+            }
+            return 'Age unknown';
+        }
+        ?>
         <div class="row">
             <!-- Product Image -->
             <div class="col-lg-6">
@@ -395,21 +416,6 @@
                     
                     <?php if ($animal['status'] === 'available'): ?>
                         <?php if ($isLoggedIn): ?>
-                            <!-- Quantity Selector -->
-                            <div class="mb-3">
-                                <label class="form-label">Quantity</label>
-                                <div class="quantity-selector">
-                                    <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="1" readonly>
-                                    <button type="button" class="quantity-btn" onclick="changeQuantity(1)">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                                <small class="text-muted">Each pet is unique - maximum quantity is 1</small>
-                            </div>
-                            
                             <?php if ($inCart): ?>
                                 <button class="btn btn-success" disabled>
                                     <i class="fas fa-check me-2"></i>Already in Cart
@@ -452,7 +458,7 @@
                         <span class="detail-label">
                             <i class="fas fa-birthday-cake me-2"></i>Age
                         </span>
-                        <span class="detail-value"><?= $animal['age'] ?> months old</span>
+                        <span class="detail-value"><?= calculateAgeFromBirthdate($animal['birthdate'] ?? null, $animal['age'] ?? null) ?> old</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">
@@ -523,7 +529,7 @@
                                     </span>
                                 </div>
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-birthday-cake me-1"></i><?= $relatedAnimal['age'] ?> months old
+                                    <i class="fas fa-birthday-cake me-1"></i><?= calculateAgeFromBirthdate($relatedAnimal['birthdate'] ?? null, $relatedAnimal['age'] ?? null) ?> old
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="text-primary fw-bold">₱<?= number_format($relatedAnimal['price'], 2) ?></div>
@@ -541,19 +547,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function changeQuantity(delta) {
-            const input = document.getElementById('quantity');
-            let newValue = parseInt(input.value) + delta;
-            
-            // For pets, quantity is always 1 (each pet is unique)
-            if (newValue < 1) newValue = 1;
-            if (newValue > 1) newValue = 1;
-            
-            input.value = newValue;
-        }
-
         function addToCart(animalId) {
-            const quantity = document.getElementById('quantity').value;
+            // Quantity is always 1 for pets (each pet is unique)
+            const quantity = 1;
             
             fetch('/add-to-cart', {
                 method: 'POST',

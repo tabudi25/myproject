@@ -28,7 +28,7 @@
             border-bottom: 2px solid #f8f9fa;
         }
         .tracking-icon {
-            background: #ff6b35;
+            background: #4DD0E1;
             color: white;
             width: 50px;
             height: 50px;
@@ -58,7 +58,7 @@
             z-index: 1;
         }
         .timeline-line.active {
-            background: #ff6b35;
+            background: #4DD0E1;
         }
         .timeline-item {
             position: relative;
@@ -79,11 +79,11 @@
             flex-shrink: 0;
         }
         .timeline-icon.completed {
-            background: #ff6b35;
+            background: #4DD0E1;
             color: white;
         }
         .timeline-icon.current {
-            background: #ff6b35;
+            background: #4DD0E1;
             color: white;
             animation: pulse 2s infinite;
         }
@@ -165,8 +165,8 @@
             width: 100%;
         }
         .status-select:focus {
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+            border-color: #4DD0E1;
+            box-shadow: 0 0 0 0.2rem rgba(77, 208, 225, 0.25);
         }
     </style>
 </head>

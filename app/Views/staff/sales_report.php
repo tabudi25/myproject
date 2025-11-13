@@ -14,16 +14,16 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -233,7 +233,7 @@
         }
 
         .delivery-row:hover {
-            background-color: rgba(255, 107, 53, 0.05);
+            background-color: rgba(77, 208, 225, 0.05);
         }
 
         .delivery-row.pending {
@@ -300,6 +300,13 @@
             margin-bottom: 15px;
         }
 
+        /* Readonly field styling */
+        .form-control[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            opacity: 1;
+        }
+
         #completedDeliveriesTable_wrapper .dataTables_length {
             display: flex;
             align-items: center;
@@ -339,7 +346,7 @@
         #completedDeliveriesTable_wrapper .dataTables_length select:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(77, 208, 225, 0.25);
         }
 
         #completedDeliveriesTable_wrapper .dataTables_filter {
@@ -375,7 +382,7 @@
         #completedDeliveriesTable_wrapper .dataTables_filter input:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(77, 208, 225, 0.25);
         }
 
         #completedDeliveriesTable_wrapper .dataTables_info {
@@ -407,7 +414,7 @@
 
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(77, 208, 225, 0.25);
         }
 
         .photo-preview {
@@ -427,7 +434,7 @@
 
         .animal-card:hover {
             border-color: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(255, 107, 53, 0.1);
+            box-shadow: 0 2px 10px rgba(77, 208, 225, 0.1);
         }
 
         .animal-image {
@@ -555,7 +562,7 @@
                         <div class="col-md-6">
                             <div class="stat-card">
                                 <h3 id="totalSales">₱0</h3>
-                                <p><i class="fas fa-dollar-sign me-2"></i>Total Sales</p>
+                                <p><i class="fas fa-peso-sign me-2"></i>Total Sales</p>
                             </div>
                         </div>
                     </div>
@@ -637,12 +644,14 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Payment Amount Received *</label>
-                                                <input type="number" step="0.01" class="form-control" name="payment_amount" id="paymentAmount" required placeholder="0.00">
+                                                <input type="number" step="0.01" class="form-control" name="payment_amount" id="paymentAmount" required placeholder="0.00" readonly>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Payment Method *</label>
+                                                <input type="text" class="form-control" id="paymentMethod" readonly>
+                                                <input type="hidden" name="payment_method" id="paymentMethodHidden" value="">
                                             </div>
                                         </div>
-                                        
-                                        <!-- Hidden payment method field (auto-populated from order) -->
-                                        <input type="hidden" name="payment_method" id="paymentMethod" value="">
 
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
@@ -652,9 +661,9 @@
                                                 <div id="deliveryPhotoPreview" class="mt-2"></div>
                                             </div>
 
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-6 mb-3" id="paymentProofPhotoField" style="display: none;">
                                                 <label class="form-label">Payment Proof Photo *</label>
-                                                <input type="file" class="form-control" name="payment_photo" accept="image/*" required>
+                                                <input type="file" class="form-control" name="payment_photo" accept="image/*" id="paymentPhotoInput">
                                                 <small class="text-muted">Photo of payment receipt or transaction proof</small>
                                                 <div id="paymentPhotoPreview" class="mt-2"></div>
                                             </div>
@@ -887,8 +896,8 @@
                         datasets: [{
                             label: 'Sales (₱)',
                             data: [0],
-                            borderColor: '#ff6b35',
-                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            borderColor: '#4DD0E1',
+                            backgroundColor: 'rgba(77, 208, 225, 0.1)',
                             tension: 0.4,
                             fill: true,
                             borderWidth: 2
@@ -926,8 +935,8 @@
                         datasets: [{
                             label: 'Sales (₱)',
                             data: sales,
-                            borderColor: '#ff6b35',
-                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            borderColor: '#4DD0E1',
+                            backgroundColor: 'rgba(77, 208, 225, 0.1)',
                             tension: 0.4,
                             fill: true,
                             borderWidth: 2
@@ -980,7 +989,7 @@
             // Use real category data from API, or show empty state
             const categoryLabels = chartData.categoryLabels || [];
             const categoryData = chartData.categoryData || [];
-            const categoryColors = chartData.categoryColors || ['#ff6b35', '#f7931e', '#2c3e50', '#28a745', '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14'];
+            const categoryColors = chartData.categoryColors || ['#4DD0E1', '#FF8A65', '#2c3e50', '#28a745', '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14'];
             
             // If no category data, show empty state
             if (categoryLabels.length === 0 || categoryData.length === 0) {
@@ -1308,11 +1317,8 @@
                 // Switch to delivery tab
                 const deliveryTab = new bootstrap.Tab(document.getElementById('delivery-tab'));
                 deliveryTab.show();
-                // Only load deliveries if a new delivery was just created
-                const deliveryCreated = urlParams.get('delivery_created');
-                if (deliveryCreated === '1') {
-                    loadMyDeliveries();
-                }
+                // Load deliveries when tab is shown
+                loadMyDeliveries();
                 checkFlashMessages();
             } else if (tab === 'completed-deliveries') {
                 // Switch to completed deliveries tab
@@ -1332,17 +1338,12 @@
             });
         }
 
-        // Load deliveries when delivery tab is shown (only if delivery was just created)
+        // Load deliveries when delivery tab is shown
         const deliveryTabEl = document.getElementById('delivery-tab');
         if (deliveryTabEl) {
             deliveryTabEl.addEventListener('shown.bs.tab', function() {
-                console.log('Delivery tab shown...');
-                // Only load deliveries if a new delivery was just created
-                const urlParams = new URLSearchParams(window.location.search);
-                const deliveryCreated = urlParams.get('delivery_created');
-                if (deliveryCreated === '1') {
-                    loadMyDeliveries();
-                }
+                console.log('Delivery tab shown, loading deliveries...');
+                loadMyDeliveries();
                 checkFlashMessages();
                 // Load available orders if form is visible
                 if (document.getElementById('newDeliveryForm') && document.getElementById('newDeliveryForm').classList.contains('show')) {
@@ -1352,14 +1353,9 @@
             
             // Also check if tab is already active on page load
             if (deliveryTabEl.classList.contains('active')) {
-                console.log('Delivery tab is active on page load...');
+                console.log('Delivery tab is active on page load, loading deliveries...');
                 setTimeout(() => {
-                    // Only load deliveries if a new delivery was just created
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const deliveryCreated = urlParams.get('delivery_created');
-                    if (deliveryCreated === '1') {
-                        loadMyDeliveries();
-                    }
+                    loadMyDeliveries();
                     checkFlashMessages();
                 }, 100);
             }
@@ -1421,7 +1417,11 @@
                         emptyEl.style.display = 'none';
                         tableEl.style.display = 'block';
                         
-                        tbody.innerHTML = data.data.map(delivery => {
+                        // Clear existing content to prevent duplication
+                        tbody.innerHTML = '';
+                        
+                        // Build rows
+                        const rows = data.data.map(delivery => {
                             // Format date safely
                             let formattedDate = 'N/A';
                             try {
@@ -1448,22 +1448,24 @@
                                         </small>
                                     </td>
                                     <td>
-                                        <div class="d-flex gap-1">
-                                            ${delivery.delivery_photo ? `
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            ${delivery.delivery_photo && delivery.delivery_photo.trim() !== '' ? `
                                                 <img src="/uploads/deliveries/${delivery.delivery_photo}" 
                                                      class="photo-thumbnail" 
                                                      alt="Delivery photo"
                                                      title="Delivery Photo"
+                                                     onerror="this.style.display='none'; this.nextElementSibling && this.nextElementSibling.style.display='inline';"
                                                      onclick="showImageModal(this.src, 'Delivery Photo')">
                                             ` : ''}
-                                            ${delivery.payment_photo ? `
+                                            ${delivery.payment_photo && delivery.payment_photo.trim() !== '' ? `
                                                 <img src="/uploads/payments/${delivery.payment_photo}" 
                                                      class="photo-thumbnail" 
                                                      alt="Payment photo"
                                                      title="Payment Proof"
+                                                     onerror="this.style.display='none'; this.nextElementSibling && this.nextElementSibling.style.display='inline';"
                                                      onclick="showImageModal(this.src, 'Payment Proof')">
                                             ` : ''}
-                                            ${!delivery.delivery_photo && !delivery.payment_photo ? '<span class="text-muted">No photos</span>' : ''}
+                                            ${(!delivery.delivery_photo || delivery.delivery_photo.trim() === '') && (!delivery.payment_photo || delivery.payment_photo.trim() === '') ? '<span class="text-muted">No photos</span>' : ''}
                                         </div>
                                     </td>
                                     <td>
@@ -1492,10 +1494,19 @@
                                 </tr>
                             `;
                         }).join('');
+                        
+                        // Set innerHTML once with all rows
+                        tbody.innerHTML = rows;
                     } else {
                         console.log('No deliveries found or empty data');
                         emptyEl.style.display = 'block';
                         tableEl.style.display = 'none';
+                        // Restore empty state message
+                        emptyEl.innerHTML = `
+                            <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No delivery confirmations yet</h5>
+                            <p class="text-muted">Start by creating your first delivery confirmation</p>
+                        `;
                     }
                 })
                 .catch(err => {
@@ -1562,6 +1573,21 @@
                     loadOrderDetails(orderId);
                 } else {
                     orderDetails.style.display = 'none';
+                    // Reset payment fields when no order is selected
+                    const paymentAmount = document.getElementById('paymentAmount');
+                    const paymentMethod = document.getElementById('paymentMethod');
+                    const paymentMethodHidden = document.getElementById('paymentMethodHidden');
+                    const paymentProofPhotoField = document.getElementById('paymentProofPhotoField');
+                    const paymentPhotoInput = document.getElementById('paymentPhotoInput');
+                    
+                    if (paymentAmount) paymentAmount.value = '';
+                    if (paymentMethod) paymentMethod.value = '';
+                    if (paymentMethodHidden) paymentMethodHidden.value = '';
+                    if (paymentProofPhotoField) paymentProofPhotoField.style.display = 'none';
+                    if (paymentPhotoInput) {
+                        paymentPhotoInput.required = false;
+                        paymentPhotoInput.value = '';
+                    }
                 }
             });
         }
@@ -1608,17 +1634,31 @@
             const paymentAmount = document.getElementById('paymentAmount');
             const paymentMethod = document.getElementById('paymentMethod');
             
-            // Set payment amount to order total
+            // Set payment amount to order total (readonly)
             if (paymentAmount && order.total_amount) {
                 paymentAmount.value = parseFloat(order.total_amount).toFixed(2);
             }
             
-            // Set payment method from order (hidden field)
+            // Set payment method from order (visible readonly field)
+            const paymentMethodHidden = document.getElementById('paymentMethodHidden');
             if (paymentMethod && order.payment_method) {
-                paymentMethod.value = order.payment_method;
+                // Format payment method for display
+                const paymentMethodMap = {
+                    'cod': 'Cash on Delivery',
+                    'cash': 'Cash',
+                    'gcash': 'GCash'
+                };
+                const paymentMethodText = paymentMethodMap[order.payment_method] || order.payment_method || 'N/A';
+                paymentMethod.value = paymentMethodText;
+                if (paymentMethodHidden) {
+                    paymentMethodHidden.value = order.payment_method;
+                }
             }
             
-            // Handle delivery type - hide/show delivery address
+            // Handle delivery type - hide/show delivery address and payment proof photo
+            const paymentProofPhotoField = document.getElementById('paymentProofPhotoField');
+            const paymentPhotoInput = document.getElementById('paymentPhotoInput');
+            
             if (order.delivery_type === 'pickup') {
                 deliveryAddressField.style.display = 'none';
                 deliveryAddress.required = false;
@@ -1628,11 +1668,28 @@
                 }
                 notesLabel.textContent = 'Notes';
                 deliveryNotes.placeholder = 'Any additional notes about the pickup';
+                
+                // Show payment proof photo field for pickup orders
+                if (paymentProofPhotoField) {
+                    paymentProofPhotoField.style.display = 'block';
+                }
+                if (paymentPhotoInput) {
+                    paymentPhotoInput.required = true;
+                }
             } else {
                 deliveryAddressField.style.display = 'block';
                 deliveryAddress.required = true;
                 notesLabel.textContent = 'Delivery Notes';
                 deliveryNotes.placeholder = 'Any additional notes about the delivery';
+                
+                // Hide payment proof photo field for delivery orders
+                if (paymentProofPhotoField) {
+                    paymentProofPhotoField.style.display = 'none';
+                }
+                if (paymentPhotoInput) {
+                    paymentPhotoInput.required = false;
+                    paymentPhotoInput.value = '';
+                }
                 
                 // Auto-fill delivery address if available
                 if (order.delivery_address && !deliveryAddress.value) {

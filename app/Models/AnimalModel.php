@@ -14,11 +14,11 @@ class AnimalModel extends Model
         'category_id',
         'age', 
         'gender',
+        'birthdate',
         'price', 
         'description', 
         'image', 
-        'status', 
-        'added_by'
+        'status'
     ];
     protected $useTimestamps = false;
     protected $createdField = 'created_at';

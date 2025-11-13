@@ -8,16 +8,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -88,7 +88,7 @@
 
         .btn-secondary {
             background-color: var(--dark-orange); border-color: var(--dark-orange); color: white; transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 4px 15px rgba(77, 208, 225, 0.4);
         }
     </style>
 </head>
@@ -99,7 +99,7 @@
             <div class="sidebar-header">
                 <a href="/fluffy-admin" class="sidebar-brand">
                     <i class="fas fa-paw me-2"></i>
-                    <span class="brand-text">Fluffy Admin</span>
+                    <span class="brand-text">Fluffy Planet Admin</span>
                 </a>
             </div>
             
@@ -178,7 +178,7 @@
                     
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown" style="display: inline-block;">
-                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #4DD0E1; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                             <i class="fas fa-user-shield me-2"></i>
                             <span>Admin</span>
                             <i class="fas fa-chevron-down ms-2"></i>
@@ -277,18 +277,28 @@
                                                 </p>
                                             </div>
                                             <div class="col-md-6">
-                                                <?php if ($delivery['delivery_photo']): ?>
-                                                    <img src="/uploads/deliveries/<?= $delivery['delivery_photo'] ?>" 
-                                                         class="photo-thumbnail mb-2" 
-                                                         alt="Delivery photo"
-                                                         onclick="showImageModal(this.src, 'Delivery Photo')">
+                                                <?php if (!empty($delivery['delivery_photo']) && trim($delivery['delivery_photo']) !== ''): ?>
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block mb-1"><i class="fas fa-camera"></i> Delivery Photo</small>
+                                                        <img src="/uploads/deliveries/<?= $delivery['delivery_photo'] ?>" 
+                                                             class="photo-thumbnail" 
+                                                             alt="Delivery photo"
+                                                             onerror="this.style.display='none';"
+                                                             onclick="showImageModal(this.src, 'Delivery Photo')">
+                                                    </div>
                                                 <?php endif; ?>
                                                 
-                                                <?php if ($delivery['payment_photo']): ?>
-                                                    <img src="/uploads/payments/<?= $delivery['payment_photo'] ?>" 
-                                                         class="photo-thumbnail mb-2" 
-                                                         alt="Payment photo"
-                                                         onclick="showImageModal(this.src, 'Payment Proof')">
+                                                <?php if (isset($delivery['delivery_type']) && $delivery['delivery_type'] === 'pickup'): ?>
+                                                    <?php if (!empty($delivery['payment_photo']) && trim($delivery['payment_photo']) !== ''): ?>
+                                                        <div class="mb-2">
+                                                            <small class="text-muted d-block mb-1"><i class="fas fa-receipt"></i> Payment Proof Photo</small>
+                                                            <img src="/uploads/payments/<?= $delivery['payment_photo'] ?>" 
+                                                                 class="photo-thumbnail" 
+                                                                 alt="Payment photo"
+                                                                 onerror="this.style.display='none';"
+                                                                 onclick="showImageModal(this.src, 'Payment Proof')">
+                                                        </div>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                             </div>
                                         </div>

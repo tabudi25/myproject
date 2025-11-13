@@ -122,6 +122,9 @@ $routes->get('/fluffy-admin/api/pending-delivery-confirmations', 'AdminControlle
     
     // Real-time order updates
     $routes->get('/fluffy-admin/api/order-updates', 'AdminController::getOrderUpdates');
+    
+    // Cleanup delivery confirmations
+    $routes->post('/fluffy-admin/api/cleanup-deliveries', 'CleanupController::cleanupDeliveries');
 });
 
 // Staff routes
@@ -145,6 +148,7 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     // Staff API routes
     $routes->get('/staff/api/animals', 'StaffController::getAnimals');
     $routes->put('/staff/api/animals/(:num)', 'StaffController::updateAnimal/$1');
+    $routes->post('/staff/api/animals/(:num)/status', 'StaffController::updateAnimalStatus/$1');
     $routes->post('/staff/api/animals/add', 'StaffController::addAnimalForApproval');
     
     $routes->get('/staff/api/inquiries', 'StaffController::getInquiries');

@@ -10,16 +10,16 @@
     <script src="/js/realtime.js"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -220,13 +220,16 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             border-left: 4px solid var(--primary-color);
             transition: all 0.3s ease;
-            text-align: center;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             border-left-color: var(--secondary-color);
+        }
+        
+        .stat-card.clickable {
+            cursor: pointer;
         }
 
         .stat-icon {
@@ -238,7 +241,7 @@
             justify-content: center;
             font-size: 24px;
             color: white;
-            margin: 0 auto 15px;
+            margin-bottom: 15px;
         }
 
         .stat-icon.orange { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
@@ -560,7 +563,7 @@
                 <!-- Statistics Grid -->
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <div class="stat-card">
+                        <div class="stat-card clickable" onclick="window.location.href='/staff/animals'">
                             <div class="stat-icon orange">
                                 <i class="fas fa-paw"></i>
                             </div>
@@ -573,7 +576,7 @@
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <div class="stat-card">
+                        <div class="stat-card clickable" onclick="window.location.href='/staff/payments'">
                             <div class="stat-icon blue">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
@@ -585,10 +588,10 @@
                                 <i class="fas fa-calendar-day me-1"></i>
                                 <span class="today-orders-count"><?= $stats['today_orders'] ?></span> Today
                             </small>
-                            <small class="text-warning d-block">
+                            <!-- <small class="text-warning d-block">
                                 <i class="fas fa-cog me-1"></i>
                                 <?= $stats['processing_orders'] ?> Processing
-                            </small>
+                            </small> -->
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
@@ -605,20 +608,7 @@
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <div class="stat-card">
-                            <div class="stat-icon yellow">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="stat-value"><?= $stats['pending_animals'] ?></div>
-                            <div class="stat-label">Proposed Pets</div>
-                            <small class="text-warning d-block mt-1">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Needs Review
-                            </small>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="stat-card">
+                        <div class="stat-card clickable" onclick="window.location.href='/staff/orders'">
                             <div class="stat-icon red">
                                 <i class="fas fa-truck"></i>
                             </div>
@@ -877,13 +867,13 @@
                         {
                             label: 'Sales (₱)',
                             data: salesData,
-                            borderColor: '#ff6b35',
-                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            borderColor: '#4DD0E1',
+                            backgroundColor: 'rgba(77, 208, 225, 0.1)',
                             borderWidth: 3,
                             tension: 0.4,
                             fill: true,
                             pointRadius: 5,
-                            pointBackgroundColor: '#ff6b35',
+                            pointBackgroundColor: '#4DD0E1',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2,
                             yAxisID: 'y'

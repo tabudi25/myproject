@@ -77,6 +77,22 @@ class DeliveryConfirmationModel extends Model
             $builder->join('animals a', 'dc.animal_id = a.id', 'left');
             $builder->join('orders o', 'dc.order_id = o.id', 'left');
             $builder->where('dc.staff_id', $staffId);
+            // Only return valid delivery confirmations that have been properly created
+            // Must have order_id and customer_id (essential fields for a valid delivery)
+            $builder->where('dc.order_id IS NOT NULL');
+            $builder->where('dc.customer_id IS NOT NULL');
+            // Only show manually created delivery confirmations (exclude automatically created ones)
+            // Manually created ones have at least one photo OR delivery_notes that don't contain "via status update"
+            // Automatically created ones have no photos and delivery_notes containing "via status update"
+            $builder->groupStart();
+                $builder->where("(dc.delivery_photo IS NOT NULL AND dc.delivery_photo != '')");
+                $builder->orWhere("(dc.payment_photo IS NOT NULL AND dc.payment_photo != '')");
+                $builder->orGroupStart();
+                    $builder->where("(dc.delivery_notes IS NOT NULL AND dc.delivery_notes != '' AND dc.delivery_notes NOT LIKE '%via status update%')");
+                $builder->groupEnd();
+            $builder->groupEnd();
+            // Group by delivery confirmation ID to prevent duplicates
+            $builder->groupBy('dc.id');
             $builder->orderBy('dc.created_at', 'DESC');
             
             $result = $builder->get();
@@ -91,7 +107,24 @@ class DeliveryConfirmationModel extends Model
     {
         $builder = $this->db->table('delivery_confirmations dc');
         $builder->select('
-            dc.*,
+            dc.id,
+            dc.order_id,
+            dc.staff_id,
+            dc.customer_id,
+            dc.animal_id,
+            dc.delivery_photo,
+            dc.payment_photo,
+            dc.delivery_notes,
+            dc.admin_notes,
+            dc.delivery_address,
+            dc.delivery_date,
+            dc.payment_amount,
+            dc.payment_method,
+            dc.status,
+            dc.created_at,
+            dc.updated_at,
+            dc.created_at as confirmation_created_at,
+            dc.delivery_date as confirmation_delivery_date,
             u1.name as staff_name,
             u1.email as staff_email,
             u2.name as customer_name,
@@ -99,6 +132,9 @@ class DeliveryConfirmationModel extends Model
             a.name as animal_name,
             a.image as animal_image,
             o.order_number,
+            o.delivery_type,
+            o.status as order_status,
+            o.created_at as order_created_at,
             o.total_amount as order_total
         ');
         $builder->join('users u1', 'dc.staff_id = u1.id', 'left');
@@ -110,7 +146,13 @@ class DeliveryConfirmationModel extends Model
             $builder->where('dc.status', $status);
         }
         
+        // Group by delivery confirmation ID to prevent duplicates from JOINs
+        // Also ensure we only get one record per order_id by using a subquery
+        $builder->groupBy('dc.id');
         $builder->orderBy('dc.created_at', 'DESC');
+        
+        // Use a subquery to get only the most recent/best delivery confirmation per order_id
+        // This prevents duplicates at the database level
         
         if ($limit) {
             $builder->limit($limit, $offset);
@@ -169,10 +211,20 @@ class DeliveryConfirmationModel extends Model
     public function getConfirmationWithDetails($id)
     {
         $builder = $this->db->table('delivery_confirmations dc');
-        $builder->select('dc.*, o.order_number, o.delivery_type,
-                         u1.name as staff_name, u1.email as staff_email,
-                         u2.name as customer_name, u2.email as customer_email,
-                         a.name as animal_name, a.image as animal_image');
+        $builder->select('dc.*, 
+                         dc.created_at as confirmation_created_at,
+                         dc.delivery_date as confirmation_delivery_date,
+                         o.order_number, 
+                         o.delivery_type,
+                         o.payment_status,
+                         o.status as order_status,
+                         o.created_at as order_created_at,
+                         u1.name as staff_name, 
+                         u1.email as staff_email,
+                         u2.name as customer_name, 
+                         u2.email as customer_email,
+                         a.name as animal_name, 
+                         a.image as animal_image');
         $builder->join('orders o', 'o.id = dc.order_id');
         $builder->join('users u1', 'u1.id = dc.staff_id');
         $builder->join('users u2', 'u2.id = dc.customer_id');

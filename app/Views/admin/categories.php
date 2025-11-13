@@ -13,16 +13,16 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -468,7 +468,7 @@
             <div class="sidebar-header">
                 <a href="/fluffy-admin" class="sidebar-brand">
                     <i class="fas fa-paw me-2"></i>
-                    <span class="brand-text">Fluffy Admin</span>
+                    <span class="brand-text">Fluffy Planet Admin</span>
                 </a>
             </div>
             
@@ -535,7 +535,7 @@
                     
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown" style="display: inline-block;">
-                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #4DD0E1; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                             <i class="fas fa-user-shield me-2"></i>
                             <span>Admin</span>
                             <i class="fas fa-chevron-down ms-2"></i>
@@ -590,7 +590,7 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="prices-list-tab" data-bs-toggle="tab" data-bs-target="#prices-list" type="button" role="tab" aria-controls="prices-list" aria-selected="false">
-                            <i class="fas fa-dollar-sign me-2"></i>List of Prices
+                            <i class="fas fa-peso-sign me-2"></i>List of Prices
                         </button>
                     </li>
                 </ul>
@@ -1018,7 +1018,7 @@ function toggleCategoryStatus(categoryId, currentStatus, event) {
     text: `Are you sure you want to ${action} this category?`,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#ff6b35',
+    confirmButtonColor: '#4DD0E1',
     cancelButtonColor: '#6c757d',
     confirmButtonText: `Yes, ${action} it!`
   }).then((result) => {
@@ -1184,9 +1184,9 @@ let allCategories = [];
 // Category-specific price types mapping
 const categoryPriceTypes = {
     'Dog': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
         { value: 'puppy_price_male', label: 'Puppy Price (Male)' },
         { value: 'puppy_price_female', label: 'Puppy Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
@@ -1195,9 +1195,9 @@ const categoryPriceTypes = {
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Dogs': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
         { value: 'puppy_price_male', label: 'Puppy Price (Male)' },
         { value: 'puppy_price_female', label: 'Puppy Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
@@ -1206,87 +1206,95 @@ const categoryPriceTypes = {
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Cat': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'kitten_price', label: 'Kitten Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'kitten_price_male', label: 'Kitten Price (Male)' },
+        { value: 'kitten_price_female', label: 'Kitten Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Cats': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'kitten_price', label: 'Kitten Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'kitten_price_male', label: 'Kitten Price (Male)' },
+        { value: 'kitten_price_female', label: 'Kitten Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Bird': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'baby_price', label: 'Baby Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price_male', label: 'Baby Price (Male)' },
+        { value: 'baby_price_female', label: 'Baby Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Birds': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'baby_price', label: 'Baby Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price_male', label: 'Baby Price (Male)' },
+        { value: 'baby_price_female', label: 'Baby Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Fish': [
-        { value: 'base_price', label: 'Base Price' },
+        // { value: 'base_price', label: 'Base Price' },
         { value: 'small_size', label: 'Small Size' },
         { value: 'medium_size', label: 'Medium Size' },
         { value: 'large_size', label: 'Large Size' },
         { value: 'extra_large', label: 'Extra Large' }
     ],
     'Rabbit': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'baby_price', label: 'Baby Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price_male', label: 'Baby Price (Male)' },
+        { value: 'baby_price_female', label: 'Baby Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Rabbits': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'baby_price', label: 'Baby Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price_male', label: 'Baby Price (Male)' },
+        { value: 'baby_price_female', label: 'Baby Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Hamster': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'baby_price', label: 'Baby Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price_male', label: 'Baby Price (Male)' },
+        { value: 'baby_price_female', label: 'Baby Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },
         { value: 'senior_price_female', label: 'Senior Price (Female)' }
     ],
     'Hamsters': [
-        { value: 'base_price', label: 'Base Price' },
-        { value: 'male_price', label: 'Male Price' },
-        { value: 'female_price', label: 'Female Price' },
-        { value: 'baby_price', label: 'Baby Price' },
+        // { value: 'base_price', label: 'Base Price' },
+        // { value: 'male_price', label: 'Male Price' },
+        // { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price_male', label: 'Baby Price (Male)' },
+        { value: 'baby_price_female', label: 'Baby Price (Female)' },
         { value: 'adult_price_male', label: 'Adult Price (Male)' },
         { value: 'adult_price_female', label: 'Adult Price (Female)' },
         { value: 'senior_price_male', label: 'Senior Price (Male)' },

@@ -10,16 +10,16 @@
     <script src="/js/realtime.js"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -402,7 +402,7 @@
 
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); color: #ff6b35; }
+            50% { transform: scale(1.1); color: #4DD0E1; }
             100% { transform: scale(1); }
         }
 
@@ -555,7 +555,7 @@
             <div class="sidebar-header">
                 <a href="/fluffy-admin" class="sidebar-brand">
                     <i class="fas fa-paw me-2"></i>
-                    <span class="brand-text">Fluffy Admin</span>
+                    <span class="brand-text">Fluffy Planet Admin</span>
                 </a>
             </div>
             
@@ -630,7 +630,7 @@
                     
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown" style="display: inline-block;">
-                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                        <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #4DD0E1; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                             <i class="fas fa-user-shield me-2"></i>
                             <span><?= esc($userName) ?></span>
                             <i class="fas fa-chevron-down ms-2"></i>
@@ -1354,13 +1354,13 @@
                         {
                             label: 'Sales (₱)',
                             data: salesData,
-                            borderColor: '#ff6b35',
-                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            borderColor: '#4DD0E1',
+                            backgroundColor: 'rgba(77, 208, 225, 0.1)',
                             borderWidth: 3,
                             tension: 0.4,
                             fill: true,
                             pointRadius: 5,
-                            pointBackgroundColor: '#ff6b35',
+                            pointBackgroundColor: '#4DD0E1',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2,
                             yAxisID: 'y'
@@ -1368,13 +1368,13 @@
                         {
                             label: 'Orders',
                             data: ordersData,
-                            borderColor: '#f7931e',
-                            backgroundColor: 'rgba(247, 147, 30, 0.1)',
+                            borderColor: '#FF8A65',
+                            backgroundColor: 'rgba(255, 138, 101, 0.1)',
                             borderWidth: 3,
                             tension: 0.4,
                             fill: true,
                             pointRadius: 5,
-                            pointBackgroundColor: '#f7931e',
+                            pointBackgroundColor: '#FF8A65',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2,
                             yAxisID: 'y1'

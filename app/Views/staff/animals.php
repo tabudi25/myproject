@@ -9,16 +9,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -77,6 +77,15 @@
         }
 
         .page-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .content-card {
             background: white;
             border-radius: 12px;
             padding: 25px;
@@ -158,6 +167,36 @@
         .badge-available { background: #28a745; }
         .badge-sold { background: #dc3545; }
         .badge-reserved { background: #ffc107; color: #000; }
+        .badge-inactive { background: #6c757d; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-status {
+            padding: 4px 12px;
+            font-size: 0.875rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-status:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-active {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-inactive {
+            background-color: #6c757d;
+            color: white;
+        }
 
         /* Price Selection Buttons */
         .price-option-btn {
@@ -296,11 +335,12 @@
                                     <th>Gender</th>
                                     <th>Price</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="animalsTableBody">
                                 <tr>
-                                    <td colspan="7" class="text-center">
+                                    <td colspan="8" class="text-center">
                                         <div class="spinner-border text-primary" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
@@ -324,10 +364,6 @@
                 </div>
                 <form id="addAnimalForm" enctype="multipart/form-data">
                     <div class="modal-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Note:</strong> Pets added by staff require admin approval before they become visible to customers.
-                        </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -348,22 +384,22 @@
 
                         <!-- Category Prices Display -->
                         <div class="mb-3" id="categoryPricesContainer" style="display: none;">
-                            <label class="form-label">Fixed Prices for this Category (Set by Admin) <span class="text-danger">*</span></label>
-                            <select class="form-select" id="priceSelect" required>
+                            <label class="form-label">Fixed Prices for this Category (Set by Admin)</label>
+                            <select class="form-select" id="priceSelect">
                                 <option value="">Select a fixed price option</option>
                             </select>
-                            <small class="text-muted">Select a price option to auto-fill the price field below</small>
+                            <small class="text-muted">Select a price option to auto-fill gender and price fields below</small>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Age (months) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="age" min="1" required>
+                                <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="birthdate" required max="<?= date('Y-m-d') ?>">
                             </div>
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                <select class="form-select" name="gender" required>
+                                <select class="form-select" name="gender" id="add_gender" required>
                                     <option value="">Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -394,7 +430,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-2"></i>Submit for Approval
+                            <i class="fas fa-check me-2"></i>Confirm
                         </button>
                     </div>
                 </form>
@@ -518,13 +554,33 @@
         if (addCategorySelect && priceSelect && priceInput) {
             // Handle price selection from dropdown
             priceSelect.addEventListener('change', function() {
-                const selectedValue = this.value;
-                if (selectedValue && selectedValue !== '') {
-                    priceInput.value = selectedValue;
-                    priceInput.setAttribute('readonly', 'readonly');
+                const selectedIndex = this.value;
+                const genderSelect = document.getElementById('add_gender');
+                
+                if (selectedIndex && window.categoryPricesData && window.categoryPricesData[selectedIndex]) {
+                    const selectedPrice = window.categoryPricesData[selectedIndex];
+                    
+                    // Extract gender from price_type (e.g., "adult_price_male" -> "male")
+                    const priceTypeParts = selectedPrice.price_type.split('_');
+                    const gender = priceTypeParts[priceTypeParts.length - 1]; // Last part is usually gender
+                    
+                    // Set gender if it's valid
+                    if (genderSelect && (gender === 'male' || gender === 'female')) {
+                        genderSelect.value = gender;
+                    }
+                    
+                    // Set price
+                    if (priceInput) {
+                        priceInput.value = parseFloat(selectedPrice.price).toFixed(2);
+                        priceInput.setAttribute('readonly', 'readonly');
+                    }
                 } else {
-                    priceInput.value = '';
-                    priceInput.setAttribute('readonly', 'readonly');
+                    // Reset fields if no option selected
+                    if (genderSelect) genderSelect.value = '';
+                    if (priceInput) {
+                        priceInput.value = '';
+                        priceInput.setAttribute('readonly', 'readonly');
+                    }
                 }
             });
             
@@ -532,7 +588,7 @@
                 const categoryId = parseInt(this.value);
                 const pricesContainer = document.getElementById('categoryPricesContainer');
                 
-                // Reset price input and dropdown when category changes
+                // Reset price input, dropdown, and gender when category changes
                 if (priceInput) {
                     priceInput.value = '';
                     priceInput.setAttribute('readonly', 'readonly');
@@ -541,6 +597,9 @@
                     priceSelect.innerHTML = '<option value="">Select a fixed price option</option>';
                     priceSelect.value = '';
                 }
+                const genderSelect = document.getElementById('add_gender');
+                if (genderSelect) genderSelect.value = '';
+                window.categoryPricesData = null;
                 
                 if (!categoryId || isNaN(categoryId)) {
                     if (pricesContainer) pricesContainer.style.display = 'none';
@@ -572,12 +631,19 @@
                             console.log('Filtered prices for category', categoryId, ':', categoryPrices);
                             
                             if (categoryPrices.length > 0) {
+                                // Store prices data for later use
+                                window.categoryPricesData = categoryPrices;
+                                
                                 // Populate dropdown with price options
                                 let optionsHtml = '<option value="">Select a fixed price option</option>';
-                                categoryPrices.forEach(price => {
-                                    const priceType = price.price_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                categoryPrices.forEach((price, index) => {
+                                    // Format price type: adult_price_male -> Adult Price Male
+                                    const priceType = price.price_type
+                                        .split('_')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ');
                                     const priceValue = parseFloat(price.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                                    optionsHtml += `<option value="${price.price}">${priceType} (₱${priceValue})</option>`;
+                                    optionsHtml += `<option value="${index}">${priceType}: ₱${priceValue}</option>`;
                                 });
                                 priceSelect.innerHTML = optionsHtml;
                                 priceSelect.disabled = false;
@@ -603,7 +669,66 @@
         document.getElementById('addAnimalForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Validate required fields before processing
+            const name = document.querySelector('[name="name"]').value.trim();
+            const categoryId = document.querySelector('[name="category_id"]').value;
+            const birthdate = document.querySelector('[name="birthdate"]').value;
+            const gender = document.querySelector('[name="gender"]').value;
+            const price = document.querySelector('[name="price"]').value;
+            const image = document.querySelector('[name="image"]').files[0];
+            
+            if (!name) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please enter the pet\'s name.'});
+                return;
+            }
+            if (!categoryId) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select a category.'});
+                return;
+            }
+            if (!birthdate) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select the pet\'s birthdate.'});
+                return;
+            }
+            if (!gender) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select the pet\'s gender.'});
+                return;
+            }
+            if (!price || price === '' || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select a price from the dropdown. The price field must have a valid value.'});
+                return;
+            }
+            if (!image) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Please select an image for the pet.'});
+                return;
+            }
+            
             const formData = new FormData(this);
+            
+            // Ensure price is properly set (readonly fields should submit, but let's be explicit)
+            formData.set('price', price);
+            
+            // Validate birthdate
+            const b = new Date(birthdate);
+            const now = new Date();
+            if (b > now) {
+                Swal.fire({icon: 'warning', title: 'Warning', text: 'Birthdate cannot be in the future.'});
+                return;
+            }
+            const years = now.getFullYear() - b.getFullYear();
+            const months = now.getMonth() - b.getMonth();
+            const days = now.getDate() - b.getDate();
+            let ageMonths = years * 12 + months - (days < 0 ? 1 : 0);
+            if (ageMonths < 0) ageMonths = 0;
+
+            // Keep birthdate in formData and also add age
+            formData.set('age', String(ageMonths));
+            
+            // Debug: Log form data (remove in production)
+            console.log('Submitting form data:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+            
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -613,13 +738,28 @@
                 method: 'POST',
                 body: formData
             })
-            .then(r => r.json())
+            .then(async r => {
+                const responseText = await r.text();
+                console.log('Response status:', r.status);
+                console.log('Response text:', responseText);
+                
+                if (!r.ok) {
+                    throw new Error('HTTP error! status: ' + r.status + ', response: ' + responseText);
+                }
+                
+                try {
+                    return JSON.parse(responseText);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    throw new Error('Invalid JSON response: ' + responseText);
+                }
+            })
             .then(res => {
                 if (res.success) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
-                        text: 'Pet submitted for admin approval successfully!'
+                        text: 'Pet added successfully!'
                     });
                     this.reset();
                     document.getElementById('addImagePreview').style.display = 'none';
@@ -627,6 +767,7 @@
                     // Reset price input and dropdown
                     const priceInput = document.getElementById('add_price');
                     const priceSelect = document.getElementById('priceSelect');
+                    const genderSelect = document.getElementById('add_gender');
                     
                     if (priceInput) {
                         priceInput.value = '';
@@ -636,30 +777,34 @@
                         priceSelect.innerHTML = '<option value="">Select a fixed price option</option>';
                         priceSelect.value = '';
                     }
+                    if (genderSelect) genderSelect.value = '';
+                    window.categoryPricesData = null;
                     
                     bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide();
-                    // Optionally reload animals to show the new pending animal
-                    // loadAnimals();
+                    // Reload animals to show the new pet
+                    if (typeof loadAnimals === 'function') {
+                        loadAnimals();
+                    }
                 } else {
                     const errors = typeof res.message === 'object' 
                         ? Object.values(res.message).join('\n') 
-                        : res.message;
+                        : res.message || 'Unknown error occurred';
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         html: 'Error: ' + errors
                     });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 }
             })
             .catch(err => {
-                console.error(err);
+                console.error('Form submission error:', err);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Network error. Please try again.'
+                    text: 'Network error. Please try again. Error: ' + (err.message || 'Unknown error')
                 });
-            })
-            .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             });
@@ -673,13 +818,13 @@
                         renderAnimals(data.data);
                     } else {
                         document.getElementById('animalsTableBody').innerHTML = 
-                            '<tr><td colspan="7" class="text-center text-danger">Failed to load animals</td></tr>';
+                            '<tr><td colspan="8" class="text-center text-danger">Failed to load animals</td></tr>';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('animalsTableBody').innerHTML = 
-                        '<tr><td colspan="7" class="text-center text-danger">Network error</td></tr>';
+                        '<tr><td colspan="8" class="text-center text-danger">Network error</td></tr>';
                 });
         }
 
@@ -687,11 +832,17 @@
             const tbody = document.getElementById('animalsTableBody');
             
             if (animals.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No animals found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No animals found</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = animals.map(animal => `
+            tbody.innerHTML = animals.map(animal => {
+                // Map status to display: available = Active, sold/reserved = Inactive
+                const isActive = animal.status === 'available';
+                const displayStatus = isActive ? 'Active' : 'Inactive';
+                const statusClass = isActive ? 'available' : 'inactive';
+                
+                return `
                 <tr>
                     <td>
                         <img src="/uploads/${animal.image || 'default.png'}" alt="${animal.name}">
@@ -702,10 +853,76 @@
                     <td>${animal.gender}</td>
                     <td>₱${parseFloat(animal.price).toLocaleString()}</td>
                     <td>
-                        <span class="badge badge-${animal.status}">${animal.status}</span>
+                        <span class="badge badge-${statusClass}">${displayStatus}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            ${isActive ? 
+                                `<button class="btn-status btn-inactive" onclick="updateAnimalStatus(${animal.id}, 'inactive')" title="Mark as Inactive">
+                                    <i class="fas fa-times-circle"></i> Inactive
+                                </button>` :
+                                `<button class="btn-status btn-active" onclick="updateAnimalStatus(${animal.id}, 'active')" title="Mark as Active">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </button>`
+                            }
+                        </div>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
+        }
+        
+        function updateAnimalStatus(animalId, status) {
+            // Map 'active' to 'available' and 'inactive' to 'sold' for database
+            const dbStatus = status === 'active' ? 'available' : 'sold';
+            
+            Swal.fire({
+                title: 'Update Status?',
+                text: `Are you sure you want to mark this pet as ${status === 'active' ? 'Active' : 'Inactive'}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: status === 'active' ? '#28a745' : '#6c757d',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/staff/api/animals/${animalId}/status`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: dbStatus })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: data.message || 'Pet status updated successfully',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            loadAnimals(); // Reload the table
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Failed to update pet status'
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Network error. Please try again.'
+                        });
+                    });
+                }
+            });
         }
 
         function editAnimal(id) {

@@ -9,16 +9,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -70,7 +70,7 @@
 
         .btn-secondary {
             background-color: var(--dark-orange); border-color: var(--dark-orange); color: white; transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 4px 15px rgba(77, 208, 225, 0.4);
         }
 
         .photo-preview {
@@ -90,7 +90,7 @@
 
         .animal-card:hover {
             border-color: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(255, 107, 53, 0.1);
+            box-shadow: 0 2px 10px rgba(77, 208, 225, 0.1);
         }
 
         .animal-image {
@@ -219,9 +219,6 @@
                                     <option value="">Select payment method...</option>
                                     <option value="cash">Cash</option>
                                     <option value="gcash">GCash</option>
-                                    <option value="bank_transfer">Bank Transfer</option>
-                                    <option value="paypal">PayPal</option>
-                                    <option value="other">Other</option>
                                 </select>
                             </div>
                         </div>

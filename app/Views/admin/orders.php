@@ -13,16 +13,16 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <style>
     :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -374,18 +374,188 @@
         min-height: calc(100vh - 80px);
     }
 
-    .page-card { 
-        background: white; 
-        border-radius: 12px; 
+    .page-card {
+        background: white;
+        border-radius: 12px;
         padding: 25px; 
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         border-top: 4px solid var(--primary-color);
         margin-bottom: 20px;
     }
+    
+    #deliveryConfirmationsSection {
+        width: 100%;
+        max-width: 100%;
+        overflow: visible;
+    }
+    
+    #deliveryConfirmationsSection .page-card {
+        padding: 20px;
+    }
+    
+    #deliveryConfirmationsSection .d-flex {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    #deliveryConfirmationsSection h5 {
+        color: var(--black);
+        font-weight: 600;
+    }
+    
+    #deliveryConfirmationsSection .btn-group {
+        flex-wrap: nowrap;
+    }
+    
+    #deliveryConfirmationsSection .btn-group .btn {
+        white-space: nowrap;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+    }
+    
+    #deliveryConfirmationsSection .btn-group .btn.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    /* Responsive adjustments for delivery confirmations section */
+    @media (max-width: 768px) {
+        #deliveryConfirmationsSection .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        
+        #deliveryConfirmationsSection .btn-group {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        #deliveryConfirmationsSection .btn-group .btn {
+            flex: 1;
+        }
+        
+        #deliveryConfirmationsSection .page-card {
+            padding: 15px;
+        }
+    }
 
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    #deliveryConfirmationsTable {
+        width: 100% !important;
+        table-layout: fixed;
+        margin: 0;
+    }
+    
+    #deliveryConfirmationsTable th,
+    #deliveryConfirmationsTable td {
+        padding: 10px 8px;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+    
+    #deliveryConfirmationsTable thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid var(--primary-color);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    /* Column width distribution */
+    #deliveryConfirmationsTable th:nth-child(1),
+    #deliveryConfirmationsTable td:nth-child(1) {
+        width: 10%;
+        min-width: 100px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(2),
+    #deliveryConfirmationsTable td:nth-child(2) {
+        width: 12%;
+        min-width: 120px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(3),
+    #deliveryConfirmationsTable td:nth-child(3) {
+        width: 12%;
+        min-width: 120px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(4),
+    #deliveryConfirmationsTable td:nth-child(4) {
+        width: 12%;
+        min-width: 120px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(5),
+    #deliveryConfirmationsTable td:nth-child(5) {
+        width: 12%;
+        min-width: 120px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(6),
+    #deliveryConfirmationsTable td:nth-child(6) {
+        width: 10%;
+        min-width: 100px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(7),
+    #deliveryConfirmationsTable td:nth-child(7) {
+        width: 14%;
+        min-width: 130px;
+    }
+    
+    #deliveryConfirmationsTable th:nth-child(8),
+    #deliveryConfirmationsTable td:nth-child(8) {
+        width: 8%;
+        min-width: 90px;
+    }
+    
+    /* Text handling */
+    #deliveryConfirmationsTable th:nth-child(1),
+    #deliveryConfirmationsTable td:nth-child(1),
+    #deliveryConfirmationsTable th:nth-child(5),
+    #deliveryConfirmationsTable td:nth-child(5),
+    #deliveryConfirmationsTable th:nth-child(6),
+    #deliveryConfirmationsTable td:nth-child(6),
+    #deliveryConfirmationsTable th:nth-child(7),
+    #deliveryConfirmationsTable td:nth-child(7),
+    #deliveryConfirmationsTable th:nth-child(8),
+    #deliveryConfirmationsTable td:nth-child(8) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Allow wrapping for name columns */
+    #deliveryConfirmationsTable th:nth-child(2),
+    #deliveryConfirmationsTable td:nth-child(2),
+    #deliveryConfirmationsTable th:nth-child(3),
+    #deliveryConfirmationsTable td:nth-child(3),
+    #deliveryConfirmationsTable th:nth-child(4),
+    #deliveryConfirmationsTable td:nth-child(4) {
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+    
+    /* DataTables wrapper styling */
+    #deliveryConfirmationsTable_wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    #deliveryConfirmationsTable_wrapper .dataTables_scrollHead,
+    #deliveryConfirmationsTable_wrapper .dataTables_scrollBody {
+        width: 100% !important;
     }
 
     .table {
@@ -463,12 +633,6 @@
         width: 100%;
     }
     
-    #ordersTable th:last-child,
-    #ordersTable td:last-child {
-        width: 80px;
-        text-align: center;
-        padding: 8px !important;
-    }
 
     /* Tab Styling */
     .nav-tabs {
@@ -529,7 +693,7 @@
         <div class="sidebar-header">
             <a href="/fluffy-admin" class="sidebar-brand">
                 <i class="fas fa-paw me-2"></i>
-                <span class="brand-text">Fluffy Admin</span>
+                <span class="brand-text">Fluffy Planet Admin</span>
             </a>
         </div>
         
@@ -596,7 +760,7 @@
                 
                 <!-- Profile Dropdown -->
                 <div class="profile-dropdown" style="display: inline-block;">
-                    <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                    <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #4DD0E1; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                         <i class="fas fa-user-shield me-2"></i>
                         <span>Admin</span>
                         <i class="fas fa-chevron-down ms-2"></i>
@@ -673,11 +837,10 @@
                                         <th>Total Payment</th>
                                         <th>Payment Status</th>
                                         <th>Order Status</th>
-                                        <th style="width: 80px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td colspan="9" class="text-center py-4">Loading...</td></tr>
+                                    <tr><td colspan="8" class="text-center py-4">Loading...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -686,37 +849,42 @@
             
                 <!-- Delivery Confirmations Tab -->
                 <div class="tab-pane fade" id="deliveries" role="tabpanel" aria-labelledby="deliveries-tab">
-                    <div class="page-card mb-4" id="deliveryConfirmationsSection">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">
-                                <i class="fas fa-truck"></i> Delivery Confirmations
-                            </h5>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-primary" onclick="filterConfirmations('all')">All</button>
-                                <button type="button" class="btn btn-outline-warning" onclick="filterConfirmations('pending')">Pending</button>
-                                <button type="button" class="btn btn-outline-success" onclick="filterConfirmations('confirmed')">Confirmed</button>
+                    <div id="deliveryConfirmationsSection">
+                        <div class="page-card">
+                            <!-- Section Header -->
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <i class="fas fa-truck me-2"></i>Delivery Confirmations
+                                    </h5>
+                                    <small class="text-muted">Manage and review delivery confirmations submitted by staff</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="deliveryConfirmationsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Adoptions ID</th>
-                                        <th>Customer</th>
-                                        <th>Pet Order</th>
-                                        <th>Staff</th>
-                                        <th>Payment Amount</th>
-                                        <th>Order Status</th>
-                                        <th>Order Submitted</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted">Loading...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            
+                            <!-- Table Container -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="deliveryConfirmationsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Adoptions ID</th>
+                                            <th>Customer</th>
+                                            <th>Pet Order</th>
+                                            <th>Staff</th>
+                                            <th>Payment Amount</th>
+                                            <th>Order Status</th>
+                                            <th>Order Submitted</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">
+                                                <i class="fas fa-spinner fa-spin me-2"></i>Loading...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -968,11 +1136,11 @@ function loadOrders(){
     .then(r=>r.json())
     .then(({success, data})=>{
       const tbody = document.querySelector('#ordersTable tbody');
-      if(!success){ tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load</td></tr>'; 
+      if(!success){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load</td></tr>'; 
         if (ordersTable) { ordersTable.destroy(); ordersTable = null; }
         return; 
       }
-      if(!data.length){ tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No orders</td></tr>'; 
+      if(!data.length){ tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No orders</td></tr>'; 
         if (ordersTable) { ordersTable.destroy(); ordersTable = null; }
         return; 
       }
@@ -999,11 +1167,6 @@ function loadOrders(){
           <td><strong>₱${parseFloat(o.total_amount).toLocaleString()}</strong></td>
           <td><span class="badge bg-${o.payment_status==='pending'?'warning':o.payment_status==='paid'?'success':o.payment_status==='failed'?'danger':'secondary'} text-white">${(o.payment_status||'pending').charAt(0).toUpperCase() + (o.payment_status||'pending').slice(1)}</span></td>
           <td><span class="badge bg-${o.status==='pending'?'warning':o.status==='delivered'?'success':o.status==='confirmed'?'info':o.status==='processing'?'primary':o.status==='shipped'?'info':'secondary'}">${(o.status||'pending').charAt(0).toUpperCase() + (o.status||'pending').slice(1)}</span></td>
-          <td class="text-center">
-            <button class="btn btn-sm btn-outline-primary" onclick="editOrder(${o.id})" title="Edit Order">
-              <i class="fas fa-edit"></i>
-            </button>
-          </td>
         </tr>
       `;
       }).join('');
@@ -1071,7 +1234,7 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
     html: `Are you sure you want to update this order?<br><br><strong>Order Status:</strong> ${status}<br><strong>Payment Status:</strong> ${paymentStatus}`,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#ff6b35',
+    confirmButtonColor: '#4DD0E1',
     cancelButtonColor: '#6c757d',
     confirmButtonText: 'Yes, update it!'
   }).then((result) => {
@@ -1123,7 +1286,6 @@ document.getElementById('editOrderForm').addEventListener('submit', function(e){
 });
 
 // Delivery Confirmation Functions
-let currentFilter = 'all';
 let ordersTable = null;
 let deliveryConfirmationsTable = null;
 
@@ -1135,24 +1297,123 @@ function loadDeliveryConfirmations() {
         .then(response => response.json())
         .then(data => {
             if (data.success && data.data.length > 0) {
-                let filteredData = data.data;
-                if (currentFilter !== 'all') {
-                    filteredData = data.data.filter(confirmation => confirmation.status === currentFilter);
-                }
+                // Remove duplicates based on order_id (keep only one per order_id)
+                const seenOrderIds = new Set();
+                const seenIds = new Set();
+                const uniqueData = data.data.filter(confirmation => {
+                    // Skip if we've already seen this exact ID
+                    if (confirmation.id && seenIds.has(confirmation.id)) {
+                        console.log('Filtered out duplicate delivery confirmation ID:', confirmation.id);
+                        return false;
+                    }
+                    seenIds.add(confirmation.id);
+                    
+                    // Skip if we've already seen this order_id
+                    if (confirmation.order_id && seenOrderIds.has(confirmation.order_id)) {
+                        console.log('Filtered out duplicate delivery confirmation for order_id:', confirmation.order_id);
+                        return false;
+                    }
+                    if (confirmation.order_id) {
+                        seenOrderIds.add(confirmation.order_id);
+                    }
+                    
+                    return true;
+                });
                 
-                tbody.innerHTML = filteredData.map(confirmation => `
+                let filteredData = uniqueData;
+                
+                tbody.innerHTML = filteredData.map(confirmation => {
+                    // Format date properly - use created_at, confirmation_created_at, delivery_date, or current date
+                    let formattedDate = '';
+                    let dateToUse = confirmation.confirmation_created_at || confirmation.created_at || confirmation.confirmation_delivery_date || confirmation.delivery_date || confirmation.order_created_at || null;
+                    
+                    try {
+                        if (dateToUse) {
+                            // Normalize the date string
+                            let dateStr = String(dateToUse).trim();
+                            
+                            // Handle different date formats
+                            let date;
+                            if (dateStr.includes('T')) {
+                                date = new Date(dateStr);
+                            } else if (dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                // Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+                                date = new Date(dateStr.replace(' ', 'T'));
+                            } else {
+                                date = new Date(dateStr);
+                            }
+                            
+                            // Validate date
+                            if (!isNaN(date.getTime()) && date.getFullYear() > 1970 && date.getFullYear() <= new Date().getFullYear() + 1) {
+                                formattedDate = date.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                            } else {
+                                // Invalid date, use current date
+                                formattedDate = new Date().toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                            }
+                        } else {
+                            // No date available, use current date
+                            formattedDate = new Date().toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Date formatting error:', e, 'Date value:', dateToUse);
+                        // Fallback to current date
+                        formattedDate = new Date().toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                    }
+                    
+                    // Get order status badge
+                    const orderStatus = confirmation.order_status || 'pending';
+                    let statusBadgeClass = 'secondary';
+                    let statusText = orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1);
+                    
+                    switch(orderStatus.toLowerCase()) {
+                        case 'processing':
+                            statusBadgeClass = 'info';
+                            break;
+                        case 'shipped':
+                            statusBadgeClass = 'primary';
+                            break;
+                        case 'delivered':
+                            statusBadgeClass = 'success';
+                            break;
+                        case 'cancelled':
+                            statusBadgeClass = 'danger';
+                            break;
+                        case 'pending':
+                            statusBadgeClass = 'warning';
+                            break;
+                        default:
+                            statusBadgeClass = 'secondary';
+                    }
+                    
+                    return `
                     <tr>
-                        <td>${confirmation.order_number}</td>
-                        <td>${confirmation.customer_name}</td>
-                        <td>${confirmation.animal_name}</td>
-                        <td>${confirmation.staff_name}</td>
-                        <td>₱${parseFloat(confirmation.payment_amount).toLocaleString()}</td>
+                        <td>${confirmation.order_number || 'N/A'}</td>
+                        <td>${confirmation.customer_name || 'N/A'}</td>
+                        <td>${confirmation.animal_name || 'N/A'}</td>
+                        <td>${confirmation.staff_name || 'N/A'}</td>
+                        <td>₱${parseFloat(confirmation.payment_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td>
-                            <span class="badge bg-${confirmation.status === 'pending' ? 'warning' : confirmation.status === 'confirmed' ? 'success' : 'danger'}">
-                                ${confirmation.status.charAt(0).toUpperCase() + confirmation.status.slice(1)}
+                            <span class="badge bg-${statusBadgeClass}">
+                                ${statusText}
                             </span>
                         </td>
-                        <td>${new Date(confirmation.created_at).toLocaleDateString()}</td>
+                        <td>${formattedDate}</td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-primary" onclick="viewConfirmation(${confirmation.id})" title="View Details">
@@ -1166,7 +1427,8 @@ function loadDeliveryConfirmations() {
                             </div>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
                 
                 // Destroy existing DataTable if it exists
                 if (deliveryConfirmationsTable) {
@@ -1178,21 +1440,33 @@ function loadDeliveryConfirmations() {
                     pageLength: 10,
                     lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                     order: [[6, 'desc']],
+                    scrollX: true,
+                    scrollCollapse: true,
+                    autoWidth: false,
+                    fixedColumns: false,
+                    columnDefs: [
+                        { targets: [0, 5, 6, 7], className: 'text-nowrap', orderable: true },
+                        { targets: [1, 2, 3, 4], className: '', orderable: true },
+                        { targets: [7], orderable: false, searchable: false }
+                    ],
                     language: {
                         search: "Search:",
                         lengthMenu: "Show _MENU_ entries",
                         info: "Showing _START_ to _END_ of _TOTAL_ entries",
                         infoEmpty: "Showing 0 to 0 of 0 entries",
                         infoFiltered: "(filtered from _MAX_ total entries)"
-                    }
+                    },
+                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
                 });
             } else {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="text-center text-muted">
-                            <i class="fas fa-truck fa-2x mb-2"></i><br>
-                            No delivery confirmations found.<br>
-                            <small>Staff members haven't submitted any delivery confirmations yet.</small>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted mb-2">No delivery confirmations found</h6>
+                                <small class="text-muted">Staff members haven't submitted any delivery confirmations yet.</small>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1206,17 +1480,6 @@ function loadDeliveryConfirmations() {
         });
 }
 
-function filterConfirmations(status) {
-    currentFilter = status;
-    
-    // Update button states
-    document.querySelectorAll('#deliveryConfirmationsSection .btn-group button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    loadDeliveryConfirmations();
-}
 
 function viewConfirmation(confirmationId) {
     // Fetch confirmation details and show modal
@@ -1257,10 +1520,75 @@ function showConfirmationModal(confirmation) {
                             </div>
                             <div class="col-md-6">
                                 <h6><i class="fas fa-money-bill"></i> Payment Information</h6>
-                                <p><strong>Amount:</strong> ₱${parseFloat(confirmation.payment_amount).toLocaleString()}</p>
-                                <p><strong>Method:</strong> ${confirmation.payment_method}</p>
-                                <p><strong>Submitted:</strong> ${new Date(confirmation.created_at).toLocaleString()}</p>
-                                <p><strong>Status:</strong> <span class="badge bg-warning">Pending</span></p>
+                                <p><strong>Amount:</strong> ₱${parseFloat(confirmation.payment_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                                <p><strong>Method:</strong> ${confirmation.payment_method || 'N/A'}</p>
+                                <p><strong>Submitted:</strong> ${(() => {
+                                    // Format date properly - use created_at, confirmation_created_at, delivery_date, or current date
+                                    let dateToUse = confirmation.confirmation_created_at || confirmation.created_at || confirmation.confirmation_delivery_date || confirmation.delivery_date || confirmation.order_created_at || null;
+                                    let formattedDate = '';
+                                    
+                                    try {
+                                        if (dateToUse) {
+                                            let dateStr = String(dateToUse).trim();
+                                            let date;
+                                            if (dateStr.includes('T')) {
+                                                date = new Date(dateStr);
+                                            } else if (dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                                date = new Date(dateStr.replace(' ', 'T'));
+                                            } else {
+                                                date = new Date(dateStr);
+                                            }
+                                            
+                                            if (!isNaN(date.getTime()) && date.getFullYear() > 1970 && date.getFullYear() <= new Date().getFullYear() + 1) {
+                                                formattedDate = date.toLocaleString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                });
+                                            } else {
+                                                formattedDate = new Date().toLocaleString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                });
+                                            }
+                                        } else {
+                                            formattedDate = new Date().toLocaleString('en-US', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: 'numeric',
+                                                minute: '2-digit',
+                                                hour12: true
+                                            });
+                                        }
+                                    } catch (e) {
+                                        formattedDate = new Date().toLocaleString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit',
+                                            hour12: true
+                                        });
+                                    }
+                                    return formattedDate;
+                                })()}</p>
+                                <p><strong>Status:</strong> ${(() => {
+                                    const paymentStatus = confirmation.payment_status || 'paid';
+                                    const statusText = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
+                                    let badgeClass = 'success';
+                                    if (paymentStatus === 'pending') badgeClass = 'warning';
+                                    else if (paymentStatus === 'failed') badgeClass = 'danger';
+                                    else if (paymentStatus === 'refunded') badgeClass = 'info';
+                                    return `<span class="badge bg-${badgeClass}">${statusText}</span>`;
+                                })()}</p>
                             </div>
                         </div>
                         
@@ -1279,25 +1607,47 @@ function showConfirmationModal(confirmation) {
                         ` : ''}
                         
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="${confirmation.delivery_type === 'pickup' ? 'col-md-6' : 'col-md-12'}">
                                 <h6><i class="fas fa-camera"></i> Delivery Photo</h6>
                                 <div class="bg-light p-3 rounded text-center">
-                                    <img src="/uploads/delivery_confirmations/${confirmation.delivery_photo}" class="img-fluid" style="max-height: 200px;" alt="Delivery photo">
+                                    ${confirmation.delivery_photo && confirmation.delivery_photo.trim() !== '' ? `
+                                        <img src="/uploads/deliveries/${confirmation.delivery_photo}" 
+                                             class="img-fluid" 
+                                             style="max-height: 200px; cursor: pointer;" 
+                                             alt="Delivery photo"
+                                             onerror="this.onerror=null; this.src='/assets/img/placeholder.jpg'; this.alt='Photo not found';"
+                                             onclick="window.open('/uploads/deliveries/${confirmation.delivery_photo}', '_blank')">
+                                    ` : `
+                                        <p class="text-muted mb-0"><i class="fas fa-image"></i> No delivery photo available</p>
+                                    `}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <h6><i class="fas fa-receipt"></i> Payment Proof Photo</h6>
-                                <div class="bg-light p-3 rounded text-center">
-                                    <img src="/uploads/delivery_confirmations/${confirmation.payment_photo}" class="img-fluid" style="max-height: 200px;" alt="Payment proof">
+                            ${confirmation.delivery_type === 'pickup' ? `
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-receipt"></i> Payment Proof Photo</h6>
+                                    <div class="bg-light p-3 rounded text-center">
+                                        ${confirmation.payment_photo && confirmation.payment_photo.trim() !== '' ? `
+                                            <img src="/uploads/payments/${confirmation.payment_photo}" 
+                                                 class="img-fluid" 
+                                                 style="max-height: 200px; cursor: pointer;" 
+                                                 alt="Payment proof"
+                                                 onerror="this.onerror=null; this.src='/assets/img/placeholder.jpg'; this.alt='Photo not found';"
+                                                 onclick="window.open('/uploads/payments/${confirmation.payment_photo}', '_blank')">
+                                        ` : `
+                                            <p class="text-muted mb-0"><i class="fas fa-image"></i> No payment proof photo available</p>
+                                        `}
+                                    </div>
                                 </div>
-                            </div>
+                            ` : ''}
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="approveConfirmation(${confirmation.id})">
-                            <i class="fas fa-check"></i> Approve
-                        </button>
+                        ${confirmation.status === 'pending' ? `
+                            <button type="button" class="btn btn-success" onclick="approveConfirmation(${confirmation.id})">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
             </div>

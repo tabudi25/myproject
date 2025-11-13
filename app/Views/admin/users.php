@@ -13,16 +13,16 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <style>
     :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -471,7 +471,7 @@
         <div class="sidebar-header">
             <a href="/fluffy-admin" class="sidebar-brand">
                 <i class="fas fa-paw me-2"></i>
-                <span class="brand-text">Fluffy Admin</span>
+                <span class="brand-text">Fluffy Planet Admin</span>
             </a>
         </div>
         
@@ -538,7 +538,7 @@
                 
                 <!-- Profile Dropdown -->
                 <div class="profile-dropdown" style="display: inline-block;">
-                    <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #ff6b35; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                    <div class="profile-trigger" onclick="toggleProfileDropdown()" style="display: flex; align-items: center; background: #4DD0E1; color: white; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                         <i class="fas fa-user-shield me-2"></i>
                         <span>Admin</span>
                         <i class="fas fa-chevron-down ms-2"></i>
@@ -878,7 +878,7 @@ function toggleUserStatus(userId, currentStatus, event) {
     text: `Are you sure you want to ${action} this user?`,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#ff6b35',
+    confirmButtonColor: '#4DD0E1',
     cancelButtonColor: '#6c757d',
     confirmButtonText: `Yes, ${action} it!`
   }).then((result) => {

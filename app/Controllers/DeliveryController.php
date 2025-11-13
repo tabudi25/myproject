@@ -140,14 +140,34 @@ class DeliveryController extends BaseController
                 return redirect()->back()->with('msg', 'Payment amount and payment method are required.');
             }
 
+            // Handle file uploads
+            $deliveryPhotoName = '';
+            $paymentPhotoName = '';
+            
+            $files = $this->request->getFiles();
+            
+            // Handle delivery photo upload
+            if (isset($files['delivery_photo']) && $files['delivery_photo']->isValid() && !$files['delivery_photo']->hasMoved()) {
+                $deliveryPhoto = $files['delivery_photo'];
+                $deliveryPhotoName = $deliveryPhoto->getRandomName();
+                $deliveryPhoto->move(ROOTPATH . 'public/uploads/deliveries', $deliveryPhotoName);
+            }
+            
+            // Handle payment photo upload (only if provided - not required for delivery orders)
+            if (isset($files['payment_photo']) && $files['payment_photo']->isValid() && !$files['payment_photo']->hasMoved()) {
+                $paymentPhoto = $files['payment_photo'];
+                $paymentPhotoName = $paymentPhoto->getRandomName();
+                $paymentPhoto->move(ROOTPATH . 'public/uploads/payments', $paymentPhotoName);
+            }
+
             // Create delivery confirmation
             $data = [
                 'order_id' => (int)$this->request->getPost('order_id'),
                 'staff_id' => (int)session()->get('user_id'),
                 'customer_id' => (int)$order['user_id'],
                 'animal_id' => (int)$animalId,
-                'delivery_photo' => '', // Empty string instead of null
-                'payment_photo' => '', // Empty string instead of null
+                'delivery_photo' => $deliveryPhotoName,
+                'payment_photo' => $paymentPhotoName,
                 'delivery_notes' => $this->request->getPost('delivery_notes') ?: '',
                 'delivery_address' => $deliveryAddress ?: '',
                 'delivery_date' => date('Y-m-d H:i:s'),

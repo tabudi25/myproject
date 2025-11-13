@@ -105,7 +105,6 @@ class StaffController extends Controller
         $animals = $this->animalModel
             ->select('animals.*, categories.name as category_name')
             ->join('categories', 'categories.id = animals.category_id', 'left')
-            ->where('animals.status', 'available')
             ->orderBy('animals.created_at', 'DESC')
             ->findAll();
 
@@ -158,80 +157,120 @@ class StaffController extends Controller
         }
     }
 
-    public function addAnimalForApproval()
+    public function updateAnimalStatus($id)
     {
-        $validation = \Config\Services::validation();
-        
-        $validation->setRules([
-            'name' => 'required|min_length[2]',
-            'category_id' => 'required|numeric',
-            'age' => 'required|numeric',
-            'gender' => 'required|in_list[male,female]',
-            'price' => 'required|numeric',
-            'image' => 'uploaded[image]|is_image[image]|max_size[image,2048]'
-        ]);
-
-        if (!$validation->withRequest($this->request)->run()) {
-            return $this->response->setJSON(['success' => false, 'message' => $validation->getErrors()]);
+        $animal = $this->animalModel->find($id);
+        if (!$animal) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Animal not found']);
         }
 
-        $image = $this->request->getFile('image');
-        $imageName = $image->getRandomName();
-        $image->move(ROOTPATH . 'public/uploads', $imageName);
+        $status = $this->request->getJSON(true)['status'] ?? $this->request->getPost('status');
+        
+        if (!in_array($status, ['available', 'reserved', 'sold'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid status']);
+        }
 
-        $data = [
-            'name' => $this->request->getPost('name'),
-            'category_id' => $this->request->getPost('category_id'),
-            'age' => $this->request->getPost('age'),
-            'gender' => $this->request->getPost('gender'),
-            'price' => $this->request->getPost('price'),
-            'description' => $this->request->getPost('description'),
-            'image' => $imageName,
-            'added_by' => session()->get('user_id'),
-            'status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
-        ];
+        // If status is being set to 'sold', ensure it's marked as inactive (sold)
+        // The frontend maps 'inactive' to 'sold' for database storage
+        if ($status === 'sold') {
+            $status = 'sold'; // Keep as sold (which displays as Inactive)
+        }
 
-        $inserted = $this->db->table('pending_animals')->insert($data);
-
-        if ($inserted) {
-            // Send notification to all admins
-            $this->sendPendingAnimalNotification($data['name'], session()->get('user_id'));
-            
-            return $this->response->setJSON(['success' => true, 'message' => 'Animal submitted for admin approval']);
+        if ($this->animalModel->update($id, ['status' => $status])) {
+            return $this->response->setJSON([
+                'success' => true, 
+                'message' => 'Pet status updated successfully'
+            ]);
         } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to submit animal']);
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update pet status']);
         }
     }
 
-    /**
-     * Send notification to admins about new pending animal
-     */
-    private function sendPendingAnimalNotification($animalName, $staffId)
+    public function addAnimalForApproval()
     {
         try {
-            // Get staff name
-            $staff = $this->db->table('users')->where('id', $staffId)->get()->getRowArray();
-            $staffName = $staff ? $staff['name'] : 'Unknown Staff';
+            $validation = \Config\Services::validation();
+            
+            $validation->setRules([
+                'name' => 'required|min_length[2]',
+                'category_id' => 'required|numeric',
+                'age' => 'required|numeric',
+                'gender' => 'required|in_list[male,female]',
+                'price' => 'required|numeric',
+                'image' => 'uploaded[image]|is_image[image]|max_size[image,2048]'
+            ]);
 
-            // Get all admin users
-            $admins = $this->db->table('users')->where('role', 'admin')->get()->getResultArray();
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->response->setJSON(['success' => false, 'message' => $validation->getErrors()]);
+            }
 
-            // Create notification for each admin
-            foreach ($admins as $admin) {
-                $notificationData = [
-                    'user_id' => $admin['id'],
-                    'type' => 'pending_animal',
-                    'title' => 'New Animal Pending Approval',
-                    'message' => "Staff member {$staffName} has submitted a new animal '{$animalName}' for approval.",
-                    'is_read' => 0,
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
+            $image = $this->request->getFile('image');
+            if (!$image || !$image->isValid()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Valid image is required']);
+            }
+            
+            $imageName = $image->getRandomName();
+            if (!$image->move(ROOTPATH . 'public/uploads', $imageName)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to upload image']);
+            }
 
-                $this->db->table('notifications')->insert($notificationData);
+            // Get birthdate from request - required
+            $birthdate = $this->request->getPost('birthdate');
+            if (!$birthdate) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Birthdate is required']);
+            }
+
+            // Calculate age in months from birthdate
+            $birthDate = new \DateTime($birthdate);
+            $now = new \DateTime();
+            $diff = $now->diff($birthDate);
+            $ageMonths = ($diff->y * 12) + $diff->m;
+            // Adjust if the day of month hasn't been reached yet
+            if ($now->format('d') < $birthDate->format('d')) {
+                $ageMonths--;
+            }
+            if ($ageMonths < 0) $ageMonths = 0;
+
+            $data = [
+                'name' => $this->request->getPost('name'),
+                'category_id' => $this->request->getPost('category_id'),
+                'age' => $ageMonths, // Always calculate from birthdate
+                'gender' => $this->request->getPost('gender'),
+                'price' => $this->request->getPost('price'),
+                'description' => $this->request->getPost('description'),
+                'image' => $imageName,
+                'status' => 'available',
+                'created_at' => date('Y-m-d H:i:s'),
+                'birthdate' => $birthdate
+            ];
+
+            // Save directly to animals table - skip validation since we already validated
+            $this->animalModel->skipValidation(true);
+            
+            if ($this->animalModel->insert($data)) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Animal added successfully']);
+            } else {
+                $errors = $this->animalModel->errors();
+                $dbError = $this->db->error();
+                $errorMessage = 'Failed to add animal';
+                
+                if (!empty($errors)) {
+                    $errorMessage = implode(', ', $errors);
+                } elseif (!empty($dbError['message'])) {
+                    $errorMessage = 'Database error: ' . $dbError['message'];
+                }
+                
+                log_message('error', 'AnimalModel insert failed: ' . json_encode($errors));
+                log_message('error', 'Database error: ' . json_encode($dbError));
+                return $this->response->setJSON(['success' => false, 'message' => $errorMessage]);
             }
         } catch (\Exception $e) {
-            log_message('error', 'Failed to send pending animal notification: ' . $e->getMessage());
+            log_message('error', 'Error in addAnimalForApproval: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -853,6 +892,7 @@ class StaffController extends Controller
                     return [
                         'id' => $delivery['id'] ?? null,
                         'order_id' => $delivery['order_id'] ?? null,
+                        'customer_id' => $delivery['customer_id'] ?? null,
                         'order_number' => $delivery['order_number'] ?? null,
                         'customer_name' => $delivery['customer_name'] ?? 'N/A',
                         'animal_name' => $delivery['animal_name'] ?? 'N/A',
@@ -890,14 +930,15 @@ class StaffController extends Controller
         }
 
         try {
-            // Show ALL customer orders (both pickup and delivery) that are not cancelled or completed
+            // Show ALL customer orders (both pickup and delivery) that are not cancelled
+            // Include delivered orders as well so they remain visible as proof after delivery
             $builder = $this->db->table('orders o');
             $builder->select('o.*, u.name as customer_name');
             $builder->join('users u', 'o.user_id = u.id', 'left');
             // Include both pickup and delivery orders
             $builder->whereIn('o.delivery_type', ['pickup', 'delivery']);
-            // Exclude cancelled and delivered (already completed)
-            $builder->whereNotIn('o.status', ['cancelled', 'delivered']);
+            // Only exclude cancelled orders - keep delivered orders visible for proof
+            $builder->where('o.status !=', 'cancelled');
             // Payment can be pending or paid for any method (including COD)
             $builder->whereIn('o.payment_status', ['pending', 'paid']);
             $builder->orderBy('o.created_at', 'DESC');

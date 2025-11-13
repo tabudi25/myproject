@@ -9,16 +9,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #FF6B35;
-            --secondary-color: #FF8C42;
-            --dark-orange: #FF4500;
-            --black: #000000;
-            --dark-black: #1a1a1a;
-            --light-black: #2d2d2d;
-            --accent-color: #1a1a1a;
-            --sidebar-bg: #000000;
-            --sidebar-hover: #FF6B35;
-            --cream-bg: #FFF8E7;
+            --primary-color: #4DD0E1;
+            --secondary-color: #FF8A65;
+            --dark-orange: #FF7043;
+            --black: #444444;
+            --dark-black: #333333;
+            --light-black: #555555;
+            --accent-color: #FF8A65;
+            --sidebar-bg: #37474F;
+            --sidebar-hover: #4DD0E1;
+            --cream-bg: #F9F9F9;
             --warm-beige: #F5E6D3;
             --light-gray: #f5f5f5;
         }
@@ -29,7 +29,7 @@
         }
 
         .navbar {
-            background: var(--black) !important;
+            background: white !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             border-bottom: 2px solid var(--primary-color);
         }
@@ -113,7 +113,11 @@
         .animal-image {
             width: 100%;
             height: 200px;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 15px 15px 0 0;
+            display: block;
+            background-color: #f8f9fa;
         }
 
         .animal-info {
@@ -204,7 +208,7 @@
 
         /* Navbar Links */
         .navbar-nav .nav-link {
-            color: white !important;
+            color: var(--black) !important;
             transition: color 0.3s ease;
         }
 
@@ -599,6 +603,40 @@
         <div class="container">
             <h2 class="section-title">Featured Pets</h2>
             <div class="row g-4">
+                <?php 
+                // Helper function to calculate age from birthdate
+                function calculateAgeFromBirthdate($birthdate, $ageMonths = null) {
+                    if (!empty($birthdate)) {
+                        $birth = new \DateTime($birthdate);
+                        $now = new \DateTime();
+                        $diff = $now->diff($birth);
+                        $years = $diff->y;
+                        $months = $diff->m;
+                        
+                        if ($years > 0 && $months > 0) {
+                            return $years . ' year' . ($years > 1 ? 's' : '') . ' ' . $months . ' month' . ($months > 1 ? 's' : '');
+                        } elseif ($years > 0) {
+                            return $years . ' year' . ($years > 1 ? 's' : '');
+                        } elseif ($months > 0) {
+                            return $months . ' month' . ($months > 1 ? 's' : '');
+                        } else {
+                            return 'Less than 1 month';
+                        }
+                    } elseif ($ageMonths !== null) {
+                        // Fallback to age in months if birthdate not available
+                        $years = floor($ageMonths / 12);
+                        $months = $ageMonths % 12;
+                        if ($years > 0 && $months > 0) {
+                            return $years . ' year' . ($years > 1 ? 's' : '') . ' ' . $months . ' month' . ($months > 1 ? 's' : '');
+                        } elseif ($years > 0) {
+                            return $years . ' year' . ($years > 1 ? 's' : '');
+                        } else {
+                            return $months . ' month' . ($months > 1 ? 's' : '');
+                        }
+                    }
+                    return 'Age unknown';
+                }
+                ?>
                 <?php foreach ($featuredAnimals as $animal): ?>
                     <div class="col-md-6 col-lg-3">
                         <div class="animal-card">
@@ -608,7 +646,7 @@
                                 <div class="text-muted small mb-2">
                                     <i class="fas fa-tag me-1"></i><?= esc($animal['category_name']) ?>
                                     <span class="ms-2">
-                                        <i class="fas fa-birthday-cake me-1"></i><?= $animal['age'] ?> months
+                                        <i class="fas fa-birthday-cake me-1"></i><?= calculateAgeFromBirthdate($animal['birthdate'] ?? null, $animal['age'] ?? null) ?>
                                     </span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
@@ -666,7 +704,7 @@
                                 <div class="text-muted small mb-2">
                                     <i class="fas fa-tag me-1"></i><?= esc($animal['category_name']) ?>
                                     <span class="ms-2">
-                                        <i class="fas fa-birthday-cake me-1"></i><?= $animal['age'] ?> months
+                                        <i class="fas fa-birthday-cake me-1"></i><?= calculateAgeFromBirthdate($animal['birthdate'] ?? null, $animal['age'] ?? null) ?>
                                     </span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
