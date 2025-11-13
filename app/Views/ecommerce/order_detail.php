@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,24 +9,35 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--black);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
+            color: var(--primary-color) !important;
         }
 
         .order-container {
@@ -35,14 +46,16 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             padding: 30px;
             margin-top: 30px;
+            border-top: 4px solid var(--primary-color);
         }
 
         .order-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--black);
             color: white;
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
+            border-bottom: 4px solid var(--primary-color);
         }
 
         .order-number {
@@ -104,7 +117,7 @@
         }
 
         .section-title {
-            color: var(--accent-color);
+            color: var(--black);
             font-weight: bold;
             margin-bottom: 20px;
             display: flex;
@@ -130,7 +143,7 @@
 
         .info-label {
             font-weight: 600;
-            color: var(--accent-color);
+            color: var(--black);
         }
 
         .info-value {
@@ -243,24 +256,7 @@
         }
 
         .tracking-step.completed::after {
-            background: var(--primary-color);
-        }
-
-        .tracking-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            z-index: 1;
-            position: relative;
-        }
-
-        .tracking-step.completed .tracking-icon {
-            background: var(--primary-color);
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
         }
 
         .tracking-step.current .tracking-icon {
@@ -313,15 +309,18 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
             border-radius: 25px;
             padding: 10px 25px;
             font-weight: 500;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
             transform: translateY(-2px);
         }
 
@@ -334,8 +333,41 @@
         }
 
         .btn-outline-primary:hover {
-            background: var(--primary-color);
+            background-color: var(--primary-color);
             border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            color: var(--dark-orange);
+            border-color: var(--dark-orange);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        /* Navbar Links */
+        .navbar-nav .nav-link {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .btn-outline-light {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
         }
 
         /* Order Tracking Timeline Styles */
@@ -361,37 +393,11 @@
         }
 
         .timeline-line.active {
-            background: var(--primary-color);
-        }
-
-        .timeline-item {
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            z-index: 2;
-        }
-
-        .timeline-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .timeline-icon.completed {
-            background: var(--primary-color);
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
         }
 
         .timeline-icon.current {
-            background: var(--primary-color);
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             animation: pulse 2s infinite;
         }
 

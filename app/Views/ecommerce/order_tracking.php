@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,9 +26,31 @@
             padding-bottom: 20px;
             border-bottom: 2px solid #f8f9fa;
         }
+        :root {
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
+        }
+
+        body {
+            background-color: var(--cream-bg);
+        }
+
+        .tracking-card {
+            border-top: 4px solid var(--primary-color);
+        }
+
         .tracking-icon {
-            background: #ff6b35;
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -41,7 +63,7 @@
         .tracking-title {
             font-size: 24px;
             font-weight: bold;
-            color: #2c3e50;
+            color: var(--black);
             margin: 0;
         }
         .tracking-timeline {
@@ -57,33 +79,10 @@
             z-index: 1;
         }
         .timeline-line.active {
-            background: #ff6b35;
-        }
-        .timeline-item {
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 30px;
-            z-index: 2;
-        }
-        .timeline-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-        .timeline-icon.completed {
-            background: #ff6b35;
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
         }
         .timeline-icon.current {
-            background: #ff6b35;
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             animation: pulse 2s infinite;
         }
         .timeline-icon.pending {
@@ -101,7 +100,7 @@
         .timeline-title {
             font-size: 18px;
             font-weight: bold;
-            color: #2c3e50;
+            color: var(--black);
             margin: 0 0 5px 0;
         }
         .timeline-description {
@@ -116,7 +115,7 @@
             margin-bottom: 20px;
         }
         .order-info h5 {
-            color: #2c3e50;
+            color: var(--black);
             margin-bottom: 15px;
         }
         .info-row {

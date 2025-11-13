@@ -5,6 +5,7 @@ use App\Models\AnimalModel;
 use App\Models\CategoryModel;
 use App\Models\orderModel;
 use App\Models\userModel;
+use App\Models\CategoryPriceModel;
 use CodeIgniter\Controller;
 
 class StaffController extends Controller
@@ -13,6 +14,7 @@ class StaffController extends Controller
     protected $categoryModel;
     protected $orderModel;
     protected $userModel;
+    protected $categoryPriceModel;
     protected $db;
 
     public function __construct()
@@ -21,6 +23,7 @@ class StaffController extends Controller
         $this->categoryModel = new CategoryModel();
         $this->orderModel = new orderModel();
         $this->userModel = new userModel();
+        $this->categoryPriceModel = new CategoryPriceModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -1118,6 +1121,48 @@ class StaffController extends Controller
         } catch (\Exception $e) {
             // Table doesn't exist or other error, return 0
             return 0;
+        }
+    }
+
+    // ==================== CATEGORY PRICES (READ-ONLY FOR STAFF) ====================
+    
+    public function getCategoryPrices()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'staff') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Staff access required']);
+        }
+
+        try {
+            // Get all category prices (read-only for staff)
+            $prices = $this->categoryPriceModel
+                ->orderBy('category_id', 'ASC')
+                ->orderBy('price_type', 'ASC')
+                ->findAll();
+
+            // Ensure category_id is returned as integer for consistent comparison
+            if ($prices && is_array($prices)) {
+                foreach ($prices as &$price) {
+                    if (isset($price['category_id'])) {
+                        $price['category_id'] = (int)$price['category_id'];
+                    }
+                    if (isset($price['price'])) {
+                        $price['price'] = (float)$price['price'];
+                    }
+                }
+                unset($price); // Break reference
+            }
+
+            return $this->response->setJSON([
+                'success' => true, 
+                'data' => $prices ? $prices : [],
+                'count' => $prices ? count($prices) : 0
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in StaffController::getCategoryPrices: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Error loading category prices: ' . $e->getMessage()
+            ]);
         }
     }
 }

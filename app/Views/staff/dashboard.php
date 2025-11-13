@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,23 +10,30 @@
     <script src="/js/realtime.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #004e89;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--cream-bg);
             min-height: 100vh;
         }
 
         .navbar {
             background: white !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
@@ -36,15 +43,15 @@
         }
 
         .sidebar {
-            background: white;
+            background: var(--black);
             min-height: calc(100vh - 76px);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             padding: 20px 0;
         }
 
         .sidebar-item {
             padding: 12px 20px;
-            color: #333;
+            color: #ffffff;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -52,10 +59,18 @@
             border-left: 3px solid transparent;
         }
 
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: var(--primary-color);
+            color: var(--black);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
         .notification-icon {
             position: relative;
             font-size: 1.3rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
             margin-right: 20px;
             transition: color 0.3s ease;
@@ -69,7 +84,7 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #dc3545;
+            background: var(--dark-orange);
             color: white;
             border-radius: 50%;
             min-width: 20px;
@@ -81,6 +96,7 @@
             align-items: center;
             justify-content: center;
             animation: pulse 2s infinite;
+            border: 2px solid white;
         }
 
         @keyframes pulse {
@@ -160,119 +176,6 @@
             border-radius: 50%;
         }
 
-        .notification-title {
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-        }
-
-        .notification-message {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .notification-time {
-            font-size: 0.75rem;
-            color: #adb5bd;
-        }
-
-        .notification-empty {
-            padding: 40px 20px;
-            text-align: center;
-            color: #6c757d;
-        }
-
-        .sidebar-item:hover, .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(255,107,53,0.1) 0%, rgba(255,107,53,0.05) 100%);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .sidebar-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .main-content {
-            padding: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            margin-bottom: 20px;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); color: #ff6b35; }
-            100% { transform: scale(1); }
-        }
-
-        /* Profile Dropdown Styles */
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .profile-trigger {
-            display: flex;
-            align-items: center;
-            padding: 8px 16px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .profile-trigger:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .profile-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            min-width: 220px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
-        }
-
-        .profile-menu.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .profile-header {
-            padding: 16px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
         .profile-header small {
             color: rgba(255, 255, 255, 0.8);
         }
@@ -310,6 +213,22 @@
             margin: 8px 0;
         }
 
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-left-color: var(--secondary-color);
+        }
+
         .stat-icon {
             width: 60px;
             height: 60px;
@@ -319,20 +238,20 @@
             justify-content: center;
             font-size: 24px;
             color: white;
-            margin-bottom: 15px;
+            margin: 0 auto 15px;
         }
 
-        .stat-icon.orange { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
-        .stat-icon.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .stat-icon.green { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
-        .stat-icon.purple { background: linear-gradient(135deg, #a044ff 0%, #6a3093 100%); }
-        .stat-icon.red { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); }
-        .stat-icon.yellow { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); }
+        .stat-icon.orange { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
+        .stat-icon.blue { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
+        .stat-icon.green { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
+        .stat-icon.purple { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
+        .stat-icon.red { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
+        .stat-icon.yellow { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
 
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
-            color: #333;
+            color: var(--black);
             margin: 10px 0;
         }
 
@@ -358,11 +277,12 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
             margin-bottom: 25px;
         }
 
         .section-title {
-            color: var(--accent-color);
+            color: var(--black);
             font-weight: bold;
             margin-bottom: 20px;
             display: flex;
@@ -374,10 +294,158 @@
             color: var(--primary-color);
         }
 
+        /* Custom Button Styles - Orange & Black Theme */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--light-black);
+            border-color: var(--light-black);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            color: var(--dark-orange);
+            border-color: var(--dark-orange);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
         .chart-container {
             position: relative;
             height: 300px;
             margin-top: 20px;
+        }
+
+        .main-content {
+            padding: 30px;
+            background-color: var(--cream-bg);
+            min-height: calc(100vh - 76px);
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            padding: 10px 18px;
+            background: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: 600;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .profile-trigger:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-header {
+            padding: 16px 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--black);
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+
+        .notification-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #adb5bd;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .sidebar {
+                min-height: auto;
+            }
+
+            .stat-card {
+                margin-bottom: 15px;
+            }
+
+            .dashboard-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
         }
     </style>
 </head>
@@ -460,7 +528,7 @@
                 </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Pets</span>
+                    <span>Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
@@ -478,7 +546,7 @@
 
             <!-- Main Content -->
             <div class="col-md-10 main-content">
-                <h2 class="mb-4" style="color: white;">
+                <h2 class="mb-4" style="color: Black;">
                     <i class="fas fa-chart-line"></i> Staff Dashboard
                 </h2>
 
@@ -586,7 +654,7 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="row mt-4">
+                <!-- <div class="row mt-4">
                     <div class="col-12">
                         <div class="stat-card">
                             <h5 class="mb-3">
@@ -605,7 +673,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

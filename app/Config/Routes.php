@@ -95,6 +95,11 @@ $routes->get('/fluffy-admin/api/pending-delivery-confirmations', 'AdminControlle
     $routes->put('/fluffy-admin/api/categories/(:num)/toggle-status', 'AdminController::toggleCategoryStatus/$1');
     $routes->delete('/fluffy-admin/api/categories/(:num)', 'AdminController::deleteCategory/$1');
     
+    // Category prices routes
+    $routes->get('/fluffy-admin/api/category-prices', 'AdminController::getCategoryPrices');
+    $routes->post('/fluffy-admin/api/category-prices', 'AdminController::createCategoryPrice');
+    $routes->put('/fluffy-admin/api/category-prices/(:num)', 'AdminController::updateCategoryPrice/$1');
+    
     $routes->get('/fluffy-admin/api/orders', 'AdminController::getOrders');
     $routes->put('/fluffy-admin/api/orders/(:num)/status', 'AdminController::updateOrderStatus/$1');
     
@@ -159,6 +164,9 @@ $routes->group('', ['filter' => 'staff'], function($routes) {
     $routes->post('/staff/api/order-details-delivery', 'StaffController::getOrderDetailsForDelivery');
     $routes->get('/staff/api/payments', 'StaffController::getPayments');
     $routes->put('/staff/api/payments/(:num)/update', 'StaffController::updatePaymentStatus/$1');
+    
+    // Category prices (read-only for staff)
+    $routes->get('/staff/api/category-prices', 'StaffController::getCategoryPrices');
     
     // Staff notifications
     $routes->get('/staff/api/notifications', 'StaffController::getNotifications');

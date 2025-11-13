@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,19 +9,30 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--cream-bg);
             min-height: 100vh;
         }
 
         .navbar {
             background: white !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
@@ -31,15 +42,15 @@
         }
 
         .sidebar {
-            background: white;
+            background: var(--black);
             min-height: calc(100vh - 76px);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             padding: 20px 0;
         }
 
         .sidebar-item {
             padding: 12px 20px;
-            color: #333;
+            color: #ffffff;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -48,26 +59,93 @@
         }
 
         .sidebar-item:hover, .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(255,107,53,0.1) 0%, rgba(255,107,53,0.05) 100%);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
+            background: var(--sidebar-hover);
+            color: var(--black);
+            font-weight: 600;
         }
 
         .sidebar-item i {
-            margin-right: 10px;
             width: 20px;
+            margin-right: 15px;
             text-align: center;
         }
 
         .main-content {
             padding: 30px;
+            background-color: var(--cream-bg);
+            min-height: calc(100vh - 76px);
         }
 
-        .content-card {
+        .page-card {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 600;
+            color: var(--black);
+            white-space: nowrap;
+            padding: 12px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            color: var(--dark-orange);
+            border-color: var(--dark-orange);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
         }
 
         .table img {
@@ -80,6 +158,74 @@
         .badge-available { background: #28a745; }
         .badge-sold { background: #dc3545; }
         .badge-reserved { background: #ffc107; color: #000; }
+
+        /* Price Selection Buttons */
+        .price-option-btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 5px;
+            background: white;
+            border: 2px solid #17a2b8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .price-option-btn:hover {
+            background: #17a2b8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .price-option-btn.selected {
+            background: #17a2b8;
+            color: white;
+            border-color: #138496;
+            font-weight: bold;
+        }
+
+        .price-option-btn .price-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .price-option-btn .price-value {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .price-options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #add_price[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .sidebar {
+                min-height: auto;
+            }
+
+            .page-card {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -111,7 +257,7 @@
                 </a>
                 <a href="/staff/animals" class="sidebar-item active">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Pets</span>
+                    <span>Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>
@@ -135,7 +281,7 @@
                             <i class="fas fa-paw"></i> List of Pets
                         </h3>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnimalModal">
-                            <i class="fas fa-plus me-2"></i>Add New Animal
+                            <i class="fas fa-plus me-2"></i>Add New Pet
                         </button>
                     </div>
 
@@ -150,12 +296,11 @@
                                     <th>Gender</th>
                                     <th>Price</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="animalsTableBody">
                                 <tr>
-                                    <td colspan="8" class="text-center">
+                                    <td colspan="7" class="text-center">
                                         <div class="spinner-border text-primary" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
@@ -174,31 +319,40 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Animal</h5>
+                    <h5 class="modal-title">Add New Pet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="addAnimalForm" enctype="multipart/form-data">
                     <div class="modal-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Note:</strong> Animals added by staff require admin approval before they become visible to customers.
+                            <strong>Note:</strong> Pets added by staff require admin approval before they become visible to customers.
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Animal Name <span class="text-danger">*</span></label>
+                                <label class="form-label">Pet Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="name" required>
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Category <span class="text-danger">*</span></label>
-                                <select class="form-select" name="category_id" required>
+                                <select class="form-select" name="category_id" id="add_category_id" required>
                                     <option value="">Select Category</option>
                                     <?php foreach ($categories as $cat): ?>
                                         <option value="<?= $cat['id'] ?>"><?= esc($cat['name']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                        </div>
+
+                        <!-- Category Prices Display -->
+                        <div class="mb-3" id="categoryPricesContainer" style="display: none;">
+                            <label class="form-label">Fixed Prices for this Category (Set by Admin) <span class="text-danger">*</span></label>
+                            <select class="form-select" id="priceSelect" required>
+                                <option value="">Select a fixed price option</option>
+                            </select>
+                            <small class="text-muted">Select a price option to auto-fill the price field below</small>
                         </div>
 
                         <div class="row">
@@ -218,19 +372,20 @@
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱) <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" class="form-control" name="price" min="0" required>
+                                <input type="number" step="0.01" class="form-control" name="price" id="add_price" min="0" required readonly>
+                                <small class="text-muted">Select a fixed price option above to auto-fill</small>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description" rows="4" placeholder="Describe the animal's characteristics, temperament, etc."></textarea>
+                            <textarea class="form-control" name="description" rows="4" placeholder="Describe the pet's characteristics, temperament, etc."></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Image <span class="text-danger">*</span></label>
                             <input type="file" class="form-control" name="image" accept="image/*" required id="addImageInput">
-                            <small class="text-muted">Upload an image of the animal</small>
+                            <small class="text-muted">Upload an image of the pet</small>
                             <div class="mt-2">
                                 <img id="addImagePreview" class="img-thumbnail" style="display: none; max-width: 200px; max-height: 200px;">
                             </div>
@@ -319,6 +474,28 @@
         // Load animals on page load
         loadAnimals();
 
+        // Reset price input and dropdown when modal is closed
+        const addAnimalModal = document.getElementById('addAnimalModal');
+        if (addAnimalModal) {
+            addAnimalModal.addEventListener('hidden.bs.modal', function() {
+                const priceInput = document.getElementById('add_price');
+                const priceSelect = document.getElementById('priceSelect');
+                const pricesContainer = document.getElementById('categoryPricesContainer');
+                
+                if (priceInput) {
+                    priceInput.value = '';
+                    priceInput.setAttribute('readonly', 'readonly');
+                }
+                if (priceSelect) {
+                    priceSelect.innerHTML = '<option value="">Select a fixed price option</option>';
+                    priceSelect.value = '';
+                }
+                if (pricesContainer) {
+                    pricesContainer.style.display = 'none';
+                }
+            });
+        }
+
         // Image preview for add animal form
         document.getElementById('addImageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -332,6 +509,95 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // Load category prices when category is selected
+        const addCategorySelect = document.getElementById('add_category_id');
+        const priceSelect = document.getElementById('priceSelect');
+        const priceInput = document.getElementById('add_price');
+        
+        if (addCategorySelect && priceSelect && priceInput) {
+            // Handle price selection from dropdown
+            priceSelect.addEventListener('change', function() {
+                const selectedValue = this.value;
+                if (selectedValue && selectedValue !== '') {
+                    priceInput.value = selectedValue;
+                    priceInput.setAttribute('readonly', 'readonly');
+                } else {
+                    priceInput.value = '';
+                    priceInput.setAttribute('readonly', 'readonly');
+                }
+            });
+            
+            addCategorySelect.addEventListener('change', function() {
+                const categoryId = parseInt(this.value);
+                const pricesContainer = document.getElementById('categoryPricesContainer');
+                
+                // Reset price input and dropdown when category changes
+                if (priceInput) {
+                    priceInput.value = '';
+                    priceInput.setAttribute('readonly', 'readonly');
+                }
+                if (priceSelect) {
+                    priceSelect.innerHTML = '<option value="">Select a fixed price option</option>';
+                    priceSelect.value = '';
+                }
+                
+                if (!categoryId || isNaN(categoryId)) {
+                    if (pricesContainer) pricesContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Show container and loading state
+                if (pricesContainer) pricesContainer.style.display = 'block';
+                priceSelect.disabled = true;
+                priceSelect.innerHTML = '<option value="">Loading prices...</option>';
+                
+                // Fetch all prices and filter for selected category
+                fetch('/staff/api/category-prices')
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error('Network response was not ok: ' + r.status);
+                        }
+                        return r.json();
+                    })
+                    .then(response => {
+                        console.log('Category prices response:', response);
+                        
+                        if (response.success && response.data && Array.isArray(response.data)) {
+                            // Filter prices for the selected category (use loose comparison to handle string/int)
+                            const categoryPrices = response.data.filter(p => {
+                                return p.category_id == categoryId;
+                            });
+                            
+                            console.log('Filtered prices for category', categoryId, ':', categoryPrices);
+                            
+                            if (categoryPrices.length > 0) {
+                                // Populate dropdown with price options
+                                let optionsHtml = '<option value="">Select a fixed price option</option>';
+                                categoryPrices.forEach(price => {
+                                    const priceType = price.price_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                    const priceValue = parseFloat(price.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    optionsHtml += `<option value="${price.price}">${priceType} (₱${priceValue})</option>`;
+                                });
+                                priceSelect.innerHTML = optionsHtml;
+                                priceSelect.disabled = false;
+                            } else {
+                                priceSelect.innerHTML = '<option value="">No fixed prices set for this category yet</option>';
+                                priceSelect.disabled = true;
+                            }
+                        } else {
+                            console.warn('Unexpected response format:', response);
+                            priceSelect.innerHTML = '<option value="">No fixed prices set for this category yet</option>';
+                            priceSelect.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading category prices:', error);
+                        priceSelect.innerHTML = '<option value="">Error loading prices. Please try again.</option>';
+                        priceSelect.disabled = true;
+                    });
+            });
+        }
 
         // Add Animal Form submission
         document.getElementById('addAnimalForm').addEventListener('submit', function(e) {
@@ -353,10 +619,24 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
-                        text: 'Animal submitted for admin approval successfully!'
+                        text: 'Pet submitted for admin approval successfully!'
                     });
                     this.reset();
                     document.getElementById('addImagePreview').style.display = 'none';
+                    
+                    // Reset price input and dropdown
+                    const priceInput = document.getElementById('add_price');
+                    const priceSelect = document.getElementById('priceSelect');
+                    
+                    if (priceInput) {
+                        priceInput.value = '';
+                        priceInput.setAttribute('readonly', 'readonly');
+                    }
+                    if (priceSelect) {
+                        priceSelect.innerHTML = '<option value="">Select a fixed price option</option>';
+                        priceSelect.value = '';
+                    }
+                    
                     bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide();
                     // Optionally reload animals to show the new pending animal
                     // loadAnimals();
@@ -393,13 +673,13 @@
                         renderAnimals(data.data);
                     } else {
                         document.getElementById('animalsTableBody').innerHTML = 
-                            '<tr><td colspan="8" class="text-center text-danger">Failed to load animals</td></tr>';
+                            '<tr><td colspan="7" class="text-center text-danger">Failed to load animals</td></tr>';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('animalsTableBody').innerHTML = 
-                        '<tr><td colspan="8" class="text-center text-danger">Network error</td></tr>';
+                        '<tr><td colspan="7" class="text-center text-danger">Network error</td></tr>';
                 });
         }
 
@@ -407,7 +687,7 @@
             const tbody = document.getElementById('animalsTableBody');
             
             if (animals.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No available animals found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No animals found</td></tr>';
                 return;
             }
 
@@ -423,11 +703,6 @@
                     <td>₱${parseFloat(animal.price).toLocaleString()}</td>
                     <td>
                         <span class="badge badge-${animal.status}">${animal.status}</span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="editAnimal(${animal.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
                     </td>
                 </tr>
             `).join('');

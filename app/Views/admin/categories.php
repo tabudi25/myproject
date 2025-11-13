@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,16 +13,23 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
-            --sidebar-bg: #343a40;
-            --sidebar-hover: #495057;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .admin-wrapper {
@@ -43,7 +50,7 @@
 
         .sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid #495057;
+            border-bottom: 2px solid var(--primary-color);
             text-align: center;
         }
 
@@ -61,14 +68,14 @@
         }
 
         .sidebar-menu li {
-            border-bottom: 1px solid #495057;
+            border-bottom: 1px solid var(--light-black);
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
             padding: 15px 20px;
-            color: #adb5bd;
+            color: #ffffff;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -76,7 +83,8 @@
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
             background: var(--sidebar-hover);
-            color: white;
+            color: var(--black);
+            font-weight: 600;
         }
 
         .sidebar-menu i {
@@ -94,7 +102,8 @@
         .top-navbar {
             background: white;
             padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
             display: flex;
             justify-content: between;
             align-items: center;
@@ -104,8 +113,13 @@
             background: none;
             border: none;
             font-size: 1.2rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            color: var(--primary-color);
         }
 
         .admin-user {
@@ -119,7 +133,7 @@
         .notification-icon {
             position: relative;
             font-size: 1.3rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
             transition: color 0.3s ease;
         }
@@ -132,7 +146,7 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #dc3545;
+            background: var(--dark-orange);
             color: white;
             border-radius: 50%;
             min-width: 20px;
@@ -144,6 +158,7 @@
             align-items: center;
             justify-content: center;
             animation: pulse 2s infinite;
+            border: 2px solid white;
         }
 
         @keyframes pulse {
@@ -224,7 +239,7 @@
 
         .notification-title {
             font-weight: 600;
-            color: var(--accent-color);
+            color: var(--black);
             margin-bottom: 5px;
         }
 
@@ -298,7 +313,7 @@
 
         .profile-header {
             padding: 16px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             border-radius: 12px 12px 0 0;
         }
@@ -363,13 +378,86 @@
             background:#fff; 
             border-radius:12px; 
             padding:20px; 
-            box-shadow:0 2px 10px rgba(0,0,0,.05); 
+            box-shadow:0 2px 10px rgba(0,0,0,.1);
+            border-top: 4px solid var(--primary-color);
         }
         .category-image { 
             width:50px; 
             height:50px; 
             object-fit:cover; 
             border-radius:8px; 
+        }
+
+        /* Custom Button Styles - Orange & Black Theme */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--light-black);
+            border-color: var(--light-black);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            color: var(--dark-orange);
+            border-color: var(--dark-orange);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-outline-success {
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-outline-success:hover {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--black);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-color: var(--primary-color) var(--primary-color) white;
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            border-bottom-color: var(--primary-color);
         }
     </style>
 </head>
@@ -493,29 +581,76 @@
 
             <!-- Content Area -->
             <div class="content-area">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="mb-0">List of Categories</h4>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                        <i class="fas fa-plus me-2"></i>Add Category
-                    </button>
-                </div>
-                <div class="page-card">
-                    <div class="table-responsive">
-                        <table class="table align-middle" id="categoriesTable">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Image</th>
-                                    <th>Status</th>
-                                    <th>Animals</th>
-                                    <th style="width:130px">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="6" class="text-center py-4">Loading...</td></tr>
-                            </tbody>
-                        </table>
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs mb-3" id="categoriesTab" role="tablist" style="border-bottom: 2px solid #dee2e6;">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="categories-list-tab" data-bs-toggle="tab" data-bs-target="#categories-list" type="button" role="tab" aria-controls="categories-list" aria-selected="true">
+                            <i class="fas fa-list me-2"></i>List of Categories
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="prices-list-tab" data-bs-toggle="tab" data-bs-target="#prices-list" type="button" role="tab" aria-controls="prices-list" aria-selected="false">
+                            <i class="fas fa-dollar-sign me-2"></i>List of Prices
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="categoriesTabContent">
+                    <!-- Categories List Tab -->
+                    <div class="tab-pane fade show active" id="categories-list" role="tabpanel" aria-labelledby="categories-list-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">List of Categories</h4>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="fas fa-plus me-2"></i>Add Category
+                            </button>
+                        </div>
+                        <div class="page-card">
+                            <div class="table-responsive">
+                                <table class="table align-middle" id="categoriesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Image</th>
+                                            <th>Status</th>
+                                            <th>Animals</th>
+                                            <th style="width:130px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="6" class="text-center py-4">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prices List Tab -->
+                    <div class="tab-pane fade" id="prices-list" role="tabpanel" aria-labelledby="prices-list-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">List of Prices for Pet Categories</h4>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPriceModal">
+                                <i class="fas fa-plus me-2"></i>Add Price
+                            </button>
+                        </div>
+                        <div class="page-card">
+                            <div class="table-responsive">
+                                <table class="table align-middle" id="pricesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Price Type</th>
+                                            <th>Price (₱)</th>
+                                            <th style="width:150px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="4" class="text-center py-4">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -562,6 +697,76 @@
   </div>
 </div>
 
+<!-- Add/Edit Price Modal -->
+<div class="modal fade" id="addPriceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Price</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="addPriceForm">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">Category *</label>
+                <select class="form-control" name="category_id" id="price_category_id" required>
+                    <option value="">Select Category</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Price Type *</label>
+                <select class="form-control" name="price_type" id="price_type" required disabled>
+                    <option value="">Please select a category first</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Price (₱) *</label>
+                <input type="number" step="0.01" class="form-control" name="price" id="price_value" required min="0" placeholder="0.00">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Price</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Price Modal -->
+<div class="modal fade" id="editPriceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Price</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editPriceForm">
+        <input type="hidden" id="edit_price_id" name="id">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">Category *</label>
+                <select class="form-control" name="category_id" id="edit_price_category_id" required>
+                    <option value="">Select Category</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Price Type *</label>
+                <input type="text" class="form-control" name="price_type" id="edit_price_type" required readonly style="background-color: #e9ecef;">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Price (₱) *</label>
+                <input type="number" step="0.01" class="form-control" name="price" id="edit_price_value" required min="0">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Price</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -970,6 +1175,390 @@ function toggleCategoryStatus(categoryId, currentStatus, event) {
   });
   });
 }
+
+// ==================== PRICE MANAGEMENT ====================
+
+let pricesTable = null;
+let allCategories = [];
+
+// Category-specific price types mapping
+const categoryPriceTypes = {
+    'Dog': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'puppy_price_male', label: 'Puppy Price (Male)' },
+        { value: 'puppy_price_female', label: 'Puppy Price (Female)' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Dogs': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'puppy_price_male', label: 'Puppy Price (Male)' },
+        { value: 'puppy_price_female', label: 'Puppy Price (Female)' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Cat': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'kitten_price', label: 'Kitten Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Cats': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'kitten_price', label: 'Kitten Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Bird': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price', label: 'Baby Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Birds': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price', label: 'Baby Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Fish': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'small_size', label: 'Small Size' },
+        { value: 'medium_size', label: 'Medium Size' },
+        { value: 'large_size', label: 'Large Size' },
+        { value: 'extra_large', label: 'Extra Large' }
+    ],
+    'Rabbit': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price', label: 'Baby Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Rabbits': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price', label: 'Baby Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Hamster': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price', label: 'Baby Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ],
+    'Hamsters': [
+        { value: 'base_price', label: 'Base Price' },
+        { value: 'male_price', label: 'Male Price' },
+        { value: 'female_price', label: 'Female Price' },
+        { value: 'baby_price', label: 'Baby Price' },
+        { value: 'adult_price_male', label: 'Adult Price (Male)' },
+        { value: 'adult_price_female', label: 'Adult Price (Female)' },
+        { value: 'senior_price_male', label: 'Senior Price (Male)' },
+        { value: 'senior_price_female', label: 'Senior Price (Female)' }
+    ]
+};
+
+// Update price type dropdown based on selected category
+function updatePriceTypesForCategory(categoryName) {
+    const priceTypeSelect = document.getElementById('price_type');
+    
+    if (!categoryName) {
+        priceTypeSelect.innerHTML = '<option value="">Please select a category first</option>';
+        priceTypeSelect.disabled = true;
+        return;
+    }
+    
+    // Normalize category name (handle case and plural/singular)
+    const normalizedName = categoryName.trim();
+    let priceTypes = categoryPriceTypes[normalizedName] || 
+                     categoryPriceTypes[normalizedName + 's'] || 
+                     categoryPriceTypes[normalizedName.slice(0, -1)] || // Remove 's' if plural
+                     [];
+    
+    // Try case-insensitive matching
+    if (priceTypes.length === 0) {
+        for (const key in categoryPriceTypes) {
+            if (key.toLowerCase() === normalizedName.toLowerCase() || 
+                key.toLowerCase() === (normalizedName + 's').toLowerCase() ||
+                key.toLowerCase() === normalizedName.slice(0, -1).toLowerCase()) {
+                priceTypes = categoryPriceTypes[key];
+                break;
+            }
+        }
+    }
+    
+    if (priceTypes.length > 0) {
+        priceTypeSelect.innerHTML = '<option value="">Select Price Type</option>';
+        priceTypes.forEach(type => {
+            priceTypeSelect.innerHTML += `<option value="${type.value}">${type.label}</option>`;
+        });
+        priceTypeSelect.disabled = false;
+    } else {
+        priceTypeSelect.innerHTML = '<option value="">No predefined types for this category</option>';
+        priceTypeSelect.disabled = false;
+    }
+}
+
+// Load categories for dropdown
+function loadCategoriesForDropdown() {
+    fetch('/fluffy-admin/api/categories')
+        .then(r => r.json())
+        .then(({success, data}) => {
+            if (success && data) {
+                allCategories = data;
+                const select = document.getElementById('price_category_id');
+                const editSelect = document.getElementById('edit_price_category_id');
+                
+                // Clear existing options except first
+                select.innerHTML = '<option value="">Select Category</option>';
+                editSelect.innerHTML = '<option value="">Select Category</option>';
+                
+                data.forEach(cat => {
+                    if (cat.status === 'active') {
+                        const option = `<option value="${cat.id}" data-name="${cat.name}">${cat.name}</option>`;
+                        select.innerHTML += option;
+                        editSelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+                    }
+                });
+                
+                // Add event listener for category change in add price modal
+                select.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const categoryName = selectedOption ? selectedOption.getAttribute('data-name') : '';
+                    updatePriceTypesForCategory(categoryName);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading categories:', error));
+}
+
+
+// Load prices
+function loadPrices() {
+    fetch('/fluffy-admin/api/category-prices')
+        .then(r => r.json())
+        .then(({success, data}) => {
+            const tbody = document.querySelector('#pricesTable tbody');
+            if (!success) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load prices</td></tr>';
+                if (pricesTable) { pricesTable.destroy(); pricesTable = null; }
+                return;
+            }
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No prices set yet</td></tr>';
+                if (pricesTable) { pricesTable.destroy(); pricesTable = null; }
+                return;
+            }
+            
+            tbody.innerHTML = data.map(p => {
+                const category = allCategories.find(c => c.id == p.category_id);
+                const categoryName = category ? category.name : 'Unknown';
+                return `
+                    <tr>
+                        <td><strong>${categoryName}</strong></td>
+                        <td>${p.price_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                        <td>₱${parseFloat(p.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editPrice(${p.id})">
+                                <i class="fas fa-edit"></i> Update
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Destroy existing DataTable if it exists
+            if (pricesTable) {
+                pricesTable.destroy();
+            }
+            
+            // Initialize DataTables
+            pricesTable = $('#pricesTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                order: [[0, 'asc']],
+                language: {
+                    search: "Search:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)"
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading prices:', error);
+            const tbody = document.querySelector('#pricesTable tbody');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading prices</td></tr>';
+            if (pricesTable) { pricesTable.destroy(); pricesTable = null; }
+        });
+}
+
+// Add price form submission
+document.getElementById('addPriceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const priceType = formData.get('price_type');
+    
+    if (!priceType) {
+        Swal.fire({icon: 'error', title: 'Error', text: 'Please select a price type'});
+        return;
+    }
+    
+    const data = {
+        category_id: formData.get('category_id'),
+        price_type: priceType,
+        price: formData.get('price')
+    };
+    
+    fetch('/fluffy-admin/api/category-prices', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addPriceModal')).hide();
+            this.reset();
+            const priceTypeSelect = document.getElementById('price_type');
+            priceTypeSelect.innerHTML = '<option value="">Please select a category first</option>';
+            priceTypeSelect.disabled = true;
+            document.getElementById('price_category_id').value = '';
+            loadPrices();
+            Swal.fire({icon: 'success', title: 'Success!', text: 'Price added successfully!'});
+        } else {
+            Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to add price'});
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
+    });
+});
+
+// Edit price
+function editPrice(id) {
+    fetch('/fluffy-admin/api/category-prices')
+        .then(r => r.json())
+        .then(({success, data}) => {
+            if (success && data) {
+                const price = data.find(p => p.id == id);
+                if (price) {
+                    document.getElementById('edit_price_id').value = price.id;
+                    document.getElementById('edit_price_category_id').value = price.category_id;
+                    document.getElementById('edit_price_type').value = price.price_type;
+                    document.getElementById('edit_price_value').value = price.price;
+                    
+                    new bootstrap.Modal(document.getElementById('editPriceModal')).show();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({icon: 'error', title: 'Error', text: 'Failed to load price details'});
+        });
+}
+
+// Edit price form submission
+document.getElementById('editPriceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const id = formData.get('id');
+    
+    const data = {
+        category_id: formData.get('category_id'),
+        price_type: formData.get('price_type'),
+        price: formData.get('price')
+    };
+    
+    fetch(`/fluffy-admin/api/category-prices/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editPriceModal')).hide();
+            this.reset();
+            loadPrices();
+            Swal.fire({icon: 'success', title: 'Success!', text: 'Price updated successfully!'});
+        } else {
+            Swal.fire({icon: 'error', title: 'Error', text: res.message || 'Failed to update price'});
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({icon: 'error', title: 'Error', text: 'Network error. Please try again.'});
+    });
+});
+
+// Reset price type dropdown when modal is opened
+document.getElementById('addPriceModal').addEventListener('show.bs.modal', function() {
+    const priceTypeSelect = document.getElementById('price_type');
+    priceTypeSelect.innerHTML = '<option value="">Please select a category first</option>';
+    priceTypeSelect.disabled = true;
+});
+
+// Reset price type dropdown when modal is closed
+document.getElementById('addPriceModal').addEventListener('hidden.bs.modal', function() {
+    const priceTypeSelect = document.getElementById('price_type');
+    priceTypeSelect.innerHTML = '<option value="">Please select a category first</option>';
+    priceTypeSelect.disabled = true;
+    document.getElementById('price_category_id').value = '';
+});
+
+// Load prices when prices tab is shown
+document.getElementById('prices-list-tab').addEventListener('shown.bs.tab', function() {
+    loadCategoriesForDropdown();
+    loadPrices();
+});
+
+// Load categories for dropdown on page load
+loadCategoriesForDropdown();
 
 </script>
 </body>

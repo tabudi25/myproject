@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,19 +14,30 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--cream-bg);
             min-height: 100vh;
         }
 
         .navbar {
             background: white !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
@@ -36,15 +47,15 @@
         }
 
         .sidebar {
-            background: white;
+            background: var(--black);
             min-height: calc(100vh - 76px);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             padding: 20px 0;
         }
 
         .sidebar-item {
             padding: 12px 20px;
-            color: #333;
+            color: #ffffff;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -53,30 +64,86 @@
         }
 
         .sidebar-item:hover, .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(255,107,53,0.1) 0%, rgba(255,107,53,0.05) 100%);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
+            background: var(--sidebar-hover);
+            color: var(--black);
+            font-weight: 600;
         }
 
         .sidebar-item i {
-            margin-right: 10px;
             width: 20px;
+            margin-right: 15px;
             text-align: center;
         }
 
         .main-content {
             padding: 30px;
+            background-color: var(--cream-bg);
+            min-height: calc(100vh - 76px);
         }
 
-        .content-card {
+        .page-card {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 600;
+            color: var(--black);
+            white-space: nowrap;
+            padding: 12px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
         }
 
         .stat-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             border-radius: 12px;
             padding: 20px;
@@ -103,6 +170,8 @@
         .table-responsive {
             border-radius: 8px;
             overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .nav-tabs .nav-link {
@@ -367,6 +436,30 @@
             object-fit: cover;
             border-radius: 8px;
         }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .sidebar {
+                min-height: auto;
+            }
+
+            .page-card, .content-card, .stat-card {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -398,7 +491,7 @@
                 </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Pets</span>
+                    <span>Pets</span>
                 </a>
                 <a href="/staff/orders" class="sidebar-item">
                     <i class="fas fa-shopping-cart"></i>

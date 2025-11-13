@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,24 +9,35 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--black);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
+            color: var(--primary-color) !important;
         }
 
         .cart-container {
@@ -35,6 +46,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             padding: 30px;
             margin-top: 30px;
+            border-top: 4px solid var(--primary-color);
         }
 
         .cart-item {
@@ -110,8 +122,9 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
             border-radius: 25px;
             padding: 15px 30px;
             font-weight: 600;
@@ -120,7 +133,9 @@
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
             transform: translateY(-2px);
         }
 
@@ -134,8 +149,30 @@
         }
 
         .btn-outline-primary:hover {
-            background: var(--primary-color);
+            background-color: var(--primary-color);
             border-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Navbar Links */
+        .navbar-nav .nav-link {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .btn-outline-light {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
         }
 
         .empty-cart {
@@ -209,7 +246,7 @@
 
         .notification-dropdown-header {
             padding: 15px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             display: flex;
             justify-content: space-between;

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,16 +10,23 @@
     <script src="/js/realtime.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
-            --sidebar-bg: #343a40;
-            --sidebar-hover: #495057;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .admin-wrapper {
@@ -44,7 +51,7 @@
 
         .sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid #495057;
+            border-bottom: 2px solid var(--primary-color);
             text-align: center;
         }
 
@@ -62,14 +69,14 @@
         }
 
         .sidebar-menu li {
-            border-bottom: 1px solid #495057;
+            border-bottom: 1px solid var(--light-black);
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
             padding: 15px 20px;
-            color: #adb5bd;
+            color: #ffffff;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -77,7 +84,8 @@
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
             background: var(--sidebar-hover);
-            color: white;
+            color: var(--black);
+            font-weight: 600;
         }
 
         .sidebar-menu i {
@@ -99,7 +107,8 @@
         .top-navbar {
             background: white;
             padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
             display: flex;
             justify-content: between;
             align-items: center;
@@ -109,8 +118,13 @@
             background: none;
             border: none;
             font-size: 1.2rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            color: var(--primary-color);
         }
 
         .admin-user {
@@ -124,7 +138,7 @@
         .notification-icon {
             position: relative;
             font-size: 1.3rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
             transition: color 0.3s ease;
         }
@@ -137,7 +151,7 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #dc3545;
+            background: var(--dark-orange);
             color: white;
             border-radius: 50%;
             min-width: 20px;
@@ -149,6 +163,7 @@
             align-items: center;
             justify-content: center;
             animation: pulse 2s infinite;
+            border: 2px solid white;
         }
 
         @keyframes pulse {
@@ -229,7 +244,7 @@
 
         .notification-title {
             font-weight: 600;
-            color: var(--accent-color);
+            color: var(--black);
             margin-bottom: 5px;
         }
 
@@ -303,7 +318,7 @@
 
         .profile-header {
             padding: 16px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             border-radius: 12px 12px 0 0;
         }
@@ -395,7 +410,7 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             display: flex;
             align-items: center;
@@ -407,7 +422,7 @@
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
-            color: var(--accent-color);
+            color: var(--black);
             margin-bottom: 5px;
         }
 
@@ -425,7 +440,7 @@
         }
 
         .section-title {
-            color: var(--accent-color);
+            color: var(--black);
             font-weight: bold;
             margin-bottom: 20px;
             display: flex;
@@ -443,7 +458,7 @@
 
         .table th {
             border-top: none;
-            color: var(--accent-color);
+            color: var(--black);
             font-weight: 600;
         }
 
@@ -453,16 +468,31 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
             border-radius: 8px;
             padding: 8px 16px;
             font-weight: 500;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
             transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-black);
+            border-color: var(--light-black);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
         }
 
         .quick-actions {
@@ -737,7 +767,7 @@
                 <!-- Sales Graph -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="dashboard-section" onclick="window.location.href='/fluffy-admin/sales-report'" style="cursor: pointer;"></div>
+                        <div class="dashboard-section" onclick="window.location.href='/fluffy-admin/sales-report'" style="cursor: pointer;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h4 class="section-title mb-0" >
                                     <i class="fas fa-chart-line"></i>

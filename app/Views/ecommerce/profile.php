@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,24 +9,35 @@
     <script src="/js/realtime.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--black);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
+            color: var(--primary-color) !important;
         }
 
         .profile-container {
@@ -38,10 +49,11 @@
         }
 
         .profile-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--black);
             color: white;
             padding: 40px 30px;
             text-align: center;
+            border-bottom: 4px solid var(--primary-color);
         }
 
         .profile-avatar {
@@ -96,8 +108,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -108,7 +119,7 @@
         .stat-number {
             font-size: 1.8rem;
             font-weight: bold;
-            color: var(--accent-color);
+            color: var(--black);
             margin-bottom: 5px;
         }
 
@@ -128,7 +139,7 @@
         }
 
         .section-title {
-            color: var(--accent-color);
+            color: var(--black);
             font-weight: bold;
             margin-bottom: 20px;
             display: flex;
@@ -153,15 +164,18 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
             border-radius: 25px;
             padding: 12px 30px;
             font-weight: 600;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
             transform: translateY(-2px);
         }
 
@@ -174,8 +188,30 @@
         }
 
         .btn-outline-primary:hover {
-            background: var(--primary-color);
+            background-color: var(--primary-color);
             border-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Navbar Links */
+        .navbar-nav .nav-link {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .btn-outline-light {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
         }
 
         .breadcrumb {
@@ -224,8 +260,7 @@
         }
 
         .quick-link:hover {
-            background: var(--primary-color);
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             transform: translateY(-2px);
         }
 
@@ -282,7 +317,7 @@
 
         .notification-dropdown-header {
             padding: 15px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             display: flex;
             justify-content: space-between;
@@ -317,84 +352,7 @@
             transform: translateY(-50%);
             width: 8px;
             height: 8px;
-            background: var(--primary-color);
-            border-radius: 50%;
-        }
-
-        .notification-dropdown-title {
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        .notification-dropdown-message {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .notification-dropdown-time {
-            font-size: 0.75rem;
-            color: #adb5bd;
-        }
-
-        .notification-dropdown-empty {
-            padding: 40px 20px;
-            text-align: center;
-            color: #6c757d;
-        }
-
-        .notification-dropdown-footer {
-            padding: 10px 20px;
-            text-align: center;
-            border-top: 1px solid #e9ecef;
-            background: #f8f9fa;
-        }
-
-        .notification-icon-wrapper {
-            position: relative;
-        }
-
-        @media (max-width: 768px) {
-            .profile-container {
-                margin-top: 20px;
-            }
-            
-            .profile-header {
-                padding: 30px 20px;
-            }
-            
-            .profile-content {
-                padding: 20px;
-            }
-            
-            .stats-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .quick-links {
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-paw me-2"></i>Fluffy Planet
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Real-time Clock -->
-                <div class="realtime-clock me-4">
-                    <div class="clock-time" style="font-size: 1rem; font-weight: bold; color: white;"></div>
+            background: var(--sidebar-hover); color: var(--black);"></div>
                     <div class="clock-date" style="font-size: 0.8rem; color: rgba(255,255,255,0.8);"></div>
                 </div>
                 

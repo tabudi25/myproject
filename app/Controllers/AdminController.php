@@ -9,6 +9,7 @@ use App\Models\OrderModel;
 use App\Models\DeliveryConfirmationModel;
 use App\Models\OrderItemModel;
 use App\Models\PendingAnimalModel;
+use App\Models\CategoryPriceModel;
 
 class AdminController extends BaseController
 {
@@ -19,6 +20,7 @@ class AdminController extends BaseController
     protected $orderItemModel;
     protected $deliveryModel;
     protected $pendingAnimalModel;
+    protected $categoryPriceModel;
 
     public function __construct()
     {
@@ -29,6 +31,7 @@ class AdminController extends BaseController
         $this->orderItemModel = new OrderItemModel();
         $this->deliveryModel = new DeliveryConfirmationModel();
         $this->pendingAnimalModel = new PendingAnimalModel();
+        $this->categoryPriceModel = new CategoryPriceModel();
     }
 
     public function animalsPage()
@@ -1504,6 +1507,161 @@ class AdminController extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Error in rejectDeliveryConfirmation: ' . $e->getMessage());
             return $this->response->setJSON(['success' => false, 'message' => 'Error rejecting delivery confirmation']);
+        }
+    }
+
+    // ==================== CATEGORY PRICES MANAGEMENT ====================
+    
+    public function getCategoryPrices()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $prices = $this->categoryPriceModel
+                ->orderBy('category_id', 'ASC')
+                ->orderBy('price_type', 'ASC')
+                ->findAll();
+
+            return $this->response->setJSON(['success' => true, 'data' => $prices]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getCategoryPrices: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error loading category prices']);
+        }
+    }
+
+    public function createCategoryPrice()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            // Get JSON data from request body
+            $json = $this->request->getJSON(true);
+            
+            if (!$json) {
+                // Fallback to POST data
+                $json = [
+                    'category_id' => $this->request->getPost('category_id'),
+                    'price_type' => $this->request->getPost('price_type'),
+                    'price' => $this->request->getPost('price')
+                ];
+            }
+
+            $categoryId = $json['category_id'] ?? null;
+            $priceType = $json['price_type'] ?? null;
+            $price = $json['price'] ?? null;
+
+            // Validation
+            if (empty($categoryId) || !is_numeric($categoryId)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Valid category is required']);
+            }
+
+            if (empty($priceType)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Price type is required']);
+            }
+
+            if (empty($price) || !is_numeric($price) || $price < 0) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Valid price is required']);
+            }
+
+            // Check if price already exists for this category and type
+            $existing = $this->categoryPriceModel
+                ->where('category_id', $categoryId)
+                ->where('price_type', $priceType)
+                ->first();
+
+            if ($existing) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Price for this category and type already exists. Please update it instead.']);
+            }
+
+            $data = [
+                'category_id' => $categoryId,
+                'price_type' => $priceType,
+                'price' => $price
+            ];
+
+            if ($this->categoryPriceModel->save($data)) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Price added successfully']);
+            } else {
+                $errors = $this->categoryPriceModel->errors();
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to add price: ' . implode(', ', $errors)]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error in createCategoryPrice: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error creating category price: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateCategoryPrice($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admin access required']);
+        }
+
+        try {
+            $price = $this->categoryPriceModel->find($id);
+            if (!$price) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Price not found']);
+            }
+
+            // Get JSON data from request body
+            $json = $this->request->getJSON(true);
+            
+            if (!$json) {
+                // Fallback to POST data
+                $json = [
+                    'category_id' => $this->request->getPost('category_id'),
+                    'price_type' => $this->request->getPost('price_type'),
+                    'price' => $this->request->getPost('price')
+                ];
+            }
+
+            $categoryId = $json['category_id'] ?? $price['category_id'];
+            $priceType = $json['price_type'] ?? $price['price_type'];
+            $newPrice = $json['price'] ?? null;
+
+            // Validation
+            if (empty($categoryId) || !is_numeric($categoryId)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Valid category is required']);
+            }
+
+            if (empty($priceType)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Price type is required']);
+            }
+
+            if (empty($newPrice) || !is_numeric($newPrice) || $newPrice < 0) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Valid price is required']);
+            }
+
+            // Check if another price exists for this category and type (excluding current)
+            $existing = $this->categoryPriceModel
+                ->where('category_id', $categoryId)
+                ->where('price_type', $priceType)
+                ->where('id !=', $id)
+                ->first();
+
+            if ($existing) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Price for this category and type already exists']);
+            }
+
+            $data = [
+                'category_id' => $categoryId,
+                'price_type' => $priceType,
+                'price' => $newPrice
+            ];
+
+            if ($this->categoryPriceModel->update($id, $data)) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Price updated successfully']);
+            } else {
+                $errors = $this->categoryPriceModel->errors();
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to update price: ' . implode(', ', $errors)]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error in updateCategoryPrice: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error updating category price: ' . $e->getMessage()]);
         }
     }
 }

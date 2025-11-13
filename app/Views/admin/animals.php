@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,16 +13,23 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
-            --sidebar-bg: #343a40;
-            --sidebar-hover: #495057;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .admin-wrapper {
@@ -43,7 +50,7 @@
 
         .sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid #495057;
+            border-bottom: 2px solid var(--primary-color);
             text-align: center;
         }
 
@@ -61,14 +68,14 @@
         }
 
         .sidebar-menu li {
-            border-bottom: 1px solid #495057;
+            border-bottom: 1px solid var(--black);
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
             padding: 15px 20px;
-            color: #adb5bd;
+            color: #ffffff;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -76,7 +83,8 @@
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
             background: var(--sidebar-hover);
-            color: white;
+            color: var(--black);
+            font-weight: 600;
         }
 
         .sidebar-menu i {
@@ -94,7 +102,8 @@
         .top-navbar {
             background: white;
             padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
             display: flex;
             justify-content: between;
             align-items: center;
@@ -104,8 +113,13 @@
             background: none;
             border: none;
             font-size: 1.2rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            color: var(--primary-color);
         }
 
         .admin-user {
@@ -119,7 +133,7 @@
         .notification-icon {
             position: relative;
             font-size: 1.3rem;
-            color: var(--accent-color);
+            color: var(--black);
             cursor: pointer;
             transition: color 0.3s ease;
         }
@@ -132,7 +146,7 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #dc3545;
+            background: var(--dark-orange);
             color: white;
             border-radius: 50%;
             min-width: 20px;
@@ -144,6 +158,7 @@
             align-items: center;
             justify-content: center;
             animation: pulse 2s infinite;
+            border: 2px solid white;
         }
 
         @keyframes pulse {
@@ -183,187 +198,19 @@
 
         .notification-header {
             padding: 15px 20px;
-            background: var(--primary-color);
+            background: var(--sidebar-hover); color: var(--black);
+            border-color: var(--black);
             color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .notification-body {
-            max-height: 400px;
-            overflow-y: auto;
+        .nav-tabs {
+            border-bottom-color: var(--primary-color);
         }
 
-        .notification-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e9ecef;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .notification-item:hover {
-            background: #f8f9fa;
-        }
-
-        .notification-item.unread {
-            background: #e3f2fd;
-        }
-
-        .notification-item.unread::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            background: var(--primary-color);
-            border-radius: 50%;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-        }
-
-        .notification-message {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .notification-time {
-            font-size: 0.75rem;
-            color: #adb5bd;
-        }
-
-        .notification-empty {
-            padding: 40px 20px;
-            text-align: center;
-            color: #6c757d;
-        }
-
-        /* Profile Dropdown Styles */
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-            z-index: 1000;
-        }
-
-        .profile-trigger {
-            display: flex;
-            align-items: center;
-            padding: 10px 18px;
-            background: var(--primary-color);
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-            font-weight: 600;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-            min-width: 120px;
-            justify-content: center;
-        }
-
-        .profile-trigger:hover {
-            background: var(--secondary-color);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .profile-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            min-width: 220px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
-        }
-
-        .profile-menu.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .profile-header {
-            padding: 16px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .profile-header small {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .profile-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-        }
-
-        .profile-item:hover {
-            background: #f8f9fa;
+        .nav-tabs .nav-link.active {
             color: var(--primary-color);
-        }
-
-        .profile-item.logout-item {
-            color: #dc3545;
-        }
-
-        .profile-item.logout-item:hover {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .profile-divider {
-            height: 1px;
-            background: #e9ecef;
-            margin: 8px 0;
-        }
-
-        .mark-all-read {
-            padding: 10px 20px;
-            text-align: center;
-            border-top: 1px solid #e9ecef;
-            background: #f8f9fa;
-            cursor: pointer;
-            color: var(--primary-color);
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .mark-all-read:hover {
-            background: #e9ecef;
-        }
-
-        .content-area {
-            padding: 30px;
-        }
-
-        .page-card { 
-            background:#fff; 
-            border-radius:12px; 
-            padding:20px; 
-            box-shadow:0 2px 10px rgba(0,0,0,.05); 
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
         }
         .table img { 
             width:50px; 
@@ -402,6 +249,172 @@
         .nav-tabs .nav-link .badge {
             font-size: 0.7rem;
             padding: 2px 6px;
+        }
+
+        /* Content Area Styling */
+        .content-area {
+            padding: 30px;
+            background-color: var(--cream-bg);
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 600;
+            color: var(--black);
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+
+        /* Profile Dropdown Styling */
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .profile-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .profile-header {
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 5px 0;
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--black);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .profile-item:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .profile-item.logout-item {
+            color: #dc3545;
+        }
+
+        .profile-item.logout-item:hover {
+            background: #fff5f5;
+            color: #dc3545;
+        }
+
+        /* Notification Styling */
+        .notification-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background: #fff5e6;
+            font-weight: 500;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--black);
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+
+        .notification-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #adb5bd;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(0);
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+
+            .page-card {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -624,6 +637,17 @@
                                     <option value="">Select Category</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <!-- Category Prices Display -->
+                        <div class="mb-3" id="categoryPricesContainer" style="display: none;">
+                            <label class="form-label">Fixed Prices for this Category (Set by Admin)</label>
+                            <div class="alert alert-info" id="categoryPricesDisplay">
+                                <i class="fas fa-info-circle"></i> Select a category to view fixed prices
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Birthdate *</label>
                                 <input type="date" class="form-control" name="birthdate" required max="<?= date('Y-m-d') ?>" placeholder="YYYY-MM-DD">
@@ -638,7 +662,8 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱) *</label>
-                                <input type="number" step="0.01" class="form-control" name="price" required min="0" placeholder="0.00">
+                                <input type="number" step="0.01" class="form-control" name="price" id="add_price" required min="0" placeholder="0.00">
+                                <small class="text-muted">Note: Prices shown above are fixed by admin and cannot be edited</small>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Description</label>
@@ -991,6 +1016,65 @@
                     addSelect.innerHTML = options;
                     editSelect.innerHTML = options;
                 });
+        }
+
+        // Load category prices when category is selected in Add Pet modal
+        const categorySelect = document.getElementById('categorySelect');
+        if (categorySelect) {
+            categorySelect.addEventListener('change', function() {
+                const categoryId = this.value;
+                const pricesContainer = document.getElementById('categoryPricesContainer');
+                const pricesDisplay = document.getElementById('categoryPricesDisplay');
+                
+                if (!categoryId) {
+                    if (pricesContainer) pricesContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Fetch prices for selected category using admin API
+                fetch(`/fluffy-admin/api/category-prices`)
+                    .then(r => r.json())
+                    .then(({success, data}) => {
+                        if (success && data) {
+                            // Filter prices for the selected category
+                            const categoryPrices = data.filter(p => p.category_id == categoryId);
+                            
+                            if (categoryPrices.length > 0) {
+                                let pricesHtml = '<div class="row">';
+                                categoryPrices.forEach(price => {
+                                    const priceType = price.price_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                    pricesHtml += `
+                                        <div class="col-md-6 mb-2">
+                                            <strong>${priceType}:</strong> ₱${parseFloat(price.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                        </div>
+                                    `;
+                                });
+                                pricesHtml += '</div>';
+                                if (pricesDisplay) {
+                                    pricesDisplay.innerHTML = pricesHtml;
+                                    if (pricesContainer) pricesContainer.style.display = 'block';
+                                }
+                            } else {
+                                if (pricesDisplay) {
+                                    pricesDisplay.innerHTML = '<i class="fas fa-info-circle"></i> No fixed prices set for this category yet.';
+                                    if (pricesContainer) pricesContainer.style.display = 'block';
+                                }
+                            }
+                        } else {
+                            if (pricesDisplay) {
+                                pricesDisplay.innerHTML = '<i class="fas fa-info-circle"></i> No fixed prices set for this category yet.';
+                                if (pricesContainer) pricesContainer.style.display = 'block';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading category prices:', error);
+                        if (pricesDisplay) {
+                            pricesDisplay.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading prices.';
+                            if (pricesContainer) pricesContainer.style.display = 'block';
+                        }
+                    });
+            });
         }
 
         // Add

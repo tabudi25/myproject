@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,57 +8,52 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
-            --sidebar-bg: #343a40;
-            --sidebar-hover: #495057;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .admin-wrapper { display: flex; min-height: 100vh; }
         .sidebar { width: 280px; background: var(--sidebar-bg); color: #fff; position: fixed; height: 100vh; overflow-y: auto; z-index: 1000; transition: all .3s ease; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #495057; text-align: center; }
+        .sidebar-header { padding: 20px; border-bottom: 2px solid var(--primary-color); text-align: center; }
         .sidebar-brand { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
         .sidebar-menu { padding: 0; margin: 0; list-style: none; }
-        .sidebar-menu li { border-bottom: 1px solid #495057; }
-        .sidebar-menu a { display: flex; align-items: center; padding: 15px 20px; color: #adb5bd; text-decoration: none; transition: all .3s ease; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--sidebar-hover); color: #fff; }
-        .sidebar-menu i { width: 20px; margin-right: 15px; text-align: center; }
+        .sidebar-menu li { border-bottom: 1px solid var(--black); }
+        .sidebar-menu a { display: flex; align-items: center; padding: 15px 20px; color: #ffffff; text-decoration: none; transition: all .3s ease; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--sidebar-hover); color: var(--black);
+        }
 
-        .main-content { flex: 1; margin-left: 280px; transition: all .3s ease; }
-        .top-navbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,.1); display: flex; justify-content: between; align-items: center; }
-        .sidebar-toggle { background: none; border: none; font-size: 1.2rem; color: var(--accent-color); cursor: pointer; }
-        .admin-user { display: flex; align-items: center; margin-left: auto; gap: 20px; z-index: 100; }
+        .btn-primary:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
 
-        .notification-icon { position: relative; font-size: 1.3rem; color: var(--accent-color); cursor: pointer; transition: color .3s ease; }
-        .notification-icon:hover { color: var(--primary-color); }
-        .notification-badge { position: absolute; top: -8px; right: -8px; background: #dc3545; color: #fff; border-radius: 50%; min-width: 20px; height: 20px; padding: 2px 6px; font-size: .7rem; font-weight: bold; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.1)} }
+        .btn-secondary {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
 
-        .notification-dropdown { position: absolute; top: 60px; right: 30px; width: 400px; max-height: 500px; background: #fff; border-radius: 10px; box-shadow: 0 5px 25px rgba(0,0,0,.15); display: none; z-index: 1000; overflow: hidden; }
-        .notification-dropdown.show { display: block; animation: slideDown .3s ease; }
-        @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-        .notification-header { padding: 15px 20px; background: var(--primary-color); color: #fff; display: flex; justify-content: space-between; align-items: center; }
-        .notification-body { max-height: 400px; overflow-y: auto; }
-        .notification-item { padding: 15px 20px; border-bottom: 1px solid #e9ecef; cursor: pointer; transition: background .2s; }
-        .notification-item:hover { background: #f8f9fa; }
-        .notification-item.unread { background: #e3f2fd; }
-        .notification-title { font-weight: 600; color: var(--accent-color); margin-bottom: 5px; }
-        .notification-message { font-size: .9rem; color: #6c757d; margin-bottom: 5px; }
-        .notification-time { font-size: .75rem; color: #adb5bd; }
-
-        .content-area { padding: 30px; }
-        .page-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
-        .animal-card { border: 1px solid #e9ecef; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; transition: all .3s ease; }
-        .animal-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,.1); transform: translateY(-2px); }
-        .animal-image { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; }
-        .status-badge { font-size: .8rem; padding: .5rem 1rem; border-radius: 20px; }
-        .btn-action { margin: .2rem; border-radius: 20px; padding: .5rem 1rem; }
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
+        }
     </style>
 </head>
 <body>

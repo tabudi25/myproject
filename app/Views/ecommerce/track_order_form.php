@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,8 +7,23 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--black);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -24,10 +39,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             padding: 40px;
             text-align: center;
+            border-top: 4px solid var(--primary-color);
         }
         .track-icon {
-            background: #ff6b35;
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             width: 80px;
             height: 80px;
             border-radius: 50%;
@@ -40,7 +55,7 @@
         .track-title {
             font-size: 28px;
             font-weight: bold;
-            color: #2c3e50;
+            color: var(--black);
             margin-bottom: 10px;
         }
         .track-subtitle {
@@ -54,11 +69,12 @@
             font-size: 16px;
         }
         .form-control:focus {
-            border-color: #ff6b35;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
         }
         .btn-track {
-            background: #ff6b35;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
             border: none;
             border-radius: 10px;
             padding: 15px 30px;
@@ -69,7 +85,8 @@
             transition: all 0.3s ease;
         }
         .btn-track:hover {
-            background: #e55a2b;
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
             transform: translateY(-2px);
         }
         .alert {
@@ -83,7 +100,7 @@
             display: inline-block;
         }
         .back-link:hover {
-            color: #ff6b35;
+            color: var(--primary-color);
         }
     </style>
 </head>

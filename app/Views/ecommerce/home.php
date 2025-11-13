@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,24 +9,35 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
-            --light-bg: #f8f9fa;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cream-bg);
         }
 
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--black) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
+            color: var(--primary-color) !important;
         }
 
         .search-bar {
@@ -35,10 +46,11 @@
         }
 
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--black);
             color: white;
             padding: 80px 0;
             text-align: center;
+            border-bottom: 4px solid var(--primary-color);
         }
 
 
@@ -61,6 +73,7 @@
             padding: 20px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
             transition: all 0.3s ease;
             text-decoration: none;
             color: inherit;
@@ -70,6 +83,7 @@
         .category-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-top-color: var(--dark-orange);
             text-decoration: none;
             color: inherit;
         }
@@ -85,6 +99,7 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
             transition: all 0.3s ease;
             height: 100%;
         }
@@ -92,6 +107,7 @@
         .animal-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-top-color: var(--dark-orange);
         }
 
         .animal-image {
@@ -121,19 +137,22 @@
             font-weight: bold;
             text-align: center;
             margin-bottom: 3rem;
-            color: var(--accent-color);
+            color: var(--black);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
             border-radius: 25px;
             padding: 10px 25px;
             font-weight: 500;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
             transform: translateY(-2px);
         }
 
@@ -141,13 +160,14 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #dc3545;
+            background: var(--dark-orange);
             color: white;
             border-radius: 50%;
             width: 20px;
             height: 20px;
             font-size: 0.8rem;
             display: flex;
+            border: 2px solid white;
             align-items: center;
             justify-content: center;
         }
@@ -170,15 +190,37 @@
 
         .stat-label {
             font-size: 1.1rem;
-            color: var(--accent-color);
+            color: var(--black);
             margin-top: 10px;
         }
 
         .footer {
-            background: var(--accent-color);
+            background: var(--black);
             color: white;
             padding: 40px 0;
             margin-top: 60px;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        /* Navbar Links */
+        .navbar-nav .nav-link {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .btn-outline-light {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
         }
 
         /* Notification Section Styles */
@@ -308,7 +350,7 @@
 
         .notification-dropdown-header {
             padding: 15px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             display: flex;
             justify-content: space-between;

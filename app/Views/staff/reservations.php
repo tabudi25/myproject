@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,19 +9,30 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--cream-bg);
             min-height: 100vh;
         }
 
         .navbar {
             background: white !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
@@ -31,15 +42,15 @@
         }
 
         .sidebar {
-            background: white;
+            background: var(--black);
             min-height: calc(100vh - 76px);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             padding: 20px 0;
         }
 
         .sidebar-item {
             padding: 12px 20px;
-            color: #333;
+            color: #ffffff;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -48,26 +59,36 @@
         }
 
         .sidebar-item:hover, .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(255,107,53,0.1) 0%, rgba(255,107,53,0.05) 100%);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
+            background: var(--sidebar-hover); color: var(--black);
         }
 
-        .sidebar-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
+        .btn-primary:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
         }
 
-        .main-content {
-            padding: 30px;
+        .btn-secondary {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
         }
 
-        .content-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .btn-secondary:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            color: var(--dark-orange);
+            border-color: var(--dark-orange);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
         }
 
         .table img {
@@ -112,7 +133,7 @@
                 </a>
                 <a href="/staff/animals" class="sidebar-item">
                     <i class="fas fa-paw"></i>
-                    <span>Manage Pets</span>
+                    <span>Pets</span>
                 </a>
                 <a href="/staff/reservations" class="sidebar-item active">
                     <i class="fas fa-calendar-check"></i>

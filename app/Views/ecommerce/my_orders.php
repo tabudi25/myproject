@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,24 +13,35 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--black);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
+            color: var(--primary-color) !important;
         }
 
         .orders-container {
@@ -39,6 +50,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             padding: 30px;
             margin-top: 30px;
+            border-top: 4px solid var(--primary-color);
         }
 
         .orders-table {
@@ -53,8 +65,9 @@
 
 
         .orders-table thead {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--black);
             color: white;
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .orders-table thead th {
@@ -166,7 +179,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             border: none;
             border-radius: 25px;
             padding: 8px 20px;
@@ -187,38 +200,7 @@
         }
 
         .btn-outline-primary:hover {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .empty-orders {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-orders i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #dee2e6;
-        }
-
-        .breadcrumb {
-            background: none;
-            padding: 20px 0;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            content: ">";
-            color: var(--primary-color);
-        }
-
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -226,6 +208,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* Navbar Links */
+        .navbar-nav .nav-link {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .btn-outline-light {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
         }
 
         .filter-tabs {
@@ -245,9 +249,7 @@
         }
 
         .filter-tab.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
         }
 
         .filter-tab:hover {
@@ -289,7 +291,7 @@
 
         .notification-dropdown-header {
             padding: 15px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             display: flex;
             justify-content: space-between;
@@ -325,75 +327,14 @@
             transform: translateY(-50%);
             width: 8px;
             height: 8px;
-            background: var(--primary-color);
-            border-radius: 50%;
-        }
-
-        .notification-dropdown-title {
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        .notification-dropdown-message {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .notification-dropdown-time {
-            font-size: 0.75rem;
-            color: #adb5bd;
-        }
-
-        .notification-dropdown-empty {
-            padding: 40px 20px;
-            text-align: center;
-            color: #6c757d;
-        }
-
-        .notification-dropdown-footer {
-            padding: 10px 20px;
-            text-align: center;
-            border-top: 1px solid #e9ecef;
-            background: #f8f9fa;
-        }
-
-        .notification-icon-wrapper {
-            position: relative;
-        }
-
-        /* Pagination Styles */
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .page-link {
-            color: var(--primary-color);
-            border: 2px solid #dee2e6;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .page-link:hover:not(.disabled) {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            background: var(--sidebar-hover); color: var(--black);
             border-color: var(--primary-color);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .page-item.active .page-link {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             border-color: var(--primary-color);
             color: white;
             font-weight: 600;

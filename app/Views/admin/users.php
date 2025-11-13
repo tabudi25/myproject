@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,16 +13,23 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <style>
     :root {
-        --primary-color: #ff6b35;
-        --secondary-color: #f7931e;
-        --accent-color: #2c3e50;
-        --sidebar-bg: #343a40;
-        --sidebar-hover: #495057;
-    }
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
+        }
 
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f8f9fa;
+        background-color: var(--cream-bg);
     }
 
     .admin-wrapper {
@@ -43,7 +50,7 @@
 
     .sidebar-header {
         padding: 20px;
-        border-bottom: 1px solid #495057;
+        border-bottom: 2px solid var(--primary-color);
         text-align: center;
     }
 
@@ -61,14 +68,14 @@
     }
 
     .sidebar-menu li {
-        border-bottom: 1px solid #495057;
+        border-bottom: 1px solid var(--light-black);
     }
 
     .sidebar-menu a {
         display: flex;
         align-items: center;
         padding: 15px 20px;
-        color: #adb5bd;
+        color: #ffffff;
         text-decoration: none;
         transition: all 0.3s ease;
     }
@@ -76,74 +83,14 @@
     .sidebar-menu a:hover,
     .sidebar-menu a.active {
         background: var(--sidebar-hover);
-        color: white;
+        color: var(--black);
+        font-weight: 600;
     }
 
     .sidebar-menu i {
         width: 20px;
         margin-right: 15px;
         text-align: center;
-    }
-
-    .main-content {
-        flex: 1;
-        margin-left: 280px;
-        transition: all 0.3s ease;
-    }
-
-    .top-navbar {
-        background: white;
-        padding: 15px 30px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        display: flex;
-        justify-content: between;
-        align-items: center;
-    }
-
-    .sidebar-toggle {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        color: var(--accent-color);
-        cursor: pointer;
-    }
-
-    .admin-user {
-        display: flex;
-        align-items: center;
-        margin-left: auto;
-        gap: 20px;
-        z-index: 100;
-    }
-
-    .notification-icon {
-        position: relative;
-        font-size: 1.3rem;
-        color: var(--accent-color);
-        cursor: pointer;
-        transition: color 0.3s ease;
-    }
-
-    .notification-icon:hover {
-        color: var(--primary-color);
-    }
-
-    .notification-badge {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #dc3545;
-        color: white;
-        border-radius: 50%;
-        min-width: 20px;
-        height: 20px;
-        padding: 2px 6px;
-        font-size: 0.7rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
@@ -200,6 +147,7 @@
         border-bottom: 1px solid #e9ecef;
         cursor: pointer;
         transition: background 0.2s;
+        position: relative;
     }
 
     .notification-item:hover {
@@ -207,24 +155,13 @@
     }
 
     .notification-item.unread {
-        background: #e3f2fd;
-    }
-
-    .notification-item.unread::before {
-        content: '';
-        position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 8px;
-        height: 8px;
-        background: var(--primary-color);
-        border-radius: 50%;
+        background: #fff3e0;
+        border-left: 4px solid var(--primary-color);
     }
 
     .notification-title {
         font-weight: 600;
-        color: var(--accent-color);
+        color: var(--black);
         margin-bottom: 5px;
     }
 
@@ -245,7 +182,6 @@
         color: #6c757d;
     }
 
-    /* Profile Dropdown Styles */
     .profile-dropdown {
         position: relative;
         display: inline-block;
@@ -266,6 +202,18 @@
         box-shadow: 0 3px 10px rgba(0,0,0,0.15);
         min-width: 120px;
         justify-content: center;
+    }
+
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        background: var(--primary-color);
+        border-radius: 50%;
     }
 
     .profile-trigger:hover {
@@ -298,7 +246,7 @@
 
     .profile-header {
         padding: 16px 20px;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background: var(--primary-color);
         color: white;
         border-radius: 12px 12px 0 0;
     }
@@ -355,15 +303,164 @@
         background: #e9ecef;
     }
 
+    .main-content {
+        flex: 1;
+        margin-left: 280px;
+        transition: all 0.3s ease;
+    }
+
+    .top-navbar {
+        background: white;
+        padding: 15px 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        border-bottom: 2px solid var(--primary-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sidebar-toggle {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: var(--black);
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .sidebar-toggle:hover {
+        color: var(--primary-color);
+    }
+
+    .admin-user {
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+        gap: 20px;
+        z-index: 100;
+    }
+
+    .notification-icon {
+        position: relative;
+        font-size: 1.3rem;
+        color: var(--black);
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .notification-icon:hover {
+        color: var(--primary-color);
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: var(--dark-orange);
+        color: white;
+        border-radius: 50%;
+        min-width: 20px;
+        height: 20px;
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+        border: 2px solid white;
+    }
+
     .content-area {
         padding: 30px;
+        background-color: var(--cream-bg);
+        min-height: calc(100vh - 80px);
     }
 
     .page-card { 
-        background:#fff; 
-        border-radius:12px; 
-        padding:20px; 
-        box-shadow:0 2px 10px rgba(0,0,0,.05); 
+        background: white; 
+        border-radius: 15px; 
+        padding: 25px; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-top: 4px solid var(--primary-color);
+        margin-bottom: 25px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        border-top: none;
+        color: var(--black);
+        font-weight: 600;
+        background-color: var(--warm-beige);
+        border-bottom: 2px solid var(--primary-color);
+        white-space: nowrap;
+        padding: 12px;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        padding: 12px;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+        }
+
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(0);
+        }
+
+        .content-area {
+            padding: 15px;
+        }
+
+        .page-card {
+            padding: 15px;
+        }
+    }
+
+    /* Custom Button Styles - Orange & Black Theme */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--dark-orange);
+        border-color: var(--dark-orange);
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: var(--light-black);
+        border-color: var(--light-black);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--black);
+        border-color: var(--black);
+        color: white;
     }
   </style>
 </head>

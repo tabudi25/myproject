@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,16 +8,23 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
-            --accent-color: #2c3e50;
-            --sidebar-bg: #343a40;
-            --sidebar-hover: #495057;
+            --primary-color: #FF6B35;
+            --secondary-color: #FF8C42;
+            --dark-orange: #FF4500;
+            --black: #000000;
+            --dark-black: #1a1a1a;
+            --light-black: #2d2d2d;
+            --accent-color: #1a1a1a;
+            --sidebar-bg: #000000;
+            --sidebar-hover: #FF6B35;
+            --cream-bg: #FFF8E7;
+            --warm-beige: #F5E6D3;
+            --light-gray: #f5f5f5;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--cream-bg);
         }
 
         .admin-wrapper {
@@ -38,7 +45,7 @@
 
         .sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid #495057;
+            border-bottom: 2px solid var(--primary-color);
             text-align: center;
         }
 
@@ -56,143 +63,31 @@
         }
 
         .sidebar-menu li {
-            border-bottom: 1px solid #495057;
+            border-bottom: 1px solid var(--black);
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
             padding: 15px 20px;
-            color: #adb5bd;
+            color: #ffffff;
             text-decoration: none;
             transition: all 0.3s ease;
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background: var(--sidebar-hover);
-            color: white;
-        }
-
-        .sidebar-menu i {
-            width: 20px;
-            margin-right: 15px;
-            text-align: center;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            transition: all 0.3s ease;
-        }
-
-        .top-navbar {
-            background: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: var(--accent-color);
-            cursor: pointer;
-        }
-
-        .admin-user {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-            gap: 20px;
-            z-index: 100;
-        }
-
-        .content-area {
-            padding: 30px;
-        }
-
-        .page-card { 
-            background:#fff; 
-            border-radius:12px; 
-            padding:20px; 
-            box-shadow:0 2px 10px rgba(0,0,0,.05); 
-        }
-
-        .delivery-card {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .delivery-card:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(255, 107, 53, 0.1);
-        }
-
-        .delivery-card.pending {
-            border-left: 5px solid #ffc107;
-        }
-
-        .delivery-card.confirmed {
-            border-left: 5px solid #28a745;
-        }
-
-        .delivery-card.rejected {
-            border-left: 5px solid #dc3545;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .badge-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .badge-confirmed {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-rejected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .photo-thumbnail {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .photo-thumbnail:hover {
-            transform: scale(1.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.3s;
+            background: var(--sidebar-hover); color: var(--black);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
+            background-color: var(--dark-orange);
+            border-color: var(--dark-orange);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--dark-orange); border-color: var(--dark-orange); color: white; transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
         }
     </style>
